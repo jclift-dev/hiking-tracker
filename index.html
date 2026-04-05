@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swiss Hiking & Cycling Tracker</title>
+<style>
+  :root {
+    --green:      #1D9E75;
+    --green-bg:   #E1F5EE;
+    --green-dark: #0F6E56;
+    --red:        #E24B4A;
+    --red-bg:     #FCEBEB;
+    --blue:       #185FA5;
+    --blue-bg:    #E6F1FB;
+    --blue-dark:  #0d3d6e;
+    --amber:      #854F0B;
+    --amber-bg:   #FAEEDA;
+    --gray:       #5F5E5A;
+    --gray-bg:    #F1EFE8;
+    --cycle:      #1062C0;
+    --cycle-bg:   #ddeeff;
+    --cycle-dark: #0a3d80;
+    --border:     rgba(0,0,0,0.12);
+    --surface:    #ffffff;
+    --page:       #f5f4f0;
+    --text:       #1a1a18;
+    --muted:      #6b6b67;
+    --radius:     10px;
+    --shadow:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface:  #1e1e1c;
+      --page:     #141412;
+      --text:     #e8e8e4;
+      --muted:    #9a9a96;
+      --border:   rgba(255,255,255,0.12);
+      --gray-bg:  #2a2a28;
+      --green-bg: #0a2a1e;
+      --blue-bg:  #0a1e38;
+      --amber-bg: #2a1a06;
+      --red-bg:   #2a0e0e;
+      --cycle-bg: #0a1e38;
+      --cycle-dark: #7db4f0;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--page); color: var(--text); font-size: 15px; line-height: 1.5; }
+  a { color: var(--blue); }
+
+  /* Layout */
+  .app { max-width: 800px; margin: 0 auto; padding: 0 1rem 4rem; }
+
+  /* Header */
+  .header {
+    position: relative;
+    margin: 0 -1rem 1.75rem;
+    padding: 2rem 1.5rem 1.5rem;
+    background: linear-gradient(135deg, #0F6E56 0%, #1D9E75 45%, #1062C0 100%);
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 L15 20 L30 35 L40 15 L60 40' stroke='rgba(255,255,255,0.07)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") repeat-x bottom;
+    background-size: 120px 60px;
+  }
+  .header-inner { position: relative; }
+  .header h1 {
+    font-size: 24px; font-weight: 700; letter-spacing: -0.5px;
+    color: #fff;
+  }
+  .header h1 span { opacity: 0.85; font-weight: 400; font-size: 20px; margin-left: 6px; }
+  .header p  { color: rgba(255,255,255,0.72); font-size: 13px; margin-top: 4px; }
+  .header-flag {
+    position: absolute; top: 1.25rem; right: 1.5rem;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  @media (prefers-color-scheme: dark) {
+    .header { background: linear-gradient(135deg, #0a3d2e 0%, #0d5c43 45%, #0a2d5e 100%); }
+  }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem 1rem; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .stat-value { font-size: 24px; font-weight: 600; }
+  .stat-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Progress bar */
+  .progress-wrap { background: var(--gray-bg); border-radius: 99px; height: 6px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; }
+
+  /* View toggle */
+  .view-btn { padding: 5px 16px; font-size: 13px; font-weight: 500; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .view-btn.active { background: var(--text); border-color: var(--text); color: var(--surface); }
+
+  /* Tabs + controls */
+  .tabs { display: flex; gap: 4px; margin-bottom: 1rem; }
+  .tab { padding: 6px 14px; font-size: 13px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .tab:hover { border-color: var(--green); color: var(--green); }
+  .tab.active { background: var(--green); border-color: var(--green); color: #fff; font-weight: 500; }
+
+  .controls { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .controls input, .controls select {
+    padding: 7px 11px; font-size: 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text); outline: none;
+  }
+  .controls input { flex: 1; min-width: 200px; }
+  .controls input:focus, .controls select:focus { border-color: var(--green); }
+
+  /* Route cards */
+  .route-list { display: flex; flex-direction: column; gap: 10px; }
+  .route-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .route-header { padding: 1rem 1.25rem; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; }
+  .route-header:hover { background: rgba(0,0,0,0.02); }
+
+  .route-num { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--gray-bg); border-radius: 5px; padding: 3px 7px; flex-shrink: 0; margin-top: 1px; }
+  .route-num.national      { background: var(--green-bg);  color: var(--green-dark); }
+  .route-num.cycle         { background: var(--cycle-bg);  color: var(--cycle-dark); }
+  .route-num.cycle.national{ background: var(--cycle-bg);  color: var(--cycle-dark); }
+  .badge-cycle  { background: var(--cycle-bg);  color: var(--cycle-dark); }
+
+  .route-meta { flex: 1; min-width: 0; }
+  .route-name { font-size: 16px; font-weight: 600; }
+  .route-sub  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .route-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .badge { font-size: 12px; padding: 3px 8px; border-radius: 99px; font-weight: 400; white-space: nowrap; }
+  .badge-green  { background: var(--green-bg);  color: var(--green-dark); }
+  .badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+  .badge-amber  { background: var(--amber-bg);  color: var(--amber); }
+  .badge-gray   { background: var(--gray-bg);   color: var(--gray); }
+  .badge-red    { background: var(--red-bg);    color: var(--red); }
+
+  .route-progress { margin-top: 10px; }
+  .route-prog-bar { background: var(--gray-bg); border-radius: 99px; height: 4px; overflow: hidden; }
+  .route-prog-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s; }
+  .route-prog-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .route-chevron { color: var(--muted); font-size: 14px; margin-top: 4px; flex-shrink: 0; transition: transform 0.2s; }
+  .route-card.open .route-chevron { transform: rotate(180deg); }
+
+  /* Stages */
+  .stages { border-top: 1px solid var(--border); }
+  .stage-row { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .stage-row:last-child { border-bottom: none; }
+  .stage-row:hover { background: rgba(0,0,0,0.02); }
+
+  .stage-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); }
+  .stage-check:hover { border-color: var(--green); }
+  .stage-check.done { background: var(--green); border-color: var(--green); }
+  .stage-check.done::after { content: ''; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: block; }
+
+  .stage-info { flex: 1; min-width: 0; }
+  .stage-title { font-size: 14px; font-weight: 500; }
+  .stage-title.done-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
+  .stage-places { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  .stage-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .stage-done-date { font-size: 11px; color: var(--green); margin-top: 2px; }
+
+
+  /* Load more */
+  .load-more { text-align: center; padding: 1.5rem; }
+  .load-more button { padding: 8px 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--muted); cursor: pointer; font-size: 14px; }
+  .load-more button:hover { border-color: var(--green); color: var(--green); }
+
+  /* Canton badges */
+  .canton-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--gray-bg); border-radius: 99px; padding: 2px 7px 2px 6px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .canton-badge img { border-radius: 2px; flex-shrink: 0; }
+
+  /* Empty / loading states */
+  .empty { text-align: center; padding: 4rem 1rem; color: var(--muted); }
+  .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 14px; }
+  .error-box { background: var(--red-bg); border: 1px solid var(--red); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 14px; color: var(--red); }
+  .error-box code { font-family: monospace; font-size: 13px; background: rgba(226,75,74,0.1); padding: 2px 5px; border-radius: 4px; }
+
+  /* Day trip slider */
+  .slider-row { display:flex; align-items:center; gap:12px; margin-bottom:1rem; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; }
+  .slider-label { font-size:13px; color:var(--muted); white-space:nowrap; }
+  .slider-label strong { color:var(--text); }
+  #sbb-slider { flex:1; accent-color:var(--green); cursor:pointer; }
+
+  /* SchweizMobil link */
+  .sm-link { font-size:11px; color:var(--muted); text-decoration:none; opacity:0.6; flex-shrink:0; margin-left:2px; }
+  .sm-link:hover { opacity:1; color:var(--green); }
+
+  /* Next stage highlight */
+  .stage-row.next-up { background: linear-gradient(90deg, rgba(29,158,117,0.06) 0%, transparent 100%); }
+  .next-up-badge { font-size:10px; font-weight:600; color:var(--green); background:var(--green-bg); border-radius:4px; padding:1px 5px; margin-left:6px; vertical-align:middle; }
+
+  /* Stage notes */
+  .stage-note { width:100%; margin-top:6px; padding:6px 8px; font-size:12px; font-family:inherit; color:var(--text); background:var(--gray-bg); border:1px solid transparent; border-radius:6px; resize:none; outline:none; line-height:1.4; transition:border-color 0.15s; min-height:32px; }
+  .stage-note:focus { border-color:var(--green); background:var(--surface); }
+  .stage-note::placeholder { color:var(--muted); }
+
+  /* Star ratings */
+  .stage-stars { display:flex; gap:1px; flex-shrink:0; align-self:center; }
+  .stage-stars .star { font-size:18px; cursor:pointer; color: var(--border); transition: color 0.08s; line-height:1; user-select:none; }
+
+  /* Difficulty colours — hiking */
+  .diff-t1 { background: var(--green-bg);  color: var(--green-dark); }
+  .diff-t2 { background: var(--blue-bg);   color: var(--blue); }
+  .diff-t3 { background: var(--amber-bg);  color: var(--amber); }
+  .diff-t4, .diff-t5, .diff-t6 { background: var(--red-bg); color: var(--red); }
+  /* Difficulty colours — cycling (easy/medium/difficult) */
+  .diff-easy       { background: var(--green-bg);  color: var(--green-dark); }
+  .diff-medium     { background: var(--amber-bg);  color: var(--amber); }
+  .diff-difficult  { background: var(--red-bg);    color: var(--red); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-flag">🇨🇭</div>
+      <h1>Swiss Trails <span>🥾 Hiking · 🚴 Cycling</span></h1>
+      <p id="subtitle">Loading routes…</p>
+    </div>
+  </div>
+
+  <div id="error-area"></div>
+
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat">
+      <div class="stat-label">Stages completed</div>
+      <div class="stat-value" id="stat-done">0</div>
+      <div class="stat-sub" id="stat-done-sub"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Km walked</div>
+      <div class="stat-value" id="stat-km">0</div>
+      <div class="stat-sub">km</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Km remaining</div>
+      <div class="stat-value" id="stat-remaining">—</div>
+      <div class="stat-sub">km</div>
+    </div>
+  </div>
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div style="display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap">
+    <button class="view-btn active" id="view-routes" onclick="setView('routes')">Routes</button>
+    <button class="view-btn" id="view-stages" onclick="setView('stages')">Stages</button>
+    <div style="flex:1"></div>
+    <button class="view-btn active" id="land-all"    onclick="setLand('all')"  >All</button>
+    <button class="view-btn"        id="land-hike"   onclick="setLand('hike')" >🥾 Hiking</button>
+    <button class="view-btn"        id="land-cycle"  onclick="setLand('cycle')">🚴 Cycling</button>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="setFilter('all')">All</button>
+    <button class="tab" onclick="setFilter('national')">National</button>
+    <button class="tab" onclick="setFilter('regional')">Regional</button>
+    <button class="tab" onclick="setFilter('local')">Local</button>
+    <button class="tab" onclick="setFilter('done')">Completed</button>
+    <button class="tab" onclick="setFilter('todo')">To do</button>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search routes or places…" oninput="render()" />
+    <select id="canton-filter" onchange="render()">
+      <option value="">All cantons</option>
+    </select>
+    <select id="difficulty-filter" onchange="render()">
+      <option value="">All difficulties</option>
+    </select>
+    <select id="sort" onchange="render()">
+      <option value="num">Sort by route number</option>
+      <option value="dist">Shortest first</option>
+      <option value="sbb">Closest to Basel</option>
+      <option value="alpha">A–Z</option>
+    </select>
+    <select id="stage-sort" onchange="render()" style="display:none">
+      <option value="sbb_asc">Closest to Basel</option>
+      <option value="dist_asc">Shortest first</option>
+      <option value="dist_desc">Longest first</option>
+      <option value="elev_desc">Most ascent</option>
+      <option value="time_asc">Quickest first</option>
+      <option value="sbb_desc">Furthest from Basel</option>
+    </select>
+  </div>
+
+  <div class="slider-row" id="sbb-slider-row">
+    <label class="slider-label" for="sbb-slider">
+      🚆 Max from Basel: <strong id="sbb-slider-val">any</strong>
+    </label>
+    <input type="range" id="sbb-slider" min="0" max="240" step="15" value="240"
+           oninput="updateSbbSlider()" />
+  </div>
+
+  <div id="route-list" class="route-list"></div>
+  <div class="load-more" id="load-more" style="display:none">
+    <button onclick="showMore()">Show more routes</button>
+  </div>
+
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+let allRoutes  = [];
+let completed  = {};   // key: "land_routeId_stageNr" → date string
+let ratings    = {};   // key: "land_routeId_stageNr" → 1–5
+let notes      = {};   // key: "land_routeId_stageNr" → string
+let expanded   = {};   // key: "land_routeId" → bool
+let filter     = 'all';
+let landFilter = 'all';
+let viewMode   = 'routes';
+let visible    = 20;
+
+// ---------------------------------------------------------------------------
+// Persistence (localStorage — fine here since this is your local file)
+// ---------------------------------------------------------------------------
+function loadState() {
+  try { completed = JSON.parse(localStorage.getItem('hikes_done')    || '{}'); } catch(e) { completed = {}; }
+  try { ratings   = JSON.parse(localStorage.getItem('hikes_ratings') || '{}'); } catch(e) { ratings = {}; }
+  try { notes     = JSON.parse(localStorage.getItem('hikes_notes')   || '{}'); } catch(e) { notes = {}; }
+  // Migrate old keys (routeId_stageNr) → new keys (hike_routeId_stageNr)
+  let migrated = false;
+  for (const obj of [completed, ratings, notes]) {
+    for (const key of Object.keys(obj)) {
+      if (!key.startsWith('hike_') && !key.startsWith('cycle_')) {
+        obj['hike_' + key] = obj[key];
+        delete obj[key];
+        migrated = true;
+      }
+    }
+  }
+  if (migrated) saveState();
+}
+function saveState() {
+  localStorage.setItem('hikes_done',    JSON.stringify(completed));
+  localStorage.setItem('hikes_ratings', JSON.stringify(ratings));
+  localStorage.setItem('hikes_notes',   JSON.stringify(notes));
+}
+
+let noteTimer = null;
+function saveNote(key, val) {
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => {
+    if (val.trim()) notes[key] = val.trim();
+    else delete notes[key];
+    saveState();
+  }, 500);
+}
+
+// ---------------------------------------------------------------------------
+// Data loading
+// ---------------------------------------------------------------------------
+async function loadData() {
+  try {
+    const r = await fetch('hikes.json');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    allRoutes = (await r.json()).map(r => ({ land: 'hike', ...r }));
+    document.getElementById('subtitle').textContent =
+      `${allRoutes.length} routes · ${allRoutes.reduce((s,r)=>s+r.stages.length,0)} stages · Basel SBB as base`;
+    document.getElementById('stats').style.display = 'grid';
+    document.getElementById('progress-wrap').style.display = 'block';
+    populateCantons();
+    populateDifficulties();
+    updateStats();
+    render();
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('error-area').innerHTML = `
+    <div class="error-box">
+      <strong>Could not load hikes.json</strong><br>
+      ${msg}<br><br>
+      Make sure you've run <code>python scraper.py</code> and placed <code>hikes.json</code>
+      in the same folder as this file, then open via a local server
+      (<code>python -m http.server 8000</code>).
+    </div>`;
+  document.getElementById('subtitle').textContent = 'Data not loaded';
+}
+
+// ---------------------------------------------------------------------------
+// Stats
+// ---------------------------------------------------------------------------
+function stageKey(land, routeId, stageNr) { return `${land}_${routeId}_${stageNr}`; }
+function routeKey(land, routeId)          { return `${land}_${routeId}`; }
+
+function smUrl(route, stageNr) {
+  const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
+  const id = String(route.route_id).padStart(2, '0');
+  return `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
+}
+
+function updateSbbSlider() {
+  const val = parseInt(document.getElementById('sbb-slider').value);
+  const label = document.getElementById('sbb-slider-val');
+  label.textContent = val >= 240 ? 'any' : `${fmtMins(val)}`;
+  visible = 20;
+  render();
+}
+
+function getSbbMax() {
+  return parseInt(document.getElementById('sbb-slider')?.value ?? 240);
+}
+
+function stageWithinSbb(stage, max) {
+  if (max >= 240) return true;
+  const best = [stage.sbb_mins, stage.sbb_mins_end].filter(n => n != null && n >= 15);
+  return best.length > 0 && Math.min(...best) <= max;
+}
+
+function populateCantons() {
+  const all = [...new Set(allRoutes.flatMap(r => r.stages.flatMap(s => s.cantons || [])))].sort();
+  const sel = document.getElementById('canton-filter');
+  all.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+// Friendly labels for difficulty values
+const DIFF_LABELS = {
+  'hiking trail':                    'T1 — Hiking trail',
+  'mountain hiking trail':           'T2 — Mountain hiking',
+  'demanding mountain hiking trail': 'T3 — Demanding mountain',
+  'alpine hiking trail':             'T4 — Alpine',
+  'demanding alpine hiking trail':   'T5 — Demanding alpine',
+  'easy':       '🚴 Easy',
+  'medium':     '🚴 Medium',
+  'difficult':  '🚴 Difficult',
+};
+
+function populateDifficulties() {
+  const all = [...new Set(
+    allRoutes.flatMap(r => r.stages.map(s => s.difficulty)).filter(Boolean)
+  )];
+  // Sort: hiking grades first (T1→T5), then cycling
+  const order = Object.keys(DIFF_LABELS);
+  all.sort((a, b) => {
+    const ai = order.indexOf(a.toLowerCase()), bi = order.indexOf(b.toLowerCase());
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+  const sel = document.getElementById('difficulty-filter');
+  all.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = DIFF_LABELS[d.toLowerCase()] || d;
+    sel.appendChild(opt);
+  });
+}
+
+function updateStats() {
+  const visRoutes  = landFilter === 'all' ? allRoutes : allRoutes.filter(r => r.land === landFilter);
+  const allStages  = visRoutes.flatMap(r => r.stages.map(s => ({...s, _land: r.land, _routeId: r.route_id})));
+  const totalStages = allStages.length;
+  const doneStages  = allStages.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
+  const doneKm  = doneStages.reduce((s, st) => s + (st.dist_km || 0), 0);
+  const totalKm = allStages.reduce((s, st) => s + (st.dist_km || 0), 0);
+  const pct = totalStages ? Math.round(doneStages.length / totalStages * 100) : 0;
+
+  document.getElementById('stat-done').textContent = doneStages.length;
+  document.getElementById('stat-done-sub').textContent = `of ${totalStages} stages (${pct}%)`;
+  document.getElementById('stat-km').textContent = Math.round(doneKm).toLocaleString();
+  document.getElementById('stat-remaining').textContent = Math.round(totalKm - doneKm).toLocaleString();
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ---------------------------------------------------------------------------
+// Filtering + sorting
+// ---------------------------------------------------------------------------
+function setLand(l) {
+  landFilter = l;
+  visible = 20;
+  ['all','hike','cycle'].forEach(x =>
+    document.getElementById('land-' + x).classList.toggle('active', x === l)
+  );
+  updateStats();
+  render();
+}
+
+function setView(v) {
+  viewMode = v;
+  visible = 20;
+  document.getElementById('view-routes').classList.toggle('active', v === 'routes');
+  document.getElementById('view-stages').classList.toggle('active', v === 'stages');
+  document.getElementById('sort').style.display       = v === 'routes' ? '' : 'none';
+  document.getElementById('stage-sort').style.display = v === 'stages' ? '' : 'none';
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  visible = 20;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+function filteredRoutes() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const cantonFilter = document.getElementById('canton-filter').value;
+  const diffFilter   = document.getElementById('difficulty-filter').value;
+  const sbbMax       = getSbbMax();
+  const sortBy = document.getElementById('sort').value;
+
+  let routes = allRoutes.filter(r => {
+    r.stages.forEach(s => { s._routeId = r.route_id; s._land = r.land; });
+
+    if (landFilter !== 'all' && r.land !== landFilter) return false;
+    if (filter === 'national') return r.route_type === 'national';
+    if (filter === 'regional') return r.route_type === 'regional';
+    if (filter === 'local')    return r.route_type === 'local';
+    if (filter === 'done') {
+      return r.stages.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+    }
+    if (filter === 'todo') {
+      return r.stages.some(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+    }
+    return true;
+  }).filter(r => {
+    if (!cantonFilter) return true;
+    return r.stages.some(s => (s.cantons || []).includes(cantonFilter));
+  }).filter(r => {
+    if (!diffFilter) return true;
+    return r.stages.some(s => (s.difficulty || '').toLowerCase() === diffFilter.toLowerCase());
+  }).filter(r => {
+    if (sbbMax >= 240) return true;
+    return r.stages.some(s => stageWithinSbb(s, sbbMax));
+  }).filter(r => {
+    if (!q) return true;
+    return r.name.toLowerCase().includes(q)
+      || r.stages.some(s =>
+          (s.start_name||'').toLowerCase().includes(q) ||
+          (s.end_name||'').toLowerCase().includes(q));
+  });
+
+  if (sortBy === 'dist') {
+    routes.sort((a, b) => {
+      const aTot = a.stages.reduce((s,st) => s + (st.dist_km||0), 0);
+      const bTot = b.stages.reduce((s,st) => s + (st.dist_km||0), 0);
+      return aTot - bTot;
+    });
+  } else if (sortBy === 'sbb') {
+    routes.sort((a, b) => {
+      const minSbb = r => {
+        const vals = r.stages.flatMap(s => [s.sbb_mins, s.sbb_mins_end])
+                             .filter(n => n != null && n >= 15);  // <15 min = bad SBB match
+        return vals.length ? Math.min(...vals) : Infinity;
+      };
+      return minSbb(a) - minSbb(b);
+    });
+  } else if (sortBy === 'alpha') {
+    routes.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    routes.sort((a, b) => a.route_id - b.route_id);
+  }
+
+  return routes;
+}
+
+function filteredStages() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const cantonFilter = document.getElementById('canton-filter').value;
+  const diffFilter   = document.getElementById('difficulty-filter').value;
+  const sbbMax       = getSbbMax();
+  const sortBy = document.getElementById('stage-sort').value;
+
+  let stages = allRoutes.flatMap(r =>
+    r.stages.map(s => ({ ...s, _route: r, _routeId: r.route_id, _land: r.land }))
+  );
+
+  stages = stages.filter(s => {
+    if (landFilter !== 'all' && s._land !== landFilter) return false;
+    const rt = s._route.route_type;
+    if (filter === 'national') return rt === 'national';
+    if (filter === 'regional') return rt === 'regional';
+    if (filter === 'local')    return rt === 'local';
+    if (filter === 'done')     return !!completed[stageKey(s._land, s._routeId, s.stage_nr)];
+    if (filter === 'todo')     return !completed[stageKey(s._land, s._routeId, s.stage_nr)];
+    return true;
+  });
+
+  if (cantonFilter) stages = stages.filter(s => (s.cantons || []).includes(cantonFilter));
+  if (diffFilter)   stages = stages.filter(s => (s.difficulty || '').toLowerCase() === diffFilter.toLowerCase());
+  if (sbbMax < 240) stages = stages.filter(s => stageWithinSbb(s, sbbMax));
+
+  if (q) stages = stages.filter(s =>
+    s._route.name.toLowerCase().includes(q) ||
+    (s.start_name || '').toLowerCase().includes(q) ||
+    (s.end_name   || '').toLowerCase().includes(q)
+  );
+
+  const bestSbb = s => {
+    const vals = [s.sbb_mins, s.sbb_mins_end].filter(n => n != null && n >= 15);
+    return vals.length ? Math.min(...vals) : Infinity;
+  };
+
+  if      (sortBy === 'sbb_asc')   stages.sort((a, b) => bestSbb(a) - bestSbb(b));
+  else if (sortBy === 'sbb_desc')  stages.sort((a, b) => bestSbb(b) - bestSbb(a));
+  else if (sortBy === 'dist_asc')  stages.sort((a, b) => (a.dist_km || 0) - (b.dist_km || 0));
+  else if (sortBy === 'dist_desc') stages.sort((a, b) => (b.dist_km || 0) - (a.dist_km || 0));
+  else if (sortBy === 'elev_desc') stages.sort((a, b) => (b.elev_up || 0) - (a.elev_up || 0));
+  else if (sortBy === 'time_asc')  stages.sort((a, b) => (a.hiking_hrs || 99) - (b.hiking_hrs || 99));
+
+  return stages;
+}
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+function diffClass(d, land) {
+  if (!d) return 'badge-gray';
+  const s = d.toString().toLowerCase();
+  if (land === 'cycle') {
+    if (s === 'easy')       return 'diff-easy';
+    if (s === 'medium')     return 'diff-medium';
+    if (s === 'difficult')  return 'diff-difficult';
+    return 'badge-gray';
+  }
+  // Hiking gradeText values from SchweizMobil API
+  if (s.includes('t1') || s === 'hiking trail') return 'diff-t1';
+  if (s.includes('t2') || s === 'mountain hiking trail') return 'diff-t2';
+  if (s.includes('t3') || s === 'demanding mountain hiking trail') return 'diff-t3';
+  if (s.includes('t4') || s.includes('t5') || s.includes('t6') ||
+      s === 'alpine hiking trail' || s === 'demanding alpine hiking trail') return 'diff-t4';
+  return 'badge-gray';
+}
+
+function fmtMins(mins) {
+  if (!mins) return null;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return h === 0 ? `${m} min` : m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+function fmtHrs(hrs) {
+  const h = Math.floor(hrs), m = Math.round((hrs - h) * 60);
+  if (m === 0) return `${h}hr`;
+  if (h === 0) return `${m}min`;
+  return `${h}hr ${m}min`;
+}
+
+function fmtKm(km) {
+  if (!km) return null;
+  return km >= 10 ? Math.round(km) + ' km' : km.toFixed(1) + ' km';
+}
+
+function renderStages(route) {
+  if (!expanded[routeKey(route.land, route.route_id)]) return '';
+  // Find the first uncompleted stage for the "next up" badge
+  const nextStageNr = (() => {
+    const s = route.stages.find(s => !completed[stageKey(route.land, route.route_id, s.stage_nr)]);
+    return s ? s.stage_nr : null;
+  })();
+  const anyDone = route.stages.some(s => completed[stageKey(route.land, route.route_id, s.stage_nr)]);
+
+  return `<div class="stages">` +
+    route.stages.map(stage => {
+      stage._routeId = route.route_id;
+      stage._land    = route.land;
+      const key  = stageKey(route.land, route.route_id, stage.stage_nr);
+      const done = !!completed[key];
+      const isNext = anyDone && !done && stage.stage_nr === nextStageNr;
+      const distStr   = fmtKm(stage.dist_km);
+      const diff = stage.difficulty;
+      const viaStr = stage.via ? ` via ${stage.via}` : '';
+      const hrsStr = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
+      const startTravel = fmtMins(stage.sbb_mins);
+      const endTravel   = fmtMins(stage.sbb_mins_end);
+      const aspStr = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
+      const smLink = smUrl(route, stage.stage_nr);
+
+      const starsHtml = done ? `
+        <div class="stage-stars" id="stars-${key}" onmouseleave="starsLeave('${key}')">
+          ${[1,2,3,4,5].map(n => {
+            const filled = (ratings[key]||0) >= n;
+            return `<span class="star" style="color:${filled?'#f5a623':'var(--border)'}"
+                         onmouseover="starsHover('${key}',${n})"
+                         onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
+          }).join('')}
+        </div>` : '';
+
+      return `<div class="stage-row${isNext ? ' next-up' : ''}">
+        <div class="stage-check ${done ? 'done' : ''}"
+             onclick="toggleStage('${key}')"
+             title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
+        <div class="stage-info">
+          <div class="stage-title ${done ? 'done-text' : ''}">Stage ${stage.stage_nr}: ${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
+            <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
+            ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
+            ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
+            ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
+            ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
+            ${diff ? `<span class="badge ${diffClass(diff, route.land)}">${diff}</span>` : ''}
+            ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+          </div>
+          ${startTravel || endTravel ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
+            ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from Basel</span>` : ''}
+            ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from Basel</span>` : ''}
+          </div>` : ''}
+          ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
+          <textarea class="stage-note" rows="1" placeholder="Add a note…"
+            oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
+            onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
+            onblur="if(!this.value.trim())this.rows=1"
+          >${notes[key] || ''}</textarea>` : ''}
+        </div>
+        ${starsHtml}
+      </div>`;
+    }).join('') +
+  `</div>`;
+}
+
+function renderRoute(route) {
+  route.stages.forEach(s => { s._routeId = route.route_id; s._land = route.land; });
+  const totalStages = route.stages.length;
+  const doneCount   = route.stages.filter(s => completed[stageKey(route.land, route.route_id, s.stage_nr)]).length;
+  const totalKm     = route.stages.reduce((s, st) => s + (st.dist_km || 0), 0);
+  const doneKm      = route.stages.filter(s => completed[stageKey(route.land, route.route_id, s.stage_nr)])
+                                  .reduce((s, st) => s + (st.dist_km || 0), 0);
+  const pct = totalStages ? Math.round(doneCount / totalStages * 100) : 0;
+  const rkey  = routeKey(route.land, route.route_id);
+  const isOpen = !!expanded[rkey];
+  const isCycle = route.land === 'cycle';
+  const numClass = [isCycle ? 'cycle' : '', route.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
+  const routeCantons = [...new Set(route.stages.flatMap(s => s.cantons || []))];
+  const icon = isCycle ? '🚴' : '🥾';
+
+  return `<div class="route-card ${isOpen ? 'open' : ''}" id="route-${rkey}">
+    <div class="route-header" onclick="toggleRoute('${rkey}')">
+      <span class="route-num ${numClass}">${route.route_type === 'national' ? '★ ' : ''}${route.route_id}</span>
+      <div class="route-meta">
+        <div class="route-name">${icon} ${route.name || 'Route ' + route.route_id}</div>
+        <div class="route-sub">${totalStages} stage${totalStages !== 1 ? 's' : ''} · ${Math.round(totalKm)} km total</div>
+        <div class="route-badges">
+          ${doneCount > 0 ? `<span class="badge badge-green">✓ ${doneCount}/${totalStages} done</span>` : ''}
+        </div>
+        ${routeCantons.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">
+          ${routeCantons.map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="16" height="16" onerror="this.style.display='none'"></span>`).join('')}
+        </div>` : ''}
+        ${doneCount > 0 ? `
+        <div class="route-progress">
+          <div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%"></div></div>
+          <div class="route-prog-label">${pct}% · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
+        </div>` : ''}
+      </div>
+      <span class="route-chevron">▾</span>
+    </div>
+    ${renderStages(route)}
+  </div>`;
+}
+
+function renderFlatStage(stage) {
+  const key  = stageKey(stage._land, stage._routeId, stage.stage_nr);
+  const done = !!completed[key];
+  const r    = stage._route;
+  const isCycle = r.land === 'cycle';
+  const numLabel = r.route_type === 'national' ? `★ ${r.route_id}` : `${r.route_id}`;
+  const distStr    = fmtKm(stage.dist_km);
+  const hrsStr     = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
+  const aspStr     = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
+  const startTravel = fmtMins(stage.sbb_mins);
+  const endTravel   = fmtMins(stage.sbb_mins_end);
+  const viaStr = stage.via ? ` via ${stage.via}` : '';
+
+  const numClass = [isCycle ? 'cycle' : '', r.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
+  const smLink = smUrl(r, stage.stage_nr);
+  const starsHtml = done ? `
+    <div class="stage-stars" id="stars-${key}" onmouseleave="starsLeave('${key}')">
+      ${[1,2,3,4,5].map(n => {
+        const filled = (ratings[key]||0) >= n;
+        return `<span class="star" style="color:${filled?'#f5a623':'var(--border)'}"
+                     onmouseover="starsHover('${key}',${n})"
+                     onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
+      }).join('')}
+    </div>` : '';
+
+  return `<div class="stage-row">
+    <div class="stage-check ${done ? 'done' : ''}"
+         onclick="toggleStage('${key}')"
+         title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
+    <div class="stage-info">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">
+        <span class="route-num ${numClass}" style="font-size:10px;padding:2px 5px">${numLabel}</span>
+        ${isCycle ? '🚴' : '🥾'} ${r.name}
+      </div>
+      <div class="stage-title ${done ? 'done-text' : ''}">Stage ${stage.stage_nr}: ${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}
+        <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
+        ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
+        ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
+        ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
+        ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
+        ${stage.difficulty ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${stage.difficulty}</span>` : ''}
+        ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+      </div>
+      ${startTravel || endTravel ? `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
+        ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from Basel</span>` : ''}
+        ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from Basel</span>` : ''}
+      </div>` : ''}
+      ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
+      <textarea class="stage-note" rows="1" placeholder="Add a note…"
+        oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
+        onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
+        onblur="if(!this.value.trim())this.rows=1"
+      >${notes[key] || ''}</textarea>` : ''}
+    </div>
+    ${starsHtml}
+  </div>`;
+}
+
+function render() {
+  const list = document.getElementById('route-list');
+  const btn  = document.getElementById('load-more');
+
+  if (viewMode === 'stages') {
+    const stages = filteredStages();
+    const slice  = stages.slice(0, visible);
+    list.innerHTML = slice.length
+      ? `<div class="route-card">${slice.map(renderFlatStage).join('')}</div>`
+      : '<div class="empty">No stages match your filter.</div>';
+    btn.style.display = stages.length > visible ? 'block' : 'none';
+  } else {
+    const routes = filteredRoutes();
+    const slice  = routes.slice(0, visible);
+    list.innerHTML = slice.length ? slice.map(renderRoute).join('') : '<div class="empty">No routes match your filter.</div>';
+    btn.style.display = routes.length > visible ? 'block' : 'none';
+  }
+}
+
+function showMore() {
+  visible += 20;
+  render();
+}
+
+// ---------------------------------------------------------------------------
+// Interactions
+// ---------------------------------------------------------------------------
+function toggleRoute(rkey) {
+  expanded[rkey] = !expanded[rkey];
+  render();
+}
+
+function toggleStage(key) {
+  event.stopPropagation();
+  if (completed[key]) {
+    delete completed[key];
+    delete ratings[key];
+  } else {
+    completed[key] = new Date().toLocaleDateString('de-CH');
+  }
+  saveState();
+  updateStats();
+  render();
+}
+
+function starsHover(key, n) {
+  const container = document.getElementById('stars-' + key);
+  if (!container) return;
+  container.querySelectorAll('.star').forEach((el, i) => {
+    el.style.color = i < n ? '#f5a623' : 'var(--border)';
+  });
+}
+
+function starsLeave(key) {
+  const container = document.getElementById('stars-' + key);
+  if (!container) return;
+  const saved = ratings[key] || 0;
+  container.querySelectorAll('.star').forEach((el, i) => {
+    el.style.color = i < saved ? '#f5a623' : 'var(--border)';
+  });
+}
+
+function setRating(key, n) {
+  // Clicking current rating clears it (toggle off)
+  if (ratings[key] === n) {
+    delete ratings[key];
+  } else {
+    ratings[key] = n;
+  }
+  saveState();
+  starsLeave(key);
+}
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+loadState();
+loadData();
+</script>
+</body>
+</html>
