@@ -463,6 +463,8 @@
 // ---------------------------------------------------------------------------
 const SUPABASE_URL = 'https://mpgkkmkvzgqkvtoearxp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_4r3CSFeo9Pu6C3Q6qSs64Q_R2yqy6CN';
+const PROD_URL     = 'https://jclift-dev.github.io/hiking-tracker/';
+const APP_URL      = location.hostname === 'localhost' ? `${location.origin}/` : PROD_URL;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 
@@ -1391,7 +1393,7 @@ async function sendMagicLink() {
   }
   const { error } = await sb.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.origin + window.location.pathname }
+    options: { emailRedirectTo: APP_URL }
   });
   if (error) {
     errEl.textContent = error.message;
