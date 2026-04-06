@@ -1389,7 +1389,10 @@ async function sendMagicLink() {
     errEl.style.display = 'block';
     return;
   }
-  const { error } = await sb.auth.signInWithOtp({ email });
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + window.location.pathname }
+  });
   if (error) {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
