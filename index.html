@@ -1462,19 +1462,33 @@ async function migrateFromLocalStorage() {
 // ---------------------------------------------------------------------------
 const DEV_MODE = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
+let _booting = false;
 sb.auth.onAuthStateChange(async (event, session) => {
-  currentUser = session?.user ?? null;
-  if (currentUser || DEV_MODE) {
-    document.getElementById('auth-screen').style.display = 'none';
-    document.querySelector('.app').style.display = '';
-    if (currentUser) {
-      await migrateFromLocalStorage();
-      await loadUserState();
+  const user = session?.user ?? null;
+
+  // Ignore token refreshes if already loaded — avoids wiping routes mid-session
+  if (event === 'TOKEN_REFRESHED' && allRoutes.length > 0) return;
+
+  // Prevent concurrent boot sequences
+  if (_booting) return;
+  _booting = true;
+
+  try {
+    currentUser = user;
+    if (currentUser || DEV_MODE) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.querySelector('.app').style.display = '';
+      if (currentUser) {
+        await migrateFromLocalStorage();
+        await loadUserState();
+      }
+      await loadData();
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.querySelector('.app').style.display = 'none';
     }
-    await loadData();
-  } else {
-    document.getElementById('auth-screen').style.display = 'flex';
-    document.querySelector('.app').style.display = 'none';
+  } finally {
+    _booting = false;
   }
 });
 
