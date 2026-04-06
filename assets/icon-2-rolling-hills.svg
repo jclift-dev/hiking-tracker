@@ -1,0 +1,20 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clip"><rect x="0" y="0" width="80" height="80" rx="10"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="80" height="80" rx="10" fill="#B5D4F4" stroke="#378ADD" stroke-width="1"/>
+  <!-- Hills -->
+  <path d="M0,100 L0,52 Q13,25 32,33 Q46,38 58,28 Q68,20 80,35 L80,100Z" fill="#97C459" clip-path="url(#clip)"/>
+  <path d="M0,52 Q13,25 32,33 Q46,38 58,28 Q68,20 80,35" fill="none" stroke="#639922" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <!-- Round trees -->
+  <line x1="25" y1="32" x2="25" y2="40" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <circle cx="25" cy="27" r="6" fill="#639922" clip-path="url(#clip)"/>
+  <line x1="60" y1="26" x2="60" y2="34" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <circle cx="60" cy="21" r="6" fill="#639922" clip-path="url(#clip)"/>
+  <!-- Sun -->
+  <circle cx="72" cy="13" r="8" fill="#FAC775" clip-path="url(#clip)"/>
+  <!-- Cloud -->
+  <ellipse cx="13" cy="20" rx="10" ry="5" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="22" cy="17" rx="7" ry="5" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="5" cy="19" rx="6" ry="4" fill="white" clip-path="url(#clip)"/>
+</svg>

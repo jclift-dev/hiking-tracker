@@ -115,6 +115,31 @@ def fetch_route_ids(land, category):
         return []
 
 
+def sm_get(url, label):
+    """
+    GET a SchweizMobil URL with one retry on transient failures (network error or 5xx).
+    Returns the Response on success, None on 404, raises on unrecoverable errors.
+    """
+    for attempt in range(2):
+        try:
+            r = SESSION.get(url, timeout=15)
+            if r.status_code == 404:
+                return None
+            if r.status_code >= 500 and attempt == 0:
+                print(f"    [warn] SM API {r.status_code} for {label}, retrying in 5s...")
+                time.sleep(5)
+                continue
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            if attempt == 0:
+                print(f"    [warn] transient error for {label}, retrying in 5s: {e}")
+                time.sleep(5)
+                continue
+            raise
+    return None
+
+
 def fetch_route(route_nr, land):
     """
     Fetch route overview (segmentNumber=0) which includes all segment summaries.
@@ -122,10 +147,9 @@ def fetch_route(route_nr, land):
     """
     url = f"{SM_BASE}/route_or_segment/{land}/{route_nr}/0?lang=en"
     try:
-        r = SESSION.get(url, timeout=15)
-        if r.status_code == 404:
+        r = sm_get(url, f"{land} route {route_nr}")
+        if r is None:
             return None
-        r.raise_for_status()
         data = r.json()
         # Must have at least a start/end to be useful
         if not data.get("start") and not data.get("length"):
@@ -143,10 +167,9 @@ def fetch_segment(route_nr, segment_nr, land):
     """
     url = f"{SM_BASE}/route_or_segment/{land}/{route_nr}/{segment_nr}?lang=en"
     try:
-        r = SESSION.get(url, timeout=15)
-        if r.status_code == 404:
+        r = sm_get(url, f"{land} route {route_nr} seg {segment_nr}")
+        if r is None:
             return None
-        r.raise_for_status()
         return r.json()
     except Exception as e:
         print(f"    [warn] SM API failed for {land} route {route_nr} seg {segment_nr}: {e}")
@@ -203,7 +226,8 @@ def fetch_arrival_station_names(arrival_ids):
             if name:
                 names.append(name)
             time.sleep(DELAY)
-        except Exception:
+        except Exception as e:
+            print(f"    [warn] arrival lookup failed for id {aid}: {e}")
             _arrival_cache[aid] = None
     return names
 
@@ -220,25 +244,35 @@ def enrich_arrival_stations(routes):
     if not needs_work:
         return
 
+    SAVE_EVERY = 25
     print(f"\n── Arrival stations ({needs_work} stages to enrich) ────────────")
-    for i, (route, stage) in enumerate(all_stages, 1):
-        if "arrival_stations" in stage:
-            continue
-        route_id = route["route_id"]
-        land     = route["land"]
-        stage_nr = stage["stage_nr"]
-        single   = len(route["stages"]) == 1
-        try:
-            data = fetch_route(route_id, land) if single else fetch_segment(route_id, stage_nr, land)
-            time.sleep(DELAY)
-            arrival_ids = (data or {}).get("arrivalIds", [])
-            names = fetch_arrival_station_names(arrival_ids)
-            stage["arrival_stations"] = names
-            label = ", ".join(names) if names else "(none)"
-            print(f"  [{i}/{total}] Route {route_id} stage {stage_nr}: {label}")
-        except Exception as e:
-            print(f"  [warn] Route {route_id} stage {stage_nr}: {e}")
-            stage["arrival_stations"] = []
+    enriched = 0
+    try:
+        for i, (route, stage) in enumerate(all_stages, 1):
+            if "arrival_stations" in stage:
+                continue
+            route_id = route["route_id"]
+            land     = route["land"]
+            stage_nr = stage["stage_nr"]
+            single   = len(route["stages"]) == 1
+            try:
+                data = fetch_route(route_id, land) if single else fetch_segment(route_id, stage_nr, land)
+                time.sleep(DELAY)
+                arrival_ids = (data or {}).get("arrivalIds", [])
+                names = fetch_arrival_station_names(arrival_ids)
+                stage["arrival_stations"] = names
+                label = ", ".join(names) if names else "(none)"
+                print(f"  [{i}/{total}] Route {route_id} stage {stage_nr}: {label}")
+            except Exception as e:
+                print(f"  [warn] Route {route_id} stage {stage_nr}: {e}")
+                stage["arrival_stations"] = []
+            enriched += 1
+            if enriched % SAVE_EVERY == 0:
+                save(routes)
+    except KeyboardInterrupt:
+        print(f"\n  [interrupted] Saving progress ({enriched} stages enriched)...")
+        save(routes)
+        raise
     save(routes)
 
 
@@ -445,7 +479,15 @@ def enrich_sbb(routes, origin):
         if times.get("end") is not None:
             lookup[s.get("end_name", "")] = times["end"]
 
-    for i, (route, stage) in enumerate(all_stages, 1):
+    SAVE_EVERY = 25
+    stages_since_save = 0
+
+    def stop_sbb(reason, i, routes):
+        print(f"\n  [{reason}] Stopped at stage {i}/{total}. Saving progress and exiting.")
+        save(routes)
+
+    try:
+      for i, (route, stage) in enumerate(all_stages, 1):
         times = stage.setdefault("sbb_times", {}).setdefault(origin, {})
 
         arrivals = stage.get("arrival_stations", [])
@@ -488,8 +530,7 @@ def enrich_sbb(routes, origin):
                 mins = lookup_sbb(dest)
             except SbbDailyLimitError as e:
                 print(f"\n\n  [DAILY LIMIT] {e}")
-                print(f"  Stopped at stage {i}/{total}. Saving progress and exiting.")
-                save(routes)
+                stop_sbb("DAILY LIMIT", i, routes)
                 return
             times["start"] = mins
             if mins is not None:
@@ -510,8 +551,7 @@ def enrich_sbb(routes, origin):
                     mins = lookup_sbb(end)
                 except SbbDailyLimitError as e:
                     print(f"\n\n  [DAILY LIMIT] {e}")
-                    print(f"  Stopped at stage {i}/{total}. Saving progress and exiting.")
-                    save(routes)
+                    stop_sbb("DAILY LIMIT", i, routes)
                     return
                 times["end"] = mins
                 if mins is not None:
@@ -519,6 +559,16 @@ def enrich_sbb(routes, origin):
                 print(f"{mins} min" if mins is not None else "not found")
         else:
             print(f"  [{i}/{total}] {stage['end_name']} end — cached ({times['end']} min)")
+
+        stages_since_save += 1
+        if stages_since_save >= SAVE_EVERY:
+            save(routes)
+            stages_since_save = 0
+
+    except KeyboardInterrupt:
+        print(f"\n  [interrupted] Saving progress...")
+        save(routes)
+        raise
 
 # ---------------------------------------------------------------------------
 # Persistence
@@ -547,6 +597,12 @@ def load_existing():
     except FileNotFoundError:
         print(f"No existing {OUTPUT} — starting fresh\n")
         return {}
+    except (json.JSONDecodeError, ValueError) as e:
+        import shutil
+        bak = OUTPUT + ".bak"
+        shutil.copy(OUTPUT, bak)
+        print(f"  [warn] {OUTPUT} is corrupted ({e}). Backed up to {bak}, starting fresh.\n")
+        return {}
 
 # ---------------------------------------------------------------------------
 # Main
@@ -561,6 +617,15 @@ def main():
         "--origin", default=DEFAULT_ORIGIN,
         help=f"SBB departure station (default: {DEFAULT_ORIGIN!r})"
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--routes-only", action="store_true",
+        help="Scrape route/stage data only — skip SBB enrichment"
+    )
+    mode.add_argument(
+        "--sbb-only", action="store_true",
+        help="Run SBB enrichment only — skip route scraping"
+    )
     args = parser.parse_args()
     ORIGIN = args.origin
 
@@ -573,37 +638,63 @@ def main():
     existing = load_existing()
     routes = []
 
-    for land in LANDS:
-        label = "Hiking" if land == "hike" else "Cycling"
-        print(f"\n{'='*60}")
-        print(f"── {label} routes ──")
+    # --- Route scraping ---
+    if not args.sbb_only:
+        try:
+            for land in LANDS:
+                label = "Hiking" if land == "hike" else "Cycling"
+                print(f"\n{'='*60}")
+                print(f"── {label} routes ──")
 
-        for category in CATEGORIES:
-            print(f"\n  ── {category} ──")
-            ids = fetch_route_ids(land, category)
-            for rid in ids:
-                key = (land, category, rid)
-                if key in existing:
-                    print(f"    Route {rid} already cached, skipping.")
-                    routes.append(existing[key])
-                    continue
-                route = build_route(rid, land)
-                if route:
-                    routes.append(route)
-                    save(routes)
-                time.sleep(DELAY)
+                for category in CATEGORIES:
+                    print(f"\n  ── {category} ──")
+                    ids = fetch_route_ids(land, category)
+                    for rid in ids:
+                        key = (land, category, rid)
+                        if key in existing:
+                            print(f"    Route {rid} already cached, skipping.")
+                            routes.append(existing[key])
+                            continue
+                        route = build_route(rid, land)
+                        if route:
+                            routes.append(route)
+                            save(routes)
+                        time.sleep(DELAY)
+        except KeyboardInterrupt:
+            print(f"\n  [interrupted] Saving {len(routes)} routes and exiting.")
+            save(routes)
+            sys.exit(0)
 
-    # --- Arrival station enrichment (canonical SBB stop names from SchweizMobil) ---
-    enrich_arrival_stations(routes)
+        # --- Arrival station enrichment ---
+        try:
+            enrich_arrival_stations(routes)
+        except KeyboardInterrupt:
+            sys.exit(0)
+
+        if args.routes_only:
+            print(f"\nRoutes-only run complete — skipping SBB enrichment.")
+            save(routes)
+            return
+    else:
+        # sbb-only: load all existing routes into the working list
+        routes = list(existing.values())
+        print(f"SBB-only mode — {len(routes)} routes loaded, skipping route scraping.")
 
     # --- SBB enrichment ---
     print(f"\n── SBB travel times from {ORIGIN} ─────────────────")
-    enrich_sbb(routes, ORIGIN)
+    try:
+        enrich_sbb(routes, ORIGIN)
+    except KeyboardInterrupt:
+        sys.exit(0)
     save(routes)
 
     # --- Summary ---
     total_stages = sum(len(r["stages"]) for r in routes)
-    sbb_found = sum(1 for r in routes for s in r["stages"] if s.get("sbb_mins") is not None)
+    sbb_found = sum(
+        1 for r in routes for s in r["stages"]
+        if any(v.get("start") is not None or v.get("end") is not None
+               for v in s.get("sbb_times", {}).values())
+    )
     by_land = {}
     for r in routes:
         key = r.get("land", "unknown")

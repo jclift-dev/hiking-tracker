@@ -1,0 +1,17 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clip"><rect x="0" y="0" width="80" height="80" rx="10"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="80" height="80" rx="10" fill="#534AB7" stroke="#3C3489" stroke-width="1"/>
+  <!-- Sharp summit -->
+  <path d="M0,100 L0,62 Q8,45 18,32 Q26,18 35,5 Q44,18 52,32 Q62,45 70,62 L80,100Z" fill="#B4B2A9" clip-path="url(#clip)"/>
+  <path d="M0,62 Q8,45 18,32 Q26,18 35,5 Q44,18 52,32 Q62,45 70,62" fill="none" stroke="#444441" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#clip)"/>
+  <!-- Snow cap -->
+  <path d="M29,10 Q32,2 35,5 Q38,2 41,10 Q38,16 35,17 Q32,16 29,10Z" fill="white" clip-path="url(#clip)"/>
+  <!-- Cloud wisps -->
+  <ellipse cx="18" cy="28" rx="9" ry="4" fill="white" opacity="0.85" clip-path="url(#clip)"/>
+  <ellipse cx="26" cy="25" rx="7" ry="4" fill="white" opacity="0.85" clip-path="url(#clip)"/>
+  <!-- Pine trees -->
+  <polygon points="5,65 8,56 11,65" fill="#3C3489" clip-path="url(#clip)"/>
+  <polygon points="59,63 62,54 65,63" fill="#3C3489" clip-path="url(#clip)"/>
+</svg>

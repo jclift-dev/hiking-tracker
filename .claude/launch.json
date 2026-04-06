@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Web App",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "Scraper",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["scraper.py"],
+      "port": null
+    }
+  ]
+}

@@ -541,7 +541,10 @@ function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 function smUrl(route, stageNr) {
   const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
-  return `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
+  const single = route.stages.length === 1;
+  return single
+    ? `https://schweizmobil.ch/en/${activity}/route-${id}`
+    : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
 
 function updateSbbSlider() {
@@ -954,6 +957,7 @@ function renderSurprise() {
   const season  = seasonInfo(s, s._land);
   const diff    = canonDiff(s.difficulty, s._land);
   const smLink  = smUrl(r, s.stage_nr);
+  const done    = !!completed[key];
   return `<div class="surprise-card" id="surprise-anchor">
     <div class="surprise-header">
       <span style="font-size:22px">🎲</span>
@@ -963,62 +967,44 @@ function renderSurprise() {
       </div>
       <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
     </div>
-    <div class="surprise-title">Stage ${s.stage_nr}: ${s.start_name || '?'} → ${s.end_name || '?'}</div>
+    <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${s.start_name || '?'} → ${s.end_name || '?'}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem">
       ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
       ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
       ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
       ${diff && diffClass(s.difficulty, s._land) ? `<span class="badge ${diffClass(s.difficulty, s._land)}">${DIFF_LABELS[diff]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
-      ${elevProfile(s.elev_up, s.elev_down, s._land)}
+      ${elevProfile(s.elev_up, s.elev_down)}
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
     <div class="surprise-actions">
       <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on SchweizMobil ↗</a>
       <button class="surprise-btn" onclick="surpriseMe()">Try another</button>
-      <button class="surprise-btn" onclick="toggleStage('${key}')">Mark as done</button>
+      <button class="surprise-btn ${done ? 'surprise-btn-primary' : ''}" onclick="toggleStage('${key}')">${done ? '✓ Done — undo?' : 'Mark as done'}</button>
     </div>
   </div>`;
 }
 
-function elevProfile(elevUp, elevDown, land) {
+function elevProfile(elevUp, elevDown) {
   const up = elevUp || 0, dn = elevDown || 0;
   if (up < 30 && dn < 30) return '';
 
-  const W = 72, H = 38, pad = 3;
-  const REF = 2000;
+  const total = up + dn;
+  let icon;
+  if      (total < 300)  icon = 'icon-1-meadow.svg';
+  else if (total < 600)  icon = 'icon-2-rolling-hills.svg';
+  else if (total < 1200) icon = 'icon-3-foothills.svg';
+  else if (total < 2000) icon = 'icon-4-alpine.svg';
+  else                   icon = 'icon-5-summit.svg';
 
-  // Scale by the bigger of up/dn so big descents look as dramatic as big climbs
-  const maxEl = Math.max(up, dn);
-  const peakFrac = Math.max(0.08, Math.min(0.92, maxEl / REF));
+  const upStr = up >= 30 ? `<span style="font-size:11px;color:var(--green-dark);white-space:nowrap">↑ ${up.toLocaleString()} m</span>` : '';
+  const dnStr = dn >= 30 ? `<span style="font-size:11px;color:var(--muted);white-space:nowrap">↓ ${dn.toLocaleString()} m</span>` : '';
 
-  const toY = f => H - pad - f * (H - pad * 2);
-  const yP = toY(peakFrac), yB = H - pad;
-  const x0 = pad, x1 = W - pad;
-
-  // Peak shifts left for descents, right for climbs — subtle directional hint
-  const balance = up / (up + dn || 1); // 0 = all descent, 1 = all climb
-  const xPk = pad + (W - pad * 2) * (0.28 + balance * 0.30); // 28%–58%
-
-  // Shape: angular for big days, smooth curves for gentle ones
-  let path;
-  if (maxEl > 1400) {
-    path = `M${x0},${yB} L${xPk},${yP} L${x1},${yB}Z`;
-  } else if (maxEl > 650) {
-    const mx = x0 + (xPk - x0) * 0.55, nx = xPk + (x1 - xPk) * 0.45;
-    path = `M${x0},${yB} Q${mx},${yB} ${xPk},${yP} Q${nx},${yB} ${x1},${yB}Z`;
-  } else {
-    path = `M${x0},${yB} Q${x0 + (xPk-x0)*0.3},${yB} ${xPk},${yP} Q${xPk+(x1-xPk)*0.7},${yB} ${x1},${yB}Z`;
-  }
-
-  const snow = maxEl > 1400
-    ? `<path d="M${xPk-5},${yP+7} L${xPk},${yP} L${xPk+5},${yP+7}Z" fill="rgba(255,255,255,0.7)"/>`
-    : '';
-
-  const col = land === 'cycle' ? 'var(--cycle)' : 'var(--green-dark)';
-  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">` +
-    `<path d="${path}" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>` +
-    snow + `</svg>`;
+  return `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">
+    ${upStr}
+    <img src="assets/${icon}" width="34" height="34" style="border-radius:5px;display:block">
+    ${dnStr}
+  </div>`;
 }
 
 function fmtMins(mins) {
@@ -1080,7 +1066,7 @@ function renderStages(route) {
              onclick="toggleStage('${key}')"
              title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
         <div class="stage-info">
-          <div class="stage-title ${done ? 'done-text' : ''}">Stage ${stage.stage_nr}: ${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
+          <div class="stage-title ${done ? 'done-text' : ''}">${route.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
             <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
           </div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
@@ -1105,7 +1091,7 @@ function renderStages(route) {
           >${notes[key] || ''}</textarea>` : ''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
-          ${elevProfile(stage.elev_up, stage.elev_down, route.land)}
+          ${elevProfile(stage.elev_up, stage.elev_down)}
           ${starsHtml}
         </div>
       </div>`;
@@ -1190,7 +1176,7 @@ function renderFlatStage(stage) {
         <span class="route-num ${numClass}" style="font-size:10px;padding:2px 5px">${numLabel}</span>
         ${isCycle ? '🚴' : '🥾'} ${r.name}
       </div>
-      <div class="stage-title ${done ? 'done-text' : ''}">Stage ${stage.stage_nr}: ${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}
+      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}
         <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
@@ -1215,7 +1201,7 @@ function renderFlatStage(stage) {
       >${notes[key] || ''}</textarea>` : ''}
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
-      ${elevProfile(stage.elev_up, stage.elev_down, r.land)}
+      ${elevProfile(stage.elev_up, stage.elev_down)}
       ${starsHtml}
     </div>
   </div>`;

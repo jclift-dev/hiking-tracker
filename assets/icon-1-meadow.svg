@@ -1,0 +1,27 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clip"><rect x="0" y="0" width="80" height="80" rx="10"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="80" height="80" rx="10" fill="#B5D4F4" stroke="#378ADD" stroke-width="1"/>
+  <!-- Ground -->
+  <path d="M0,170 L0,58 Q20,50 40,53 Q55,54 80,52 L80,170Z" fill="#97C459" clip-path="url(#clip)"/>
+  <path d="M0,58 Q20,50 40,53 Q55,54 80,52" fill="none" stroke="#639922" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <!-- Sun -->
+  <circle cx="62" cy="20" r="9" fill="#FAC775" clip-path="url(#clip)"/>
+  <line x1="62" y1="7" x2="62" y2="4" stroke="#FAC775" stroke-width="2" stroke-linecap="round" clip-path="url(#clip)"/>
+  <line x1="72" y1="10" x2="74" y2="8" stroke="#FAC775" stroke-width="2" stroke-linecap="round" clip-path="url(#clip)"/>
+  <line x1="75" y1="20" x2="78" y2="20" stroke="#FAC775" stroke-width="2" stroke-linecap="round" clip-path="url(#clip)"/>
+  <line x1="52" y1="10" x2="50" y2="8" stroke="#FAC775" stroke-width="2" stroke-linecap="round" clip-path="url(#clip)"/>
+  <line x1="49" y1="20" x2="46" y2="20" stroke="#FAC775" stroke-width="2" stroke-linecap="round" clip-path="url(#clip)"/>
+  <!-- Flowers -->
+  <circle cx="14" cy="51" r="3" fill="#F0997B" clip-path="url(#clip)"/>
+  <circle cx="14" cy="51" r="1.5" fill="#FAC775" clip-path="url(#clip)"/>
+  <circle cx="30" cy="49" r="3" fill="#F4C0D1" clip-path="url(#clip)"/>
+  <circle cx="30" cy="49" r="1.5" fill="#FAC775" clip-path="url(#clip)"/>
+  <circle cx="50" cy="50" r="3" fill="#F0997B" clip-path="url(#clip)"/>
+  <circle cx="50" cy="50" r="1.5" fill="#FAC775" clip-path="url(#clip)"/>
+  <!-- Cloud -->
+  <ellipse cx="25" cy="32" rx="11" ry="6" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="34" cy="29" rx="8" ry="5" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="17" cy="31" rx="7" ry="5" fill="white" clip-path="url(#clip)"/>
+</svg>

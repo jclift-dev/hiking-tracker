@@ -1,0 +1,18 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clip"><rect x="0" y="0" width="80" height="80" rx="10"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="80" height="80" rx="10" fill="#85B7EB" stroke="#378ADD" stroke-width="1"/>
+  <!-- Hills -->
+  <path d="M0,100 L0,48 Q10,22 28,30 Q40,35 48,20 Q56,32 68,27 Q78,22 80,36 L80,100Z" fill="#97C459" clip-path="url(#clip)"/>
+  <path d="M0,48 Q10,22 28,30 Q40,35 48,20 Q56,32 68,27 Q78,22 80,36" fill="none" stroke="#639922" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <!-- Snow blob on tallest -->
+  <ellipse cx="48" cy="20" rx="6" ry="4" fill="white" clip-path="url(#clip)"/>
+  <!-- Round tree -->
+  <line x1="16" y1="30" x2="16" y2="38" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" clip-path="url(#clip)"/>
+  <circle cx="16" cy="25" r="6" fill="#639922" clip-path="url(#clip)"/>
+  <!-- Cloud -->
+  <ellipse cx="68" cy="13" rx="10" ry="5" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="77" cy="10" rx="7" ry="5" fill="white" clip-path="url(#clip)"/>
+  <ellipse cx="60" cy="12" rx="6" ry="4" fill="white" clip-path="url(#clip)"/>
+</svg>
