@@ -28,6 +28,7 @@ API:
 """
 
 import json
+import os
 import time
 import sys
 import argparse
@@ -605,6 +606,89 @@ def load_existing():
         return {}
 
 # ---------------------------------------------------------------------------
+# Supabase import
+# ---------------------------------------------------------------------------
+
+def import_to_supabase(routes):
+    """Import all routes and stages from hikes.json into Supabase via REST API."""
+    url = os.environ.get("SUPABASE_URL", "").rstrip("/")
+    key = os.environ.get("SUPABASE_SERVICE_KEY", "")
+    if not url:
+        print("Error: SUPABASE_URL environment variable is not set.")
+        sys.exit(1)
+    if not key:
+        print("Error: SUPABASE_SERVICE_KEY environment variable is not set.")
+        sys.exit(1)
+
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+
+    BATCH = 100
+
+    # --- Routes ---
+    route_rows = [
+        {
+            "id":          r["route_id"],
+            "land":        r["land"],
+            "route_type":  r["route_type"],
+            "name":        r["name"],
+            "description": r.get("description", ""),
+            "start_name":  r.get("start", ""),
+            "end_name":    r.get("end", ""),
+            "total_km":    r.get("total_km"),
+        }
+        for r in routes
+    ]
+    print(f"Uploading {len(route_rows)} routes in batches of {BATCH}...")
+    for i in range(0, len(route_rows), BATCH):
+        batch = route_rows[i:i + BATCH]
+        resp = SESSION.post(f"{url}/rest/v1/routes", headers=headers, json=batch, timeout=30)
+        if not resp.ok:
+            print(f"  [error] routes batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
+        else:
+            print(f"  Uploaded routes {i+1}–{min(i+BATCH, len(route_rows))}")
+
+    # --- Stages ---
+    stage_rows = [
+        {
+            "route_id":        r["route_id"],
+            "land":            r["land"],
+            "stage_nr":        s["stage_nr"],
+            "start_name":      s.get("start_name", ""),
+            "end_name":        s.get("end_name", ""),
+            "via":             s.get("via"),
+            "dist_km":         s.get("dist_km"),
+            "elev_up":         s.get("elev_up"),
+            "elev_down":       s.get("elev_down"),
+            "duration_hrs":    s.get("duration_hrs") or s.get("hiking_hrs"),
+            "km_asphalt":      s.get("km_asphalt"),
+            "difficulty":      s.get("difficulty"),
+            "description":     s.get("description", ""),
+            "cantons":         s.get("cantons", []),
+            "arrival_stations":s.get("arrival_stations", []),
+            "sbb_times":       s.get("sbb_times", {}),
+        }
+        for r in routes for s in r["stages"]
+    ]
+    print(f"Uploading {len(stage_rows)} stages in batches of {BATCH}...")
+    for i in range(0, len(stage_rows), BATCH):
+        batch = stage_rows[i:i + BATCH]
+        resp = SESSION.post(f"{url}/rest/v1/stages", headers=headers, json=batch, timeout=30)
+        if not resp.ok:
+            print(f"  [error] stages batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
+        else:
+            print(f"  Uploaded stages {i+1}–{min(i+BATCH, len(stage_rows))}")
+
+    print("\n" + "=" * 60)
+    print(f"Import complete: {len(route_rows)} routes, {len(stage_rows)} stages")
+    print("=" * 60)
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -626,8 +710,18 @@ def main():
         "--sbb-only", action="store_true",
         help="Run SBB enrichment only — skip route scraping"
     )
+    mode.add_argument(
+        '--import', dest='import_mode', action='store_true',
+        help='Import hikes.json into Supabase (requires SUPABASE_URL and SUPABASE_SERVICE_KEY env vars)'
+    )
     args = parser.parse_args()
     ORIGIN = args.origin
+
+    if args.import_mode:
+        routes = list(load_existing().values())
+        print(f"Importing {len(routes)} routes to Supabase...")
+        import_to_supabase(routes)
+        return
 
     print("=" * 60)
     print("Swiss Hiking & Cycling Tracker — Data Scraper")

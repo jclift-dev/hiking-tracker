@@ -331,13 +331,24 @@
   .diff-medium     { background: var(--amber-bg);  color: var(--amber); }
   .diff-difficult  { background: var(--red-bg);    color: var(--red); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+  <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem">🥾 Swiss Hiking Tracker</div>
+  <div id="auth-login" style="display:flex;flex-direction:column;gap:0.5rem;width:280px">
+    <input id="auth-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
+    <button onclick="sendMagicLink()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Send magic link</button>
+    <div id="auth-error" style="font-size:12px;color:#e05;display:none"></div>
+    <div id="auth-sent" style="font-size:13px;color:var(--muted);text-align:center;display:none">Check your email for a sign-in link ✓</div>
+  </div>
+</div>
 <div class="app">
 
   <div class="header header--hike" id="main-header">
     <div class="header-inner">
       <div class="header-controls">
+        <button onclick="logout()" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 6px" title="Sign out">Sign out</button>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
         <div class="header-flag">🇨🇭</div>
       </div>
@@ -448,6 +459,14 @@
 
 <script>
 // ---------------------------------------------------------------------------
+// Supabase
+// ---------------------------------------------------------------------------
+const SUPABASE_URL = 'https://mpgkkmkvzgqkvtoearxp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4r3CSFeo9Pu6C3Q6qSs64Q_R2yqy6CN';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+
+// ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
 let allRoutes       = [];
@@ -459,34 +478,67 @@ let filter          = 'all';
 let landFilter      = 'hike';
 let viewMode        = 'routes';
 let visible         = 20;
-let selectedStation = localStorage.getItem('hikes_station') || 'Basel SBB';
+let selectedStation = 'Basel SBB';
 let diffFilters     = { hike: '', cycle: '' };  // difficulty selection per land
 let surpriseStage   = null;
 
 // ---------------------------------------------------------------------------
-// Persistence (localStorage — fine here since this is your local file)
+// Persistence (Supabase)
 // ---------------------------------------------------------------------------
-function loadState() {
-  try { completed = JSON.parse(localStorage.getItem('hikes_done')    || '{}'); } catch(e) { completed = {}; }
-  try { ratings   = JSON.parse(localStorage.getItem('hikes_ratings') || '{}'); } catch(e) { ratings = {}; }
-  try { notes     = JSON.parse(localStorage.getItem('hikes_notes')   || '{}'); } catch(e) { notes = {}; }
-  // Migrate old keys (routeId_stageNr) → new keys (hike_routeId_stageNr)
-  let migrated = false;
-  for (const obj of [completed, ratings, notes]) {
-    for (const key of Object.keys(obj)) {
-      if (!key.startsWith('hike_') && !key.startsWith('cycle_')) {
-        obj['hike_' + key] = obj[key];
-        delete obj[key];
-        migrated = true;
-      }
-    }
-  }
-  if (migrated) saveState();
+function formatDateCH(isoDate) {
+  // Convert "2026-04-06" to "06.04.2026"
+  if (!isoDate) return '';
+  const [y, m, d] = isoDate.split('-');
+  return `${d}.${m}.${y}`;
 }
+
+function toISODate(chDate) {
+  // Convert "06.04.2026" to "2026-04-06"
+  if (!chDate) return null;
+  const [d, m, y] = chDate.split('.');
+  return `${y}-${m}-${d}`;
+}
+
+async function loadUserState() {
+  const { data: rows } = await sb.from('user_state')
+    .select('stage_key, completed_on, rating, note');
+  completed = {};
+  ratings   = {};
+  notes     = {};
+  for (const row of (rows || [])) {
+    if (row.completed_on) completed[row.stage_key] = formatDateCH(row.completed_on);
+    if (row.rating)       ratings[row.stage_key]   = row.rating;
+    if (row.note)         notes[row.stage_key]      = row.note;
+  }
+  const { data: prefs } = await sb.from('user_preferences')
+    .select('selected_station').maybeSingle();
+  if (prefs?.selected_station) {
+    selectedStation = prefs.selected_station;
+  }
+}
+
 function saveState() {
-  localStorage.setItem('hikes_done',    JSON.stringify(completed));
-  localStorage.setItem('hikes_ratings', JSON.stringify(ratings));
-  localStorage.setItem('hikes_notes',   JSON.stringify(notes));
+  // No-op: persistence is handled by persistStage() at mutation sites
+}
+
+async function persistStage(key) {
+  if (!currentUser) return;
+  await sb.from('user_state').upsert({
+    user_id:      currentUser.id,
+    stage_key:    key,
+    completed_on: toISODate(completed[key]) || null,
+    rating:       ratings[key] || null,
+    note:         notes[key]   || null,
+    updated_at:   new Date().toISOString()
+  }, { onConflict: 'user_id,stage_key' });
+}
+
+async function persistStation(val) {
+  if (!currentUser) return;
+  await sb.from('user_preferences').upsert(
+    { user_id: currentUser.id, selected_station: val, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
 }
 
 let noteTimer = null;
@@ -495,7 +547,7 @@ function saveNote(key, val) {
   noteTimer = setTimeout(() => {
     if (val.trim()) notes[key] = val.trim();
     else delete notes[key];
-    saveState();
+    persistStage(key);
   }, 500);
 }
 
@@ -504,9 +556,28 @@ function saveNote(key, val) {
 // ---------------------------------------------------------------------------
 async function loadData() {
   try {
-    const r = await fetch('hikes.json');
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    allRoutes = (await r.json()).map(r => ({ land: 'hike', ...r }));
+    const [{ data: routes, error: routesErr }, { data: stages, error: stagesErr }] =
+      await Promise.all([
+        sb.from('routes').select('*'),
+        sb.from('stages').select('*'),
+      ]);
+    if (routesErr) throw new Error(routesErr.message);
+    if (stagesErr) throw new Error(stagesErr.message);
+
+    allRoutes = routes.map(r => ({
+      route_id:    r.id,
+      land:        r.land,
+      route_type:  r.route_type,
+      name:        r.name,
+      description: r.description || '',
+      start:       r.start_name || '',
+      end:         r.end_name || '',
+      total_km:    r.total_km,
+      stages: stages
+        .filter(s => s.route_id === r.id && s.land === r.land)
+        .sort((a, b) => a.stage_nr - b.stage_nr),
+    }));
+
     updateSubtitle();
     document.getElementById('stats').style.display = 'grid';
     document.getElementById('progress-wrap').style.display = 'block';
@@ -664,7 +735,7 @@ function populateStations() {
   // Fall back to first available if saved station isn't in data yet
   if (!stations.includes(selectedStation)) {
     selectedStation = stations[0];
-    localStorage.setItem('hikes_station', selectedStation);
+    persistStation(selectedStation);
   }
   stations.forEach(st => {
     const btn = document.createElement('button');
@@ -677,7 +748,7 @@ function populateStations() {
 
 function setStation(val) {
   selectedStation = val;
-  localStorage.setItem('hikes_station', val);
+  persistStation(val);
   document.querySelectorAll('.settings-pill').forEach(el =>
     el.classList.toggle('active', el.textContent === val)
   );
@@ -1245,8 +1316,10 @@ function toggleStage(key) {
   if (completed[key]) {
     delete completed[key];
     delete ratings[key];
+    persistStage(key);
   } else {
     completed[key] = new Date().toLocaleDateString('de-CH');
+    persistStage(key);
   }
   saveState();
   updateStats();
@@ -1264,11 +1337,12 @@ function markRouteComplete(rkey, undo = false) {
     if (undo) {
       delete completed[key];
       delete ratings[key];
+      persistStage(key);
     } else if (!completed[key]) {
       completed[key] = today;
+      persistStage(key);
     }
   });
-  saveState();
   updateStats();
   render();
 }
@@ -1297,15 +1371,96 @@ function setRating(key, n) {
   } else {
     ratings[key] = n;
   }
-  saveState();
+  persistStage(key);
   starsLeave(key);
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+async function sendMagicLink() {
+  const email = document.getElementById('auth-email').value.trim();
+  const errEl = document.getElementById('auth-error');
+  const sentEl = document.getElementById('auth-sent');
+  errEl.style.display = 'none';
+  sentEl.style.display = 'none';
+  if (!email) {
+    errEl.textContent = 'Please enter your email.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const { error } = await sb.auth.signInWithOtp({ email });
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  } else {
+    sentEl.style.display = 'block';
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  completed = {}; ratings = {}; notes = {};
+  allRoutes = [];
+  render();
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.querySelector('.app').style.display = 'none';
+}
+
+async function migrateFromLocalStorage() {
+  const legacyDone    = JSON.parse(localStorage.getItem('hikes_done')    || '{}');
+  const legacyRatings = JSON.parse(localStorage.getItem('hikes_ratings') || '{}');
+  const legacyNotes   = JSON.parse(localStorage.getItem('hikes_notes')   || '{}');
+  if (!Object.keys(legacyDone).length) return;
+
+  const { count } = await sb.from('user_state')
+    .select('*', { count: 'exact', head: true });
+  if (count > 0) return; // already migrated
+
+  // Migrate old keys (routeId_stageNr) → new keys (hike_routeId_stageNr)
+  for (const obj of [legacyDone, legacyRatings, legacyNotes]) {
+    for (const key of Object.keys(obj)) {
+      if (!key.startsWith('hike_') && !key.startsWith('cycle_')) {
+        obj['hike_' + key] = obj[key];
+        delete obj[key];
+      }
+    }
+  }
+
+  const rows = Object.keys(legacyDone).map(key => ({
+    user_id:      currentUser.id,
+    stage_key:    key,
+    completed_on: toISODate(legacyDone[key]) || null,
+    rating:       legacyRatings[key] || null,
+    note:         legacyNotes[key]   || null,
+  }));
+  await sb.from('user_state').upsert(rows, { onConflict: 'user_id,stage_key' });
+  localStorage.removeItem('hikes_done');
+  localStorage.removeItem('hikes_ratings');
+  localStorage.removeItem('hikes_notes');
+  console.log(`Migrated ${rows.length} stages from localStorage`);
 }
 
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
-loadState();
-loadData();
+sb.auth.onAuthStateChange(async (event, session) => {
+  currentUser = session?.user ?? null;
+  if (currentUser) {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.querySelector('.app').style.display = '';
+    await migrateFromLocalStorage();
+    await loadUserState();
+    await loadData();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.querySelector('.app').style.display = 'none';
+  }
+});
+
+document.getElementById('auth-email')
+  ?.addEventListener('keydown', e => { if (e.key === 'Enter') sendMagicLink(); });
 </script>
 </body>
 </html>
