@@ -1038,7 +1038,7 @@ function renderSurprise() {
       </div>
       <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
     </div>
-    <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${s.start_name || '?'} → ${s.end_name || '?'}</div>
+    <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${s.start_name || '?'} → ${s.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem">
       ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
       ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
@@ -1137,7 +1137,7 @@ function renderStages(route) {
              onclick="toggleStage('${key}')"
              title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
         <div class="stage-info">
-          <div class="stage-title ${done ? 'done-text' : ''}">${route.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
+          <div class="stage-title ${done ? 'done-text' : ''}">${route.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
             <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
           </div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
@@ -1247,7 +1247,7 @@ function renderFlatStage(stage) {
         <span class="route-num ${numClass}" style="font-size:10px;padding:2px 5px">${numLabel}</span>
         ${isCycle ? '🚴' : '🥾'} ${r.name}
       </div>
-      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${viaStr}
+      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}
         <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
