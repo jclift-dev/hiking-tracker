@@ -47,7 +47,16 @@
       "Bash(git commit:*)",
       "Bash(git config:*)",
       "Bash(git remote:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(curl:*)",
+      "Bash(ps -p 9635 -o pid,etime,command)",
+      "Bash(ps -p 9635 -o pid,state,wchan)",
+      "Bash(kill 9635)",
+      "Bash(kill 7062)",
+      "Bash(echo \"killed 7062: $?\")",
+      "Bash(kill 13597)",
+      "Bash(kill -0 13583)",
+      "Bash(kill 13583 13579 13676)"
     ]
   }
 }

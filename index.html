@@ -31,17 +31,26 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --surface:  #1e1e1c;
-      --page:     #141412;
-      --text:     #e8e8e4;
-      --muted:    #9a9a96;
-      --border:   rgba(255,255,255,0.12);
-      --gray-bg:  #2a2a28;
-      --green-bg: #0a2a1e;
-      --blue-bg:  #0a1e38;
-      --amber-bg: #2a1a06;
-      --red-bg:   #2a0e0e;
-      --cycle-bg: #0a1e38;
+      --surface:    #1e1e1c;
+      --page:       #141412;
+      --text:       #e8e8e4;
+      --muted:      #9a9a96;
+      --border:     rgba(255,255,255,0.12);
+      --gray-bg:    #2a2a28;
+      --green-bg:   #0a2a1e;
+      --blue-bg:    #0a1e38;
+      --amber-bg:   #2a1a06;
+      --red-bg:     #2a0e0e;
+      --cycle-bg:   #0a1e38;
+      /* foreground text colors — lightened for readability on dark badge backgrounds */
+      --green:      #3dcc96;
+      --green-dark: #4dd6a3;
+      --blue:       #6aadee;
+      --blue-dark:  #5a9de0;
+      --amber:      #e8a030;
+      --gray:       #a8a8a4;
+      --red:        #f07878;
+      --cycle:      #7db4f0;
       --cycle-dark: #7db4f0;
     }
   }
@@ -56,33 +65,98 @@
   .header {
     position: relative;
     margin: 0 -1rem 1.75rem;
-    padding: 2rem 1.5rem 1.5rem;
-    background: linear-gradient(135deg, #0F6E56 0%, #1D9E75 45%, #1062C0 100%);
+    padding: 2rem 1.5rem 0;
+    background: linear-gradient(160deg, #071912 0%, #0d3828 50%, #091c3a 100%);
     overflow: hidden;
+    transition: background 0.5s ease;
   }
+  .header--hike  { background: linear-gradient(160deg, #071912 0%, #0c3324 50%, #0d4530 100%) !important; }
+  .header--cycle { background: linear-gradient(160deg, #040d1a 0%, #071c3a 50%, #0a2860 100%) !important; }
+  /* Depth blobs */
   .header::before {
     content: '';
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 L15 20 L30 35 L40 15 L60 40' stroke='rgba(255,255,255,0.07)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") repeat-x bottom;
-    background-size: 120px 60px;
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 80% at 20% 40%, rgba(29,158,117,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 20%, rgba(16,98,192,0.14) 0%, transparent 65%);
   }
-  .header-inner { position: relative; }
+  .header-inner { position: relative; padding-bottom: 1.5rem; }
   .header h1 {
-    font-size: 24px; font-weight: 700; letter-spacing: -0.5px;
-    color: #fff;
+    font-size: 28px; font-weight: 800; letter-spacing: -0.8px;
+    color: #fff; line-height: 1.15;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.3);
   }
-  .header h1 span { opacity: 0.85; font-weight: 400; font-size: 20px; margin-left: 6px; }
-  .header p  { color: rgba(255,255,255,0.72); font-size: 13px; margin-top: 4px; }
+  .header h1 span { opacity: 0.7; font-weight: 400; font-size: 17px; margin-left: 4px; letter-spacing: 0; }
+  .header p  { color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 5px; letter-spacing: 0.2px; }
+  /* Mountain silhouette */
+  .header-mountain {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    width: 100%; height: 72px; pointer-events: none; display: block;
+  }
+  .header-controls {
+    position: absolute; top: 1.1rem; right: 1.5rem;
+    display: flex; gap: 8px; align-items: center;
+  }
   .header-flag {
-    position: absolute; top: 1.25rem; right: 1.5rem;
-    width: 36px; height: 36px; border-radius: 8px;
-    background: white;
+    width: 34px; height: 34px; border-radius: 8px;
+    background: rgba(255,255,255,0.95);
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    font-size: 19px; box-shadow: 0 2px 12px rgba(0,0,0,0.35);
   }
+  .settings-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer; transition: all 0.15s;
+    color: rgba(255,255,255,0.7);
+  }
+  .settings-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+  .settings-btn.active { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.7); color: #fff; }
+
+  /* Settings panel */
+  .settings-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    max-height: 0; opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease, padding 0.3s ease;
+    padding: 0 1.25rem; margin-bottom: 0;
+  }
+  .settings-panel.open {
+    max-height: 400px; opacity: 1;
+    padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  }
+  .settings-section { margin-bottom: 1rem; }
+  .settings-section:last-child { margin-bottom: 0; }
+  .settings-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .settings-label strong { color: var(--text); text-transform: none; letter-spacing: 0; font-size: 13px; }
+  .settings-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .settings-pill {
+    padding: 5px 13px; font-size: 13px; border: 1.5px solid var(--border);
+    border-radius: 99px; background: var(--surface); color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .settings-pill:hover { border-color: var(--green); color: var(--green); }
+  .settings-pill.active { background: var(--green); border-color: var(--green); color: #fff; font-weight: 500; }
+  #sbb-slider { width: 100%; accent-color: var(--green); cursor: pointer; margin-top: 6px; display: block; }
+  /* Land toggle inside header */
+  .header-toggle {
+    display: flex; gap: 5px; margin-top: 1rem;
+  }
+  .header-tab {
+    padding: 5px 15px; font-size: 13px; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 99px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .header-tab:hover { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
+  .header-tab.active { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.6); color: #fff; font-weight: 600; }
   @media (prefers-color-scheme: dark) {
-    .header { background: linear-gradient(135deg, #0a3d2e 0%, #0d5c43 45%, #0a2d5e 100%); }
+    .header        { background: linear-gradient(160deg, #040e09 0%, #081f16 50%, #050f1e 100%); }
+    .header--hike  { background: linear-gradient(160deg, #040e09 0%, #071a10 50%, #091f15 100%) !important; }
+    .header--cycle { background: linear-gradient(160deg, #020609 0%, #050f1e 50%, #071530 100%) !important; }
   }
 
   /* Stats */
@@ -121,6 +195,14 @@
   .route-header:hover { background: rgba(0,0,0,0.02); }
 
   .route-num { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--gray-bg); border-radius: 5px; padding: 3px 7px; flex-shrink: 0; margin-top: 1px; }
+  .mark-all-btn {
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+    border: 1px solid var(--green); color: var(--green); background: transparent;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .mark-all-btn:hover { background: var(--green); color: #fff; }
+  .mark-all-btn--undo { border-color: var(--muted); color: var(--muted); }
+  .mark-all-btn--undo:hover { background: var(--muted); color: #fff; }
   .route-num.national      { background: var(--green-bg);  color: var(--green-dark); }
   .route-num.cycle         { background: var(--cycle-bg);  color: var(--cycle-dark); }
   .route-num.cycle.national{ background: var(--cycle-bg);  color: var(--cycle-dark); }
@@ -181,11 +263,6 @@
   .error-box { background: var(--red-bg); border: 1px solid var(--red); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 14px; color: var(--red); }
   .error-box code { font-family: monospace; font-size: 13px; background: rgba(226,75,74,0.1); padding: 2px 5px; border-radius: 4px; }
 
-  /* Day trip slider */
-  .slider-row { display:flex; align-items:center; gap:12px; margin-bottom:1rem; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; }
-  .slider-label { font-size:13px; color:var(--muted); white-space:nowrap; }
-  .slider-label strong { color:var(--text); }
-  #sbb-slider { flex:1; accent-color:var(--green); cursor:pointer; }
 
   /* SchweizMobil link */
   .sm-link { font-size:11px; color:var(--muted); text-decoration:none; opacity:0.6; flex-shrink:0; margin-left:2px; }
@@ -204,6 +281,46 @@
   .stage-stars { display:flex; gap:1px; flex-shrink:0; align-self:center; }
   .stage-stars .star { font-size:18px; cursor:pointer; color: var(--border); transition: color 0.08s; line-height:1; user-select:none; }
 
+  /* Season warning badge */
+  .badge-season      { background: var(--gray-bg);   color: var(--muted); }
+  .badge-season-warn { background: var(--amber-bg);  color: var(--amber); font-weight: 500; }
+
+  /* Surprise card */
+  .surprise-card {
+    background: var(--surface); border: 1.5px solid var(--green);
+    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+    margin-bottom: 1.25rem; box-shadow: 0 2px 12px rgba(29,158,117,0.1);
+  }
+  .surprise-header { display:flex; align-items:center; gap:10px; margin-bottom:0.75rem; }
+  .surprise-label { font-size:11px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:0.6px; }
+  .surprise-route { font-size:12px; color:var(--muted); margin-top:1px; }
+  .surprise-title { font-size:17px; font-weight:700; margin-bottom:0.6rem; }
+  .surprise-actions { display:flex; gap:8px; margin-top:1rem; flex-wrap:wrap; }
+  .surprise-btn { padding:6px 14px; font-size:13px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface); color:var(--muted); cursor:pointer; transition:all 0.15s; }
+  .surprise-btn:hover { border-color:var(--green); color:var(--green); }
+  .surprise-btn-primary { background:var(--green); border-color:var(--green); color:#fff; font-weight:500; }
+  .surprise-btn-primary:hover { background:var(--green-dark); border-color:var(--green-dark); color:#fff; }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .app { padding: 0 0.6rem 4rem; }
+    .stats { gap: 6px; }
+    .stat { padding: 0.6rem 0.75rem; }
+    .stat-value { font-size: 20px; }
+    .header h1 { font-size: 22px; }
+    .header-toggle { margin-top: 0.75rem; }
+    .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; flex-wrap: nowrap; }
+    .tab { white-space: nowrap; flex-shrink: 0; }
+    .controls { flex-direction: column; }
+    .controls input, .controls select { width: 100%; min-width: 0; }
+    .route-header { padding: 0.75rem 1rem; }
+    .stage-row { padding: 0.65rem 1rem; gap: 8px; }
+    .route-num { font-size: 10px; }
+    .stage-title { font-size: 13px; }
+    .settings-panel.open { padding: 0.75rem 1rem; }
+    .surprise-card { padding: 0.9rem 1rem; }
+  }
+
   /* Difficulty colours — hiking */
   .diff-t1 { background: var(--green-bg);  color: var(--green-dark); }
   .diff-t2 { background: var(--blue-bg);   color: var(--blue); }
@@ -218,11 +335,41 @@
 <body>
 <div class="app">
 
-  <div class="header">
+  <div class="header header--hike" id="main-header">
     <div class="header-inner">
-      <div class="header-flag">🇨🇭</div>
-      <h1>Swiss Trails <span>🥾 Hiking · 🚴 Cycling</span></h1>
+      <div class="header-controls">
+        <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+        <div class="header-flag">🇨🇭</div>
+      </div>
+      <h1><span id="header-title">Swiss Hiking</span><span id="header-mode"> 🥾 Walking trails</span></h1>
       <p id="subtitle">Loading routes…</p>
+      <div class="header-toggle">
+        <button class="header-tab active" id="header-land-hike"  onclick="setLand('hike')" >🥾 Hiking</button>
+        <button class="header-tab"        id="header-land-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+      </div>
+    </div>
+    <!-- Alpine silhouette -->
+    <svg class="header-mountain" viewBox="0 0 800 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Distant range -->
+      <path d="M0,58 Q60,42 120,52 Q180,62 250,32 Q310,8 370,28 Q420,44 480,18 Q540,0 600,22 Q660,42 720,30 Q760,20 800,35 L800,72 L0,72Z" fill="rgba(255,255,255,0.04)"/>
+      <!-- Mid range -->
+      <path d="M0,65 L60,55 L110,62 L170,40 L230,58 L290,24 L350,52 L400,14 L455,46 L510,20 L565,58 L620,38 L675,56 L730,28 L780,50 L800,44 L800,72 L0,72Z" fill="rgba(255,255,255,0.07)"/>
+      <!-- Snow caps on tallest peaks -->
+      <path d="M393,22 L400,14 L407,22Z" fill="rgba(255,255,255,0.55)"/>
+      <path d="M504,27 L510,20 L516,27Z" fill="rgba(255,255,255,0.45)"/>
+      <path d="M284,31 L290,24 L296,31Z" fill="rgba(255,255,255,0.35)"/>
+    </svg>
+  </div>
+
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-section">
+      <div class="settings-label">Home station</div>
+      <div class="settings-pills" id="station-pills"></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Max travel time &nbsp;<strong id="sbb-slider-val">any</strong></div>
+      <input type="range" id="sbb-slider" min="0" max="240" step="15" value="240"
+             oninput="updateSbbSlider()" />
     </div>
   </div>
 
@@ -235,7 +382,7 @@
       <div class="stat-sub" id="stat-done-sub"></div>
     </div>
     <div class="stat">
-      <div class="stat-label">Km walked</div>
+      <div class="stat-label" id="stat-km-label">Km walked</div>
       <div class="stat-value" id="stat-km">0</div>
       <div class="stat-sub">km</div>
     </div>
@@ -249,13 +396,11 @@
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
 
-  <div style="display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap">
+  <div style="display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap;align-items:center">
     <button class="view-btn active" id="view-routes" onclick="setView('routes')">Routes</button>
     <button class="view-btn" id="view-stages" onclick="setView('stages')">Stages</button>
     <div style="flex:1"></div>
-    <button class="view-btn active" id="land-all"    onclick="setLand('all')"  >All</button>
-    <button class="view-btn"        id="land-hike"   onclick="setLand('hike')" >🥾 Hiking</button>
-    <button class="view-btn"        id="land-cycle"  onclick="setLand('cycle')">🚴 Cycling</button>
+    <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
   <div class="tabs" id="tabs">
@@ -263,6 +408,7 @@
     <button class="tab" onclick="setFilter('national')">National</button>
     <button class="tab" onclick="setFilter('regional')">Regional</button>
     <button class="tab" onclick="setFilter('local')">Local</button>
+    <button class="tab" onclick="setFilter('nextup')">Next up</button>
     <button class="tab" onclick="setFilter('done')">Completed</button>
     <button class="tab" onclick="setFilter('todo')">To do</button>
   </div>
@@ -272,33 +418,27 @@
     <select id="canton-filter" onchange="render()">
       <option value="">All cantons</option>
     </select>
-    <select id="difficulty-filter" onchange="render()">
+    <select id="difficulty-filter" onchange="diffFilters[landFilter]=this.value;render()">
       <option value="">All difficulties</option>
     </select>
     <select id="sort" onchange="render()">
       <option value="num">Sort by route number</option>
       <option value="dist">Shortest first</option>
-      <option value="sbb">Closest to Basel</option>
+      <option value="sbb">Closest to home</option>
       <option value="alpha">A–Z</option>
     </select>
     <select id="stage-sort" onchange="render()" style="display:none">
-      <option value="sbb_asc">Closest to Basel</option>
+      <option value="sbb_asc">Closest to home</option>
       <option value="dist_asc">Shortest first</option>
       <option value="dist_desc">Longest first</option>
       <option value="elev_desc">Most ascent</option>
       <option value="time_asc">Quickest first</option>
-      <option value="sbb_desc">Furthest from Basel</option>
+      <option value="sbb_desc">Furthest from home</option>
     </select>
   </div>
 
-  <div class="slider-row" id="sbb-slider-row">
-    <label class="slider-label" for="sbb-slider">
-      🚆 Max from Basel: <strong id="sbb-slider-val">any</strong>
-    </label>
-    <input type="range" id="sbb-slider" min="0" max="240" step="15" value="240"
-           oninput="updateSbbSlider()" />
-  </div>
 
+  <div id="surprise-wrap"></div>
   <div id="route-list" class="route-list"></div>
   <div class="load-more" id="load-more" style="display:none">
     <button onclick="showMore()">Show more routes</button>
@@ -310,15 +450,18 @@
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
-let allRoutes  = [];
-let completed  = {};   // key: "land_routeId_stageNr" → date string
-let ratings    = {};   // key: "land_routeId_stageNr" → 1–5
-let notes      = {};   // key: "land_routeId_stageNr" → string
-let expanded   = {};   // key: "land_routeId" → bool
-let filter     = 'all';
-let landFilter = 'all';
-let viewMode   = 'routes';
-let visible    = 20;
+let allRoutes       = [];
+let completed       = {};   // key: "land_routeId_stageNr" → date string
+let ratings         = {};   // key: "land_routeId_stageNr" → 1–5
+let notes           = {};   // key: "land_routeId_stageNr" → string
+let expanded        = {};   // key: "land_routeId" → bool
+let filter          = 'all';
+let landFilter      = 'hike';
+let viewMode        = 'routes';
+let visible         = 20;
+let selectedStation = localStorage.getItem('hikes_station') || 'Basel SBB';
+let diffFilters     = { hike: '', cycle: '' };  // difficulty selection per land
+let surpriseStage   = null;
 
 // ---------------------------------------------------------------------------
 // Persistence (localStorage — fine here since this is your local file)
@@ -364,12 +507,12 @@ async function loadData() {
     const r = await fetch('hikes.json');
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     allRoutes = (await r.json()).map(r => ({ land: 'hike', ...r }));
-    document.getElementById('subtitle').textContent =
-      `${allRoutes.length} routes · ${allRoutes.reduce((s,r)=>s+r.stages.length,0)} stages · Basel SBB as base`;
+    updateSubtitle();
     document.getElementById('stats').style.display = 'grid';
     document.getElementById('progress-wrap').style.display = 'block';
     populateCantons();
     populateDifficulties();
+    populateStations();
     updateStats();
     render();
   } catch(e) {
@@ -403,20 +546,37 @@ function smUrl(route, stageNr) {
 
 function updateSbbSlider() {
   const val = parseInt(document.getElementById('sbb-slider').value);
-  const label = document.getElementById('sbb-slider-val');
-  label.textContent = val >= 240 ? 'any' : `${fmtMins(val)}`;
+  document.getElementById('sbb-slider-val').textContent = val >= 240 ? 'any' : fmtMins(val);
   visible = 20;
   render();
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  const btn   = document.getElementById('settings-btn');
+  const isOpen = panel.classList.toggle('open');
+  btn.classList.toggle('active', isOpen);
 }
 
 function getSbbMax() {
   return parseInt(document.getElementById('sbb-slider')?.value ?? 240);
 }
 
+function stageBestSbb(stage) {
+  const times = (stage.sbb_times || {})[selectedStation] || {};
+  const startIsBasel = (stage.start_name || '').toLowerCase().startsWith('basel');
+  const endIsBasel   = (stage.end_name   || '').toLowerCase().startsWith('basel');
+  const vals = [
+    startIsBasel ? 0 : times.start,
+    endIsBasel   ? 0 : times.end,
+  ].filter(n => n != null && n >= 0);
+  return vals.length ? Math.min(...vals) : null;
+}
+
 function stageWithinSbb(stage, max) {
   if (max >= 240) return true;
-  const best = [stage.sbb_mins, stage.sbb_mins_end].filter(n => n != null && n >= 15);
-  return best.length > 0 && Math.min(...best) <= max;
+  const best = stageBestSbb(stage);
+  return best !== null && best <= max;
 }
 
 function populateCantons() {
@@ -431,38 +591,104 @@ function populateCantons() {
 }
 
 // Friendly labels for difficulty values
+// Maps any raw API difficulty string → canonical value (lowercase, trimmed)
+const DIFF_CANON = {
+  // Hiking — Italian variants and capitalisation quirks
+  'sentiero di montagna':            'mountain hiking trail',
+  'mountain trail':                  'mountain hiking trail',
+  // Cycling
+  'easy':     'easy',
+  'medium':   'medium',
+  'difficult':'difficult',
+};
+function normalizeDiff(d) {
+  if (!d) return null;
+  const s = d.trim().toLowerCase();
+  return DIFF_CANON[s] ?? s;
+}
+
+// Valid canonical difficulties per land — anything else is discarded
+const VALID_DIFFS = {
+  hike:  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
+  cycle: new Set(['easy', 'medium', 'difficult']),
+};
+function canonDiff(d, land) {
+  const n = normalizeDiff(d);
+  return (n && VALID_DIFFS[land]?.has(n)) ? n : null;
+}
+
+// Canonical value → display label
 const DIFF_LABELS = {
-  'hiking trail':                    'T1 — Hiking trail',
-  'mountain hiking trail':           'T2 — Mountain hiking',
-  'demanding mountain hiking trail': 'T3 — Demanding mountain',
-  'alpine hiking trail':             'T4 — Alpine',
-  'demanding alpine hiking trail':   'T5 — Demanding alpine',
-  'easy':       '🚴 Easy',
-  'medium':     '🚴 Medium',
-  'difficult':  '🚴 Difficult',
+  'hiking trail':                    'T1 · Hiking trail',
+  'mountain hiking trail':           'T2 · Mountain hiking',
+  'demanding mountain hiking trail': 'T3 · Demanding mountain',
+  'alpine hiking trail':             'T4 · Alpine',
+  'demanding alpine hiking trail':   'T5 · Demanding alpine',
+  'easy':      'Easy',
+  'medium':    'Medium',
+  'difficult': 'Difficult',
 };
 
 function populateDifficulties() {
   const all = [...new Set(
-    allRoutes.flatMap(r => r.stages.map(s => s.difficulty)).filter(Boolean)
+    allRoutes.filter(r => r.land === landFilter)
+             .flatMap(r => r.stages.map(s => canonDiff(s.difficulty, landFilter)))
+             .filter(Boolean)
   )];
-  // Sort: hiking grades first (T1→T5), then cycling
   const order = Object.keys(DIFF_LABELS);
   all.sort((a, b) => {
-    const ai = order.indexOf(a.toLowerCase()), bi = order.indexOf(b.toLowerCase());
+    const ai = order.indexOf(a), bi = order.indexOf(b);
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
   });
   const sel = document.getElementById('difficulty-filter');
+  sel.innerHTML = '<option value="">All difficulties</option>';
   all.forEach(d => {
     const opt = document.createElement('option');
     opt.value = d;
-    opt.textContent = DIFF_LABELS[d.toLowerCase()] || d;
+    opt.textContent = DIFF_LABELS[d] || d;
     sel.appendChild(opt);
+  });
+  sel.value = diffFilters[landFilter] || '';
+}
+
+function populateStations() {
+  const stations = [...new Set(
+    allRoutes.flatMap(r => r.stages.flatMap(s => Object.keys(s.sbb_times || {})))
+  )].sort();
+  const container = document.getElementById('station-pills');
+  container.innerHTML = '';
+  if (!stations.length) return;
+  // Fall back to first available if saved station isn't in data yet
+  if (!stations.includes(selectedStation)) {
+    selectedStation = stations[0];
+    localStorage.setItem('hikes_station', selectedStation);
+  }
+  stations.forEach(st => {
+    const btn = document.createElement('button');
+    btn.className = 'settings-pill' + (st === selectedStation ? ' active' : '');
+    btn.textContent = st;
+    btn.onclick = () => setStation(st);
+    container.appendChild(btn);
   });
 }
 
+function setStation(val) {
+  selectedStation = val;
+  localStorage.setItem('hikes_station', val);
+  document.querySelectorAll('.settings-pill').forEach(el =>
+    el.classList.toggle('active', el.textContent === val)
+  );
+  render();
+}
+
+function updateSubtitle() {
+  const vis = allRoutes.filter(r => r.land === landFilter);
+  const stages = vis.reduce((s, r) => s + r.stages.length, 0);
+  document.getElementById('subtitle').textContent = `${vis.length} routes · ${stages} stages`;
+}
+
 function updateStats() {
-  const visRoutes  = landFilter === 'all' ? allRoutes : allRoutes.filter(r => r.land === landFilter);
+  const visRoutes  = allRoutes.filter(r => r.land === landFilter);
   const allStages  = visRoutes.flatMap(r => r.stages.map(s => ({...s, _land: r.land, _routeId: r.route_id})));
   const totalStages = allStages.length;
   const doneStages  = allStages.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
@@ -483,9 +709,23 @@ function updateStats() {
 function setLand(l) {
   landFilter = l;
   visible = 20;
-  ['all','hike','cycle'].forEach(x =>
-    document.getElementById('land-' + x).classList.toggle('active', x === l)
+  ['hike','cycle'].forEach(x =>
+    document.getElementById('header-land-' + x).classList.toggle('active', x === l)
   );
+  const header = document.getElementById('main-header');
+  header.classList.toggle('header--hike',  l === 'hike');
+  header.classList.toggle('header--cycle', l === 'cycle');
+  if (l === 'hike') {
+    document.getElementById('header-title').textContent  = 'Swiss Hiking';
+    document.getElementById('header-mode').textContent   = ' 🥾 Walking trails';
+    document.getElementById('stat-km-label').textContent = 'Km walked';
+  } else {
+    document.getElementById('header-title').textContent  = 'Swiss Cycling';
+    document.getElementById('header-mode').textContent   = ' 🚴 Cycling routes';
+    document.getElementById('stat-km-label').textContent = 'Km cycled';
+  }
+  populateDifficulties();
+  updateSubtitle();
   updateStats();
   render();
 }
@@ -511,7 +751,7 @@ function setFilter(f) {
 function filteredRoutes() {
   const q = document.getElementById('search').value.toLowerCase().trim();
   const cantonFilter = document.getElementById('canton-filter').value;
-  const diffFilter   = document.getElementById('difficulty-filter').value;
+  const diffFilter   = diffFilters[landFilter];
   const sbbMax       = getSbbMax();
   const sortBy = document.getElementById('sort').value;
 
@@ -522,6 +762,11 @@ function filteredRoutes() {
     if (filter === 'national') return r.route_type === 'national';
     if (filter === 'regional') return r.route_type === 'regional';
     if (filter === 'local')    return r.route_type === 'local';
+    if (filter === 'nextup') {
+      const hasDone = r.stages.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+      const hasTodo = r.stages.some(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+      return hasDone && hasTodo;
+    }
     if (filter === 'done') {
       return r.stages.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]);
     }
@@ -534,7 +779,7 @@ function filteredRoutes() {
     return r.stages.some(s => (s.cantons || []).includes(cantonFilter));
   }).filter(r => {
     if (!diffFilter) return true;
-    return r.stages.some(s => (s.difficulty || '').toLowerCase() === diffFilter.toLowerCase());
+    return r.stages.some(s => canonDiff(s.difficulty, r.land) === diffFilter);
   }).filter(r => {
     if (sbbMax >= 240) return true;
     return r.stages.some(s => stageWithinSbb(s, sbbMax));
@@ -555,8 +800,7 @@ function filteredRoutes() {
   } else if (sortBy === 'sbb') {
     routes.sort((a, b) => {
       const minSbb = r => {
-        const vals = r.stages.flatMap(s => [s.sbb_mins, s.sbb_mins_end])
-                             .filter(n => n != null && n >= 15);  // <15 min = bad SBB match
+        const vals = r.stages.map(s => stageBestSbb(s)).filter(n => n != null);
         return vals.length ? Math.min(...vals) : Infinity;
       };
       return minSbb(a) - minSbb(b);
@@ -573,7 +817,7 @@ function filteredRoutes() {
 function filteredStages() {
   const q = document.getElementById('search').value.toLowerCase().trim();
   const cantonFilter = document.getElementById('canton-filter').value;
-  const diffFilter   = document.getElementById('difficulty-filter').value;
+  const diffFilter   = diffFilters[landFilter];
   const sbbMax       = getSbbMax();
   const sortBy = document.getElementById('stage-sort').value;
 
@@ -581,19 +825,29 @@ function filteredStages() {
     r.stages.map(s => ({ ...s, _route: r, _routeId: r.route_id, _land: r.land }))
   );
 
+  // Pre-compute next-up stage keys for in-progress routes
+  const nextUpKeys = new Set();
+  allRoutes.filter(r => r.land === landFilter).forEach(r => {
+    const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
+    if (!sorted.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)])) return;
+    const next = sorted.find(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+    if (next) nextUpKeys.add(stageKey(r.land, r.route_id, next.stage_nr));
+  });
+
   stages = stages.filter(s => {
-    if (landFilter !== 'all' && s._land !== landFilter) return false;
+    if (s._land !== landFilter) return false;
     const rt = s._route.route_type;
     if (filter === 'national') return rt === 'national';
     if (filter === 'regional') return rt === 'regional';
     if (filter === 'local')    return rt === 'local';
+    if (filter === 'nextup')   return nextUpKeys.has(stageKey(s._land, s._routeId, s.stage_nr));
     if (filter === 'done')     return !!completed[stageKey(s._land, s._routeId, s.stage_nr)];
     if (filter === 'todo')     return !completed[stageKey(s._land, s._routeId, s.stage_nr)];
     return true;
   });
 
   if (cantonFilter) stages = stages.filter(s => (s.cantons || []).includes(cantonFilter));
-  if (diffFilter)   stages = stages.filter(s => (s.difficulty || '').toLowerCase() === diffFilter.toLowerCase());
+  if (diffFilter)   stages = stages.filter(s => canonDiff(s.difficulty, s._land) === diffFilter);
   if (sbbMax < 240) stages = stages.filter(s => stageWithinSbb(s, sbbMax));
 
   if (q) stages = stages.filter(s =>
@@ -602,10 +856,7 @@ function filteredStages() {
     (s.end_name   || '').toLowerCase().includes(q)
   );
 
-  const bestSbb = s => {
-    const vals = [s.sbb_mins, s.sbb_mins_end].filter(n => n != null && n >= 15);
-    return vals.length ? Math.min(...vals) : Infinity;
-  };
+  const bestSbb = s => stageBestSbb(s) ?? Infinity;
 
   if      (sortBy === 'sbb_asc')   stages.sort((a, b) => bestSbb(a) - bestSbb(b));
   else if (sortBy === 'sbb_desc')  stages.sort((a, b) => bestSbb(b) - bestSbb(a));
@@ -621,21 +872,153 @@ function filteredStages() {
 // Rendering
 // ---------------------------------------------------------------------------
 function diffClass(d, land) {
-  if (!d) return 'badge-gray';
-  const s = d.toString().toLowerCase();
+  const s = canonDiff(d, land);
+  if (!s) return null;
   if (land === 'cycle') {
-    if (s === 'easy')       return 'diff-easy';
-    if (s === 'medium')     return 'diff-medium';
-    if (s === 'difficult')  return 'diff-difficult';
-    return 'badge-gray';
+    if (s === 'easy')      return 'diff-easy';
+    if (s === 'medium')    return 'diff-medium';
+    if (s === 'difficult') return 'diff-difficult';
   }
-  // Hiking gradeText values from SchweizMobil API
-  if (s.includes('t1') || s === 'hiking trail') return 'diff-t1';
-  if (s.includes('t2') || s === 'mountain hiking trail') return 'diff-t2';
-  if (s.includes('t3') || s === 'demanding mountain hiking trail') return 'diff-t3';
-  if (s.includes('t4') || s.includes('t5') || s.includes('t6') ||
-      s === 'alpine hiking trail' || s === 'demanding alpine hiking trail') return 'diff-t4';
-  return 'badge-gray';
+  if (s === 'hiking trail')                    return 'diff-t1';
+  if (s === 'mountain hiking trail')           return 'diff-t2';
+  if (s === 'demanding mountain hiking trail') return 'diff-t3';
+  if (s === 'alpine hiking trail')             return 'diff-t4';
+  if (s === 'demanding alpine hiking trail')   return 'diff-t5';
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Season warnings
+// ---------------------------------------------------------------------------
+const ALPINE_CANTONS = new Set(['VS', 'GR', 'UR', 'GL', 'OW', 'NW', 'TI', 'BE']);
+const NOW_MONTH = new Date().getMonth() + 1; // 1–12
+
+function seasonInfo(stage, land) {
+  if (land !== 'hike') return null;
+  const diff = canonDiff(stage.difficulty, 'hike');
+  const inAlpine = (stage.cantons || []).some(c => ALPINE_CANTONS.has(c));
+  if (diff === 'demanding alpine hiking trail' || diff === 'alpine hiking trail') {
+    const warn = NOW_MONTH < 7 || NOW_MONTH > 9;
+    return { label: 'Jul – Sep', warn };
+  }
+  if (diff === 'demanding mountain hiking trail') {
+    const warn = NOW_MONTH < 6 || NOW_MONTH > 10;
+    return { label: 'Jun – Oct', warn };
+  }
+  if (inAlpine && diff === 'mountain hiking trail') {
+    const warn = NOW_MONTH < 5 || NOW_MONTH > 10;
+    return { label: 'May – Oct', warn };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Surprise me
+// ---------------------------------------------------------------------------
+function surpriseMe() {
+  const sbbMax = getSbbMax();
+  const pool = allRoutes
+    .filter(r => r.land === landFilter)
+    .flatMap(r => {
+      const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
+      const isSingle = r.stages.length === 1;
+      const hasDone  = sorted.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+      const nextUp   = hasDone ? sorted.find(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]) : null;
+      // Include: single-stage routes (not yet done), or next-up from in-progress routes
+      const candidates = [];
+      if (isSingle && !completed[stageKey(r.land, r.route_id, sorted[0].stage_nr)]) {
+        candidates.push(sorted[0]);
+      } else if (nextUp) {
+        candidates.push(nextUp);
+      }
+      return candidates.map(s => ({ ...s, _route: r, _routeId: r.route_id, _land: r.land }));
+    })
+    .filter(s => !completed[stageKey(s._land, s._routeId, s.stage_nr)])
+    .filter(s => sbbMax >= 240 || stageWithinSbb(s, sbbMax));
+  if (!pool.length) return;
+  surpriseStage = pool[Math.floor(Math.random() * pool.length)];
+  render();
+  document.getElementById('surprise-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSurprise() {
+  if (!surpriseStage) return '';
+  const s = surpriseStage;
+  const r = s._route;
+  const key = stageKey(s._land, s._routeId, s.stage_nr);
+  const sbbTimes = (s.sbb_times || {})[selectedStation] || {};
+  const best = stageBestSbb(s);
+  const sbbStr = best != null ? `🚆 ${fmtMins(best)} from ${selectedStation}` : '';
+  const distStr = fmtKm(s.dist_km);
+  const hrsStr  = s.duration_hrs ? fmtHrs(s.duration_hrs) : null;
+  const season  = seasonInfo(s, s._land);
+  const diff    = canonDiff(s.difficulty, s._land);
+  const smLink  = smUrl(r, s.stage_nr);
+  return `<div class="surprise-card" id="surprise-anchor">
+    <div class="surprise-header">
+      <span style="font-size:22px">🎲</span>
+      <div>
+        <div class="surprise-label">Suggested for you</div>
+        <div class="surprise-route">${r.land === 'cycle' ? '🚴' : '🥾'} ${r.name}</div>
+      </div>
+      <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
+    </div>
+    <div class="surprise-title">Stage ${s.stage_nr}: ${s.start_name || '?'} → ${s.end_name || '?'}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem">
+      ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
+      ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
+      ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
+      ${diff && diffClass(s.difficulty, s._land) ? `<span class="badge ${diffClass(s.difficulty, s._land)}">${DIFF_LABELS[diff]}</span>` : ''}
+      ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
+      ${elevProfile(s.elev_up, s.elev_down, s._land)}
+    </div>
+    ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
+    <div class="surprise-actions">
+      <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on SchweizMobil ↗</a>
+      <button class="surprise-btn" onclick="surpriseMe()">Try another</button>
+      <button class="surprise-btn" onclick="toggleStage('${key}')">Mark as done</button>
+    </div>
+  </div>`;
+}
+
+function elevProfile(elevUp, elevDown, land) {
+  const up = elevUp || 0, dn = elevDown || 0;
+  if (up < 30 && dn < 30) return '';
+
+  const W = 72, H = 38, pad = 3;
+  const REF = 2000;
+
+  // Scale by the bigger of up/dn so big descents look as dramatic as big climbs
+  const maxEl = Math.max(up, dn);
+  const peakFrac = Math.max(0.08, Math.min(0.92, maxEl / REF));
+
+  const toY = f => H - pad - f * (H - pad * 2);
+  const yP = toY(peakFrac), yB = H - pad;
+  const x0 = pad, x1 = W - pad;
+
+  // Peak shifts left for descents, right for climbs — subtle directional hint
+  const balance = up / (up + dn || 1); // 0 = all descent, 1 = all climb
+  const xPk = pad + (W - pad * 2) * (0.28 + balance * 0.30); // 28%–58%
+
+  // Shape: angular for big days, smooth curves for gentle ones
+  let path;
+  if (maxEl > 1400) {
+    path = `M${x0},${yB} L${xPk},${yP} L${x1},${yB}Z`;
+  } else if (maxEl > 650) {
+    const mx = x0 + (xPk - x0) * 0.55, nx = xPk + (x1 - xPk) * 0.45;
+    path = `M${x0},${yB} Q${mx},${yB} ${xPk},${yP} Q${nx},${yB} ${x1},${yB}Z`;
+  } else {
+    path = `M${x0},${yB} Q${x0 + (xPk-x0)*0.3},${yB} ${xPk},${yP} Q${xPk+(x1-xPk)*0.7},${yB} ${x1},${yB}Z`;
+  }
+
+  const snow = maxEl > 1400
+    ? `<path d="M${xPk-5},${yP+7} L${xPk},${yP} L${xPk+5},${yP+7}Z" fill="rgba(255,255,255,0.7)"/>`
+    : '';
+
+  const col = land === 'cycle' ? 'var(--cycle)' : 'var(--green-dark)';
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">` +
+    `<path d="${path}" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>` +
+    snow + `</svg>`;
 }
 
 function fmtMins(mins) {
@@ -676,8 +1059,9 @@ function renderStages(route) {
       const diff = stage.difficulty;
       const viaStr = stage.via ? ` via ${stage.via}` : '';
       const hrsStr = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
-      const startTravel = fmtMins(stage.sbb_mins);
-      const endTravel   = fmtMins(stage.sbb_mins_end);
+      const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
+      const startTravel = fmtMins(sbbTimes.start);
+      const endTravel   = fmtMins(sbbTimes.end);
       const aspStr = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
       const smLink = smUrl(route, stage.stage_nr);
 
@@ -704,13 +1088,14 @@ function renderStages(route) {
             ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
             ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
             ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
-            ${diff ? `<span class="badge ${diffClass(diff, route.land)}">${diff}</span>` : ''}
+            ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
+            ${(() => { const s = seasonInfo(stage, route.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
             ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
           </div>
           ${startTravel || endTravel ? `
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
-            ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from Basel</span>` : ''}
-            ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from Basel</span>` : ''}
+            ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from ${selectedStation}</span>` : ''}
+            ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
           </div>` : ''}
           ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
           <textarea class="stage-note" rows="1" placeholder="Add a note…"
@@ -719,7 +1104,10 @@ function renderStages(route) {
             onblur="if(!this.value.trim())this.rows=1"
           >${notes[key] || ''}</textarea>` : ''}
         </div>
-        ${starsHtml}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
+          ${elevProfile(stage.elev_up, stage.elev_down, route.land)}
+          ${starsHtml}
+        </div>
       </div>`;
     }).join('') +
   `</div>`;
@@ -758,7 +1146,10 @@ function renderRoute(route) {
           <div class="route-prog-label">${pct}% · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
         </div>` : ''}
       </div>
-      <span class="route-chevron">▾</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span class="route-chevron">▾</span>
+        ${doneCount < totalStages ? `<button class="mark-all-btn" onclick="markRouteComplete('${rkey}');event.stopPropagation()" title="Mark all stages complete">✓ All</button>` : `<button class="mark-all-btn mark-all-btn--undo" onclick="markRouteComplete('${rkey}',true);event.stopPropagation()" title="Unmark all stages">✕ All</button>`}
+      </div>
     </div>
     ${renderStages(route)}
   </div>`;
@@ -773,8 +1164,9 @@ function renderFlatStage(stage) {
   const distStr    = fmtKm(stage.dist_km);
   const hrsStr     = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
   const aspStr     = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
-  const startTravel = fmtMins(stage.sbb_mins);
-  const endTravel   = fmtMins(stage.sbb_mins_end);
+  const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
+  const startTravel = fmtMins(sbbTimes.start);
+  const endTravel   = fmtMins(sbbTimes.end);
   const viaStr = stage.via ? ` via ${stage.via}` : '';
 
   const numClass = [isCycle ? 'cycle' : '', r.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
@@ -806,13 +1198,14 @@ function renderFlatStage(stage) {
         ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
         ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
         ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
-        ${stage.difficulty ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${stage.difficulty}</span>` : ''}
+        ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
+        ${(() => { const s = seasonInfo(stage, r.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
         ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       </div>
       ${startTravel || endTravel ? `
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
-        ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from Basel</span>` : ''}
-        ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from Basel</span>` : ''}
+        ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from ${selectedStation}</span>` : ''}
+        ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
       </div>` : ''}
       ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
       <textarea class="stage-note" rows="1" placeholder="Add a note…"
@@ -821,13 +1214,17 @@ function renderFlatStage(stage) {
         onblur="if(!this.value.trim())this.rows=1"
       >${notes[key] || ''}</textarea>` : ''}
     </div>
-    ${starsHtml}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
+      ${elevProfile(stage.elev_up, stage.elev_down, r.land)}
+      ${starsHtml}
+    </div>
   </div>`;
 }
 
 function render() {
   const list = document.getElementById('route-list');
   const btn  = document.getElementById('load-more');
+  document.getElementById('surprise-wrap').innerHTML = renderSurprise();
 
   if (viewMode === 'stages') {
     const stages = filteredStages();
@@ -865,6 +1262,26 @@ function toggleStage(key) {
   } else {
     completed[key] = new Date().toLocaleDateString('de-CH');
   }
+  saveState();
+  updateStats();
+  render();
+}
+
+function markRouteComplete(rkey, undo = false) {
+  const [land, routeIdStr] = rkey.split('_');
+  const routeId = parseInt(routeIdStr);
+  const route = allRoutes.find(r => r.land === land && r.route_id === routeId);
+  if (!route) return;
+  const today = new Date().toLocaleDateString('de-CH');
+  route.stages.forEach(s => {
+    const key = stageKey(land, routeId, s.stage_nr);
+    if (undo) {
+      delete completed[key];
+      delete ratings[key];
+    } else if (!completed[key]) {
+      completed[key] = today;
+    }
+  });
   saveState();
   updateStats();
   render();

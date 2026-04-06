@@ -3,16 +3,20 @@
 Swiss Hiking & Cycling Tracker — Data Scraper
 ===============================================
 Fetches hiking (land=hike) and cycling (land=cycle) routes + stages from
-SchweizMobil, then enriches each stage with SBB travel time from Basel SBB.
+SchweizMobil, then enriches each stage with SBB travel time from a chosen
+home station.
 
 Output: hikes.json  (load this into the web app)
 
 Usage:
     pip3 install requests
-    python3 scraper.py
+    python3 scraper.py                        # default: Basel SBB
+    python3 scraper.py --origin "Zürich HB"  # add times from Zürich
+    python3 scraper.py --origin "Bern"       # add times from Bern
 
-The script is polite: it sleeps briefly between requests.
-Re-running is safe — it skips routes and SBB lookups already cached in hikes.json.
+Re-running is safe:
+  - Routes already in hikes.json are skipped (matched by land+type+id)
+  - SBB lookups for a given origin are skipped if already present in sbb_times
 
 API:
     Route listing:  GET schweizmobil.ch/api/4/routes/{land}/{category}?lang=en
@@ -26,6 +30,7 @@ API:
 import json
 import time
 import sys
+import argparse
 from datetime import datetime
 
 try:
@@ -38,12 +43,13 @@ except ImportError:
 # Config
 # ---------------------------------------------------------------------------
 
-SM_BASE   = "https://schweizmobil.ch/api/4"
-SBB_API   = "https://transport.opendata.ch/v1"
-ORIGIN    = "Basel SBB"
-OUTPUT    = "hikes.json"
-DELAY     = 0.35   # seconds between SchweizMobil requests — be polite
-SBB_DELAY = 2.0    # transport.opendata.ch rate limits hard (~50 req/min)
+SM_BASE        = "https://schweizmobil.ch/api/4"
+SBB_API        = "https://transport.opendata.ch/v1"
+DEFAULT_ORIGIN = "Basel SBB"
+ORIGIN         = DEFAULT_ORIGIN   # overridden by --origin in main()
+OUTPUT         = "hikes.json"
+DELAY          = 0.35   # seconds between SchweizMobil requests — be polite
+SBB_DELAY      = 2.0    # transport.opendata.ch rate limits hard (~50 req/min)
 
 LANDS      = ["hike", "cycle"]
 CATEGORIES = ["national", "regional", "local"]
@@ -175,6 +181,84 @@ def extract_stage_detail(detail, land):
     return duration_hrs, difficulty, description, cantons, km_asphalt
 
 
+_arrival_cache = {}  # arrival_id → stationName (or None)
+
+
+def fetch_arrival_station_names(arrival_ids):
+    """Resolve SchweizMobil arrivalIds to canonical SBB station names."""
+    names = []
+    for aid in arrival_ids:
+        if aid in _arrival_cache:
+            if _arrival_cache[aid]:
+                names.append(_arrival_cache[aid])
+            continue
+        try:
+            r = SESSION.get(
+                f"https://schweizmobil.ch/api/4/goodtoknow/arrivals/{aid}",
+                params={"lang": "en"}, timeout=10,
+            )
+            data = r.json() if r.ok else []
+            name = data[0].get("stationName") if data else None
+            _arrival_cache[aid] = name
+            if name:
+                names.append(name)
+            time.sleep(DELAY)
+        except Exception:
+            _arrival_cache[aid] = None
+    return names
+
+
+def enrich_arrival_stations(routes):
+    """
+    For each stage, resolve arrivalIds from the SchweizMobil API to get
+    canonical SBB stop names. Stored as arrival_stations list on each stage.
+    Skips stages that already have arrival_stations set.
+    """
+    all_stages = [(r, s) for r in routes for s in r["stages"]]
+    total = len(all_stages)
+    needs_work = sum(1 for _, s in all_stages if "arrival_stations" not in s)
+    if not needs_work:
+        return
+
+    print(f"\n── Arrival stations ({needs_work} stages to enrich) ────────────")
+    for i, (route, stage) in enumerate(all_stages, 1):
+        if "arrival_stations" in stage:
+            continue
+        route_id = route["route_id"]
+        land     = route["land"]
+        stage_nr = stage["stage_nr"]
+        single   = len(route["stages"]) == 1
+        try:
+            data = fetch_route(route_id, land) if single else fetch_segment(route_id, stage_nr, land)
+            time.sleep(DELAY)
+            arrival_ids = (data or {}).get("arrivalIds", [])
+            names = fetch_arrival_station_names(arrival_ids)
+            stage["arrival_stations"] = names
+            label = ", ".join(names) if names else "(none)"
+            print(f"  [{i}/{total}] Route {route_id} stage {stage_nr}: {label}")
+        except Exception as e:
+            print(f"  [warn] Route {route_id} stage {stage_nr}: {e}")
+            stage["arrival_stations"] = []
+    save(routes)
+
+
+def best_arrival_station(name, candidates):
+    """
+    Pick the candidate station name that best matches a place name,
+    using word overlap. Returns None if no candidate shares any word.
+    """
+    if not candidates:
+        return None
+    words = set(name.lower().replace("(", " ").replace(")", " ")
+                             .replace(",", " ").replace("-", " ").split())
+    words.discard("fl")  # Fürstentum Liechtenstein suffix, not useful
+    for cand in candidates:
+        cand_words = set(cand.lower().replace(",", " ").replace("-", " ").split())
+        if words & cand_words:
+            return cand
+    return None
+
+
 def build_route(route_nr, land):
     """
     Build a complete route dict with stages for one route/land combination.
@@ -212,9 +296,7 @@ def build_route(route_nr, land):
             "difficulty":  difficulty,
             "description": description,
             "cantons":     cantons,
-            "sbb_station": None,
-            "sbb_mins":    None,
-            "sbb_mins_end": None,
+            "sbb_times":   {},
         })
     else:
         for seg in segs:
@@ -236,9 +318,7 @@ def build_route(route_nr, land):
                 "difficulty":  difficulty,
                 "description": description,
                 "cantons":     cantons,
-                "sbb_station": None,
-                "sbb_mins":    None,
-                "sbb_mins_end": None,
+                "sbb_times":   {},
             })
 
     stages.sort(key=lambda s: s["stage_nr"])
@@ -259,11 +339,40 @@ def build_route(route_nr, land):
 # SBB travel time lookup
 # ---------------------------------------------------------------------------
 
+class SbbDailyLimitError(Exception):
+    pass
+
+
+def sbb_canonical_station(name):
+    """
+    Query the SBB locations API to find the canonical station name for a place.
+    Returns the top result's name, or None if not found.
+    """
+    try:
+        r = SESSION.get(f"{SBB_API}/locations", params={"query": name}, timeout=10)
+        r.raise_for_status()
+        body = r.json()
+        if body.get("errors"):
+            msg = (body["errors"][0].get("message") or "").lower()
+            if "too many requests" in msg or "rate limit" in msg:
+                raise SbbDailyLimitError(body["errors"][0]["message"])
+            return None
+        stations = body.get("stations", [])
+        if stations and stations[0].get("name"):
+            return stations[0]["name"]
+    except SbbDailyLimitError:
+        raise
+    except Exception:
+        pass
+    return None
+
+
 def sbb_travel_minutes(destination):
     """
-    Get travel time in minutes from Basel SBB to destination.
+    Get travel time in minutes from origin to destination.
     Returns int (minutes) or None on failure/bad match.
     Retries once after 30s on 429 rate-limit.
+    Raises SbbDailyLimitError if the daily quota is exhausted.
     """
     if not destination:
         return None
@@ -281,7 +390,16 @@ def sbb_travel_minutes(destination):
                     continue
                 return None
             r.raise_for_status()
-            conns = r.json().get("connections", [])
+            body = r.json()
+            # Check for daily quota error returned as JSON body (not a 429)
+            errors = body.get("errors", [])
+            if errors:
+                msg = (errors[0].get("message") or "").lower()
+                if "too many requests" in msg or "rate limit" in msg:
+                    raise SbbDailyLimitError(errors[0]["message"])
+                print(f"    [warn] SBB API error for '{destination}': {errors[0].get('message')}")
+                return None
+            conns = body.get("connections", [])
             if not conns:
                 return None
             c = conns[0]
@@ -296,76 +414,111 @@ def sbb_travel_minutes(destination):
             dest_mentions_basel = "basel" in dest_lower
             bad_match = (
                 (matched_lower.startswith("basel") and not dest_mentions_basel) or
-                (matched_lower.startswith("binningen") and not dest_lower.startswith("binn"))
+                (matched_lower.startswith("binningen") and not dest_lower.startswith("binning"))
             )
             if bad_match:
                 print(f"    [skip] '{destination}' → '{matched}' — wrong station, discarding")
                 return None
             return int((arr - dep) / 60)
+        except SbbDailyLimitError:
+            raise
         except Exception as e:
             print(f"    [warn] SBB lookup failed for '{destination}': {e}")
             return None
     return None
 
 
-def enrich_sbb(routes):
+def enrich_sbb(routes, origin):
     """
-    For each stage look up SBB travel time for start and end points.
-    Skips stages with sbb_mins already populated (safe to re-run).
+    For each stage look up SBB travel time from `origin` for start and end points.
+    Skips stages already populated for this origin (safe to re-run).
     """
     all_stages = [(r, s) for r in routes for s in r["stages"]]
     total = len(all_stages)
 
-    # Build lookup from previously resolved start names → minutes
-    start_lookup = {}
+    # Build reuse lookup: place name → minutes (for this origin run)
+    lookup = {}
     for _, s in all_stages:
-        if s.get("sbb_mins") is not None and s.get("sbb_station"):
-            start_lookup[s["sbb_station"]] = s["sbb_mins"]
-            start_lookup[s["start_name"]] = s["sbb_mins"]
+        times = s.get("sbb_times", {}).get(origin, {})
+        if times.get("start") is not None:
+            lookup[s.get("start_name", "")] = times["start"]
+        if times.get("end") is not None:
+            lookup[s.get("end_name", "")] = times["end"]
 
     for i, (route, stage) in enumerate(all_stages, 1):
-        # --- Start point ---
-        if stage.get("sbb_mins") is None:
-            dest = stage.get("start_name", "")
-            print(f"  [{i}/{total}] Basel → {dest or '?'} (start)...", end=" ", flush=True)
-            mins = sbb_travel_minutes(dest)
-            time.sleep(SBB_DELAY)
-            if mins is None and "(" in dest:
-                stripped = dest[:dest.index("(")].strip()
-                mins = sbb_travel_minutes(stripped)
-                time.sleep(SBB_DELAY)
-                if mins is not None:
-                    dest = stripped
-            stage["sbb_station"] = dest if mins is not None else None
-            stage["sbb_mins"] = mins
+        times = stage.setdefault("sbb_times", {}).setdefault(origin, {})
+
+        arrivals = stage.get("arrival_stations", [])
+
+        def lookup_sbb(name):
+            """Try name, then arrival-station match, then parenthesis-strip, then locations API."""
+            mins = sbb_travel_minutes(name)
             if mins is not None:
-                start_lookup[dest] = mins
-                start_lookup[stage["start_name"]] = mins
+                return mins
+            time.sleep(SBB_DELAY)
+            # Try the best-matching canonical arrival station
+            canon = best_arrival_station(name, arrivals)
+            if canon and canon.lower() != name.lower():
+                mins = sbb_travel_minutes(canon)
+                if mins is not None:
+                    return mins
+                time.sleep(SBB_DELAY)
+            # Strip parenthesised suffix
+            if "(" in name:
+                stripped = name[:name.index("(")].strip()
+                mins = sbb_travel_minutes(stripped)
+                if mins is not None:
+                    return mins
+                time.sleep(SBB_DELAY)
+            # Last resort: SBB locations API
+            loc = sbb_canonical_station(name)
+            time.sleep(SBB_DELAY)
+            if loc and loc.lower() != name.lower():
+                mins = sbb_travel_minutes(loc)
+                if mins is not None:
+                    return mins
+                time.sleep(SBB_DELAY)
+            return None
+
+        # --- Start point ---
+        if times.get("start") is None:
+            dest = stage.get("start_name", "")
+            print(f"  [{i}/{total}] {origin} → {dest or '?'} (start)...", end=" ", flush=True)
+            try:
+                mins = lookup_sbb(dest)
+            except SbbDailyLimitError as e:
+                print(f"\n\n  [DAILY LIMIT] {e}")
+                print(f"  Stopped at stage {i}/{total}. Saving progress and exiting.")
+                save(routes)
+                return
+            times["start"] = mins
+            if mins is not None:
+                lookup[dest] = mins
             print(f"{mins} min" if mins is not None else "not found")
         else:
-            print(f"  [{i}/{total}] {stage['start_name']} start — cached ({stage['sbb_mins']} min)")
+            print(f"  [{i}/{total}] {stage['start_name']} start — cached ({times['start']} min)")
 
         # --- End point ---
-        if stage.get("sbb_mins_end") is None:
+        if times.get("end") is None:
             end = stage.get("end_name", "")
-            # Try to reuse a previously resolved time for the same place name
-            if end in start_lookup:
-                stage["sbb_mins_end"] = start_lookup[end]
-                print(f"  [{i}/{total}] {end} end — reused ({stage['sbb_mins_end']} min)")
+            if end in lookup:
+                times["end"] = lookup[end]
+                print(f"  [{i}/{total}] {end} end — reused ({times['end']} min)")
             else:
-                print(f"  [{i}/{total}] Basel → {end or '?'} (end)...", end=" ", flush=True)
-                mins = sbb_travel_minutes(end)
-                time.sleep(SBB_DELAY)
-                if mins is None and "(" in end:
-                    stripped = end[:end.index("(")].strip()
-                    mins = sbb_travel_minutes(stripped)
-                    time.sleep(SBB_DELAY)
-                stage["sbb_mins_end"] = mins
+                print(f"  [{i}/{total}] {origin} → {end or '?'} (end)...", end=" ", flush=True)
+                try:
+                    mins = lookup_sbb(end)
+                except SbbDailyLimitError as e:
+                    print(f"\n\n  [DAILY LIMIT] {e}")
+                    print(f"  Stopped at stage {i}/{total}. Saving progress and exiting.")
+                    save(routes)
+                    return
+                times["end"] = mins
                 if mins is not None:
-                    start_lookup[end] = mins
+                    lookup[end] = mins
                 print(f"{mins} min" if mins is not None else "not found")
         else:
-            print(f"  [{i}/{total}] {stage['end_name']} end — cached ({stage['sbb_mins_end']} min)")
+            print(f"  [{i}/{total}] {stage['end_name']} end — cached ({times['end']} min)")
 
 # ---------------------------------------------------------------------------
 # Persistence
@@ -400,9 +553,21 @@ def load_existing():
 # ---------------------------------------------------------------------------
 
 def main():
+    global ORIGIN
+    parser = argparse.ArgumentParser(
+        description="Swiss Hiking & Cycling Tracker — Data Scraper"
+    )
+    parser.add_argument(
+        "--origin", default=DEFAULT_ORIGIN,
+        help=f"SBB departure station (default: {DEFAULT_ORIGIN!r})"
+    )
+    args = parser.parse_args()
+    ORIGIN = args.origin
+
     print("=" * 60)
     print("Swiss Hiking & Cycling Tracker — Data Scraper")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f"Origin:  {ORIGIN}")
     print("=" * 60)
 
     existing = load_existing()
@@ -428,9 +593,12 @@ def main():
                     save(routes)
                 time.sleep(DELAY)
 
+    # --- Arrival station enrichment (canonical SBB stop names from SchweizMobil) ---
+    enrich_arrival_stations(routes)
+
     # --- SBB enrichment ---
     print(f"\n── SBB travel times from {ORIGIN} ─────────────────")
-    enrich_sbb(routes)
+    enrich_sbb(routes, ORIGIN)
     save(routes)
 
     # --- Summary ---
@@ -438,7 +606,8 @@ def main():
     sbb_found = sum(1 for r in routes for s in r["stages"] if s.get("sbb_mins") is not None)
     by_land = {}
     for r in routes:
-        by_land[r["land"]] = by_land.get(r["land"], 0) + 1
+        key = r.get("land", "unknown")
+        by_land[key] = by_land.get(key, 0) + 1
     print("\n" + "=" * 60)
     print(f"Done!  {len(routes)} routes · {total_stages} stages")
     for land, count in by_land.items():
