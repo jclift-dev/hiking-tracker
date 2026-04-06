@@ -646,7 +646,11 @@ def import_to_supabase(routes):
     print(f"Uploading {len(route_rows)} routes in batches of {BATCH}...")
     for i in range(0, len(route_rows), BATCH):
         batch = route_rows[i:i + BATCH]
-        resp = SESSION.post(f"{url}/rest/v1/routes", headers=headers, json=batch, timeout=30)
+        resp = SESSION.post(
+            f"{url}/rest/v1/routes",
+            headers=headers, json=batch, timeout=30,
+            params={"on_conflict": "id,land"},
+        )
         if not resp.ok:
             print(f"  [error] routes batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
         else:
@@ -677,7 +681,11 @@ def import_to_supabase(routes):
     print(f"Uploading {len(stage_rows)} stages in batches of {BATCH}...")
     for i in range(0, len(stage_rows), BATCH):
         batch = stage_rows[i:i + BATCH]
-        resp = SESSION.post(f"{url}/rest/v1/stages", headers=headers, json=batch, timeout=30)
+        resp = SESSION.post(
+            f"{url}/rest/v1/stages",
+            headers=headers, json=batch, timeout=30,
+            params={"on_conflict": "route_id,land,stage_nr"},
+        )
         if not resp.ok:
             print(f"  [error] stages batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
         else:

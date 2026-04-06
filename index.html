@@ -558,8 +558,8 @@ async function loadData() {
   try {
     const [{ data: routes, error: routesErr }, { data: stages, error: stagesErr }] =
       await Promise.all([
-        sb.from('routes').select('*'),
-        sb.from('stages').select('*'),
+        sb.from('routes').select('*').limit(2000),
+        sb.from('stages').select('*').limit(5000),
       ]);
     if (routesErr) throw new Error(routesErr.message);
     if (stagesErr) throw new Error(stagesErr.message);
