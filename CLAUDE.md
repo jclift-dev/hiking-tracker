@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-A personal Swiss hiking tracker with two components:
+A Swiss hiking tracker for a small group of users, with three components:
 
-1. **`scraper.py`** — fetches route and stage data from the SchweizMobil map API and enriches each stage with SBB travel times from multiple Swiss cities via transport.opendata.ch. Outputs `hikes.json`.
-2. **`index.html`** — a single-file vanilla JS web app that reads `hikes.json` and lets you track completed stages, filter/search routes, sort by travel time from a selected home station, and switch between hiking and cycling modes.
+1. **`scraper.py`** — fetches route and stage data from the SchweizMobil map API and enriches each stage with SBB travel times from multiple Swiss cities via transport.opendata.ch. Outputs `hikes.json` locally and can import to Supabase.
+2. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase magic link, loads route data from Supabase, and lets users track completed stages, filter/search routes, sort by travel time, and switch between hiking and cycling modes.
+3. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via magic link (passwordless email).
 
 ## Running the scraper
 
@@ -20,9 +21,12 @@ python3 scraper.py --origin "Zürich HB"  # add times from any SBB station
 python3 scraper.py --routes-only          # fetch new/updated route data only, no SBB calls
 python3 scraper.py --sbb-only             # enrich SBB times only, skip route scraping
 python3 scraper.py --sbb-only --origin "Bern"
+
+# Push to Supabase (after scraping):
+python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
 ```
 
-**Workflow:** Run `--routes-only` to quickly pick up newly added routes (SchweizMobil adds them fairly often). Run `--sbb-only` overnight to avoid burning the daily API quota on route scraping.
+**Workflow:** Run `--routes-only` to pick up newly added routes. Run `--sbb-only` overnight to avoid burning the daily API quota. Run `--import` to push updated data to Supabase.
 
 The scraper is resumable — re-running skips routes already in `hikes.json` and SBB lookups already populated for that origin. Safe to interrupt (Ctrl+C saves progress immediately) and restart.
 
@@ -30,16 +34,27 @@ transport.opendata.ch enforces a **daily request quota**. When hit, the scraper 
 
 Progress is also saved every 25 stages during both SBB enrichment and arrival-station enrichment.
 
+### Supabase credentials
+
+Stored in `.env` (gitignored — never commit this):
+
+```
+SUPABASE_URL=https://mpgkkmkvzgqkvtoearxp.supabase.co
+SUPABASE_SERVICE_KEY=<service_role key>
+```
+
+Load with: `export $(cat .env | xargs) && python3 scraper.py --import`
+
 ## Viewing the web app
 
-The web app fetches `hikes.json` via `fetch()`, so it requires a local HTTP server (not `file://`).
-
-The easiest way is via `.claude/launch.json` — just start the "Web App" server from Claude Code. Or manually:
+The app requires a local HTTP server (not `file://`) for local dev. The easiest way is via `.claude/launch.json` — start the "Web App" server from Claude Code. Or manually:
 
 ```bash
 python3 -m http.server 8000
 # then open http://localhost:8000
 ```
+
+The production app is deployed at **https://jclift-dev.github.io/hiking-tracker/** via GitHub Pages. Pushes to `main` deploy automatically.
 
 ## Architecture
 
@@ -51,14 +66,31 @@ SchweizMobil API  ────────────────────�
   route overview: GET schweizmobil.ch/api/4/route_or_segment/{land}/{id}/0?lang=en
   per-segment:    GET schweizmobil.ch/api/4/route_or_segment/{land}/{id}/{seg}?lang=en
   arrival IDs:    GET schweizmobil.ch/api/4/goodtoknow/arrivals/{id}?lang=en
-                                                                     ├──► scraper.py ──► hikes.json ──► index.html
-transport.opendata.ch  ──────────────────────────────────────────────┘
-  GET /v1/connections?from={origin}&to={station}&limit=1
+                                                                     ├──► scraper.py ──► hikes.json
+transport.opendata.ch  ──────────────────────────────────────────────┘                      │
+  GET /v1/connections?from={origin}&to={station}&limit=1                              --import
+                                                                                            │
+                                                                                            ▼
+                                                                                       Supabase DB ──► index.html
 ```
 
 **How the API was found:** The site is fully JS-rendered. Used Playwright to intercept network requests on `schweizmobil.ch/en/hiking-in-switzerland/route-01`, which revealed the call to `api/4/route_or_segment/hike/1/0`. The `land=hike` value was found by searching the JS bundle for short lowercase strings in the segment component. The route geometry map API (`map.schweizmobil.ch/api/4/query/featuresmultilayers`) does **not** contain stage data — it only has route-level geometry.
 
+### Supabase schema
+
+**`routes`** — shared read-only route data. Primary key: `(id, land)` — both hiking and cycling have routes numbered 1–7, so the composite key is required.
+
+**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb` to preserve the existing dict structure.
+
+**`user_state`** — per-user completions/ratings/notes. Keyed by `(user_id, stage_key)` where `stage_key` is `"land_routeId_stageNr"` (e.g. `"hike_1_3"`).
+
+**`user_preferences`** — per-user settings (selected home station).
+
+RLS policies ensure each user can only read/write their own rows. Routes and stages are public-read (no auth required to query). The scraper uses the `service_role` key (bypasses RLS) for imports.
+
 ### hikes.json schema
+
+`hikes.json` is the local scraper output — same data that gets imported to Supabase. The web app reads from Supabase, not this file.
 
 ```json
 [{
@@ -90,9 +122,7 @@ transport.opendata.ch  ───────────────────
 }]
 ```
 
-`arrival_stations` is a list of canonical SBB station names near the stage end, resolved from SchweizMobil's `arrivalIds`. Used as fallback lookup targets when the end station name doesn't match directly.
-
-`sbb_times` is a dict keyed by origin station name. Each value has `start` (mins from origin to stage start) and `end` (mins to stage end). Either can be `null` if the station wasn't found. Values are added incrementally by running the scraper with different `--origin` flags.
+`sbb_times` values are `null` (scraper tried, no connection found) or an integer (minutes). `undefined`/missing means never looked up.
 
 `difficulty` values from the API are English text: `"hiking trail"`, `"mountain hiking trail"`, `"demanding mountain hiking trail"`, `"alpine hiking trail"`. `index.html` normalises these via `DIFF_CANON` and `canonDiff()` to clean T1–T4 labels.
 
@@ -108,14 +138,25 @@ transport.opendata.ch  ───────────────────
 
 Each card shows `↑ Xm [icon] ↓ Xm`. Icons are referenced via `<img src="assets/...">` (not inlined) to avoid SVG `id` clashes when multiple cards render on the same page.
 
+A 🛏 icon is shown next to a stage start or end name when `sbb_times[station].start === null` or `.end === null` — indicating no train connection (remote hut, pass, etc.).
+
 ### Web app state
 
-- Completion state: `localStorage` key `hikes_done` → `{ "land_routeId_stageNr": "date string" }`
-- Ratings: `localStorage` key `hikes_ratings` → `{ "land_routeId_stageNr": 1–5 }`
-- Notes: `localStorage` key `hikes_notes` → `{ "land_routeId_stageNr": "text" }`
-- Selected home station: `localStorage` key `hikes_station`
+All user state is stored in Supabase and synced in real time:
 
-There is no backend — everything is local to the browser.
+- `user_state` table: `{ stage_key, completed_on, rating, note }` per user
+- `user_preferences` table: `{ selected_station }` per user
+
+In-memory: `completed`, `ratings`, `notes`, `selectedStation` — same structure as before, loaded from Supabase on login and written back via `persistStage(key)` / `persistStation(val)` on every change.
+
+On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `hikes_notes`) is migrated to Supabase automatically and removed from localStorage.
+
+### Auth
+
+- Magic link (passwordless email) via Supabase Auth
+- Sign-ups disabled — users must be invited via **Supabase > Authentication > Users > Invite user**
+- Sessions persist for 1 week with auto-refresh (users rarely need to re-authenticate)
+- `PROD_URL` constant in `index.html` hardcodes the GitHub Pages URL for magic link redirects
 
 ### Route numbering
 
