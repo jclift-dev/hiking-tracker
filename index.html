@@ -1405,12 +1405,6 @@ async function sendMagicLink() {
 
 async function logout() {
   await sb.auth.signOut();
-  currentUser = null;
-  completed = {}; ratings = {}; notes = {};
-  allRoutes = [];
-  render();
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.querySelector('.app').style.display = 'none';
 }
 
 async function migrateFromLocalStorage() {
