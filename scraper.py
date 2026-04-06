@@ -11,8 +11,9 @@ Output: hikes.json  (load this into the web app)
 Usage:
     pip3 install requests
     python3 scraper.py                        # default: Basel SBB
-    python3 scraper.py --origin "Zürich HB"  # add times from Zürich
-    python3 scraper.py --origin "Bern"       # add times from Bern
+    python3 scraper.py --origin "Zürich HB"  # add times from a single origin
+    python3 scraper.py --sbb-all              # enrich all planned origins in sequence,
+                                              # auto-resuming after daily quota resets
 
 Re-running is safe:
   - Routes already in hikes.json are skipped (matched by land+type+id)
@@ -51,6 +52,41 @@ ORIGIN         = DEFAULT_ORIGIN   # overridden by --origin in main()
 OUTPUT         = "hikes.json"
 DELAY          = 0.35   # seconds between SchweizMobil requests — be polite
 SBB_DELAY      = 2.0    # transport.opendata.ch rate limits hard (~50 req/min)
+QUOTA_POLL     = 3600   # seconds between quota-reset polls (1 hour)
+
+# Supabase credentials — loaded from .env if present
+def _load_env():
+    try:
+        with open(".env") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, _, v = line.partition("=")
+                    os.environ.setdefault(k.strip(), v.strip())
+    except FileNotFoundError:
+        pass
+
+_load_env()
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
+if SUPABASE_URL and SUPABASE_KEY:
+    print("Supabase credentials loaded — live sync enabled.")
+else:
+    print("No Supabase credentials found — local JSON only.")
+
+# All planned SBB origins — processed in order by --sbb-all
+ALL_ORIGINS = [
+    "Basel SBB",
+    "Zürich HB",
+    "Bern",
+    "Lausanne",
+    "Genève",
+    "Luzern",
+    "St. Gallen",
+    "Winterthur",
+    "Biel/Bienne",
+    "Lugano",
+]
 
 LANDS      = ["hike", "cycle"]
 CATEGORIES = ["national", "regional", "local"]
@@ -463,6 +499,32 @@ def sbb_travel_minutes(destination):
     return None
 
 
+def supabase_patch_stage(route_id, land, stage_nr, sbb_times):
+    """
+    Patch the sbb_times column for a single stage in Supabase.
+    Silently skips if credentials are not configured.
+    """
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return
+    try:
+        resp = SESSION.patch(
+            f"{SUPABASE_URL}/rest/v1/stages",
+            params={"route_id": f"eq.{route_id}", "land": f"eq.{land}", "stage_nr": f"eq.{stage_nr}"},
+            headers={
+                "apikey": SUPABASE_KEY,
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal",
+            },
+            json={"sbb_times": sbb_times},
+            timeout=15,
+        )
+        if not resp.ok:
+            print(f"  [warn] Supabase patch failed for route {route_id} stage {stage_nr}: {resp.status_code} {resp.text[:100]}")
+    except Exception as e:
+        print(f"  [warn] Supabase patch error for route {route_id} stage {stage_nr}: {e}")
+
+
 def enrich_sbb(routes, origin):
     """
     For each stage look up SBB travel time from `origin` for start and end points.
@@ -482,10 +544,6 @@ def enrich_sbb(routes, origin):
 
     SAVE_EVERY = 25
     stages_since_save = 0
-
-    def stop_sbb(reason, i, routes):
-        print(f"\n  [{reason}] Stopped at stage {i}/{total}. Saving progress and exiting.")
-        save(routes)
 
     try:
       for i, (route, stage) in enumerate(all_stages, 1):
@@ -531,8 +589,8 @@ def enrich_sbb(routes, origin):
                 mins = lookup_sbb(dest)
             except SbbDailyLimitError as e:
                 print(f"\n\n  [DAILY LIMIT] {e}")
-                stop_sbb("DAILY LIMIT", i, routes)
-                return
+                save(routes)
+                raise
             times["start"] = mins
             if mins is not None:
                 lookup[dest] = mins
@@ -552,14 +610,16 @@ def enrich_sbb(routes, origin):
                     mins = lookup_sbb(end)
                 except SbbDailyLimitError as e:
                     print(f"\n\n  [DAILY LIMIT] {e}")
-                    stop_sbb("DAILY LIMIT", i, routes)
-                    return
+                    save(routes)
+                    raise
                 times["end"] = mins
                 if mins is not None:
                     lookup[end] = mins
                 print(f"{mins} min" if mins is not None else "not found")
         else:
             print(f"  [{i}/{total}] {stage['end_name']} end — cached ({times['end']} min)")
+
+        supabase_patch_stage(route["route_id"], route["land"], stage["stage_nr"], stage["sbb_times"])
 
         stages_since_save += 1
         if stages_since_save >= SAVE_EVERY:
@@ -570,6 +630,41 @@ def enrich_sbb(routes, origin):
         print(f"\n  [interrupted] Saving progress...")
         save(routes)
         raise
+
+# ---------------------------------------------------------------------------
+# Quota recovery
+# ---------------------------------------------------------------------------
+
+def wait_for_quota_reset():
+    """
+    Block until the SBB daily quota has reset.
+    Polls every QUOTA_POLL seconds (default 1 hour) with a cheap test request.
+    """
+    test_from, test_to = "Basel SBB", "Zürich HB"
+    while True:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        print(f"\n  [quota] Daily limit reached at {now}.")
+        print(f"  [quota] Sleeping {QUOTA_POLL // 60} min, then polling until quota resets...")
+        time.sleep(QUOTA_POLL)
+        try:
+            r = SESSION.get(
+                f"{SBB_API}/connections",
+                params={"from": test_from, "to": test_to, "limit": 1},
+                timeout=15,
+            )
+            body = r.json()
+            errors = body.get("errors", [])
+            if errors:
+                msg = (errors[0].get("message") or "").lower()
+                if "too many requests" in msg or "rate limit" in msg:
+                    print(f"  [quota] Still rate-limited at {datetime.now().strftime('%H:%M')} — waiting again...")
+                    continue
+            # No quota error — API is back
+            print(f"  [quota] Quota reset confirmed at {datetime.now().strftime('%Y-%m-%d %H:%M')}. Resuming.")
+            return
+        except Exception as e:
+            print(f"  [quota] Poll failed ({e}) — will retry in {QUOTA_POLL // 60} min.")
+
 
 # ---------------------------------------------------------------------------
 # Persistence
@@ -700,6 +795,21 @@ def import_to_supabase(routes):
 # Main
 # ---------------------------------------------------------------------------
 
+def enrich_sbb_with_recovery(routes, origin):
+    """
+    Run enrich_sbb for a single origin, automatically waiting and retrying
+    if the daily quota is hit. Resumes from where it left off each time.
+    """
+    while True:
+        try:
+            enrich_sbb(routes, origin)
+            return  # completed cleanly
+        except SbbDailyLimitError:
+            wait_for_quota_reset()
+            # Reload routes from disk — saves may have happened mid-run
+            routes[:] = list(load_existing().values())
+
+
 def main():
     global ORIGIN
     parser = argparse.ArgumentParser(
@@ -716,7 +826,11 @@ def main():
     )
     mode.add_argument(
         "--sbb-only", action="store_true",
-        help="Run SBB enrichment only — skip route scraping"
+        help="Run SBB enrichment only for --origin — skip route scraping"
+    )
+    mode.add_argument(
+        "--sbb-all", action="store_true",
+        help="Enrich all planned origins in sequence, auto-resuming after daily quota resets"
     )
     mode.add_argument(
         '--import', dest='import_mode', action='store_true',
@@ -734,14 +848,13 @@ def main():
     print("=" * 60)
     print("Swiss Hiking & Cycling Tracker — Data Scraper")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    print(f"Origin:  {ORIGIN}")
     print("=" * 60)
 
     existing = load_existing()
     routes = []
 
     # --- Route scraping ---
-    if not args.sbb_only:
+    if not args.sbb_only and not args.sbb_all:
         try:
             for land in LANDS:
                 label = "Hiking" if land == "hike" else "Cycling"
@@ -778,17 +891,47 @@ def main():
             save(routes)
             return
     else:
-        # sbb-only: load all existing routes into the working list
         routes = list(existing.values())
-        print(f"SBB-only mode — {len(routes)} routes loaded, skipping route scraping.")
+        print(f"Loaded {len(routes)} routes — skipping route scraping.")
 
     # --- SBB enrichment ---
-    print(f"\n── SBB travel times from {ORIGIN} ─────────────────")
-    try:
-        enrich_sbb(routes, ORIGIN)
-    except KeyboardInterrupt:
-        sys.exit(0)
-    save(routes)
+    if args.sbb_all:
+        # Determine which origins still have incomplete data
+        pending = []
+        for origin in ALL_ORIGINS:
+            incomplete = sum(
+                1 for r in routes for s in r["stages"]
+                if s.get("sbb_times", {}).get(origin, {}).get("start") is None
+                or s.get("sbb_times", {}).get(origin, {}).get("end") is None
+            )
+            if incomplete:
+                pending.append((origin, incomplete))
+            else:
+                print(f"  ✓ {origin} — already complete, skipping")
+
+        if not pending:
+            print("\nAll origins already complete.")
+        else:
+            print(f"\n── SBB enrichment: {len(pending)} origin(s) to process ──────────")
+            for origin, incomplete in pending:
+                print(f"\n{'='*60}")
+                print(f"── Origin: {origin}  ({incomplete} lookups remaining)")
+                print(f"   Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+                print("=" * 60)
+                try:
+                    enrich_sbb_with_recovery(routes, origin)
+                except KeyboardInterrupt:
+                    print("\n  [interrupted] Exiting.")
+                    sys.exit(0)
+                save(routes)
+                print(f"  ✓ {origin} complete at {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    else:
+        print(f"\n── SBB travel times from {ORIGIN} ─────────────────")
+        try:
+            enrich_sbb_with_recovery(routes, ORIGIN)
+        except KeyboardInterrupt:
+            sys.exit(0)
+        save(routes)
 
     # --- Summary ---
     total_stages = sum(len(r["stages"]) for r in routes)

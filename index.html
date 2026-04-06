@@ -95,14 +95,16 @@
   }
   .header-controls {
     position: absolute; top: 1.1rem; right: 1.5rem;
-    display: flex; gap: 8px; align-items: center;
+    display: flex; flex-direction: column; gap: 6px; align-items: stretch;
   }
-  .header-flag {
+  .signout-btn {
     width: 34px; height: 34px; border-radius: 8px;
-    background: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
     display: flex; align-items: center; justify-content: center;
-    font-size: 19px; box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    font-size: 15px; cursor: pointer; transition: all 0.15s;
+    color: rgba(255,255,255,0.7);
   }
+  .signout-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
   .settings-btn {
     width: 34px; height: 34px; border-radius: 8px;
     background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
@@ -159,12 +161,12 @@
     .header--cycle { background: linear-gradient(160deg, #020609 0%, #050f1e 50%, #071530 100%) !important; }
   }
 
-  /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem 1rem; }
-  .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
-  .stat-value { font-size: 24px; font-weight: 600; }
-  .stat-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  /* Stats (inline in header) */
+  .header-stats { display: flex; gap: 0; margin: 0.6rem 0 1rem; }
+  .header-stat { flex: 1; padding: 0.5rem 0.75rem; border-left: 1px solid rgba(255,255,255,0.12); }
+  .header-stat:first-child { border-left: none; padding-left: 0; }
+  .header-stat-value { font-size: 18px; font-weight: 700; color: #fff; line-height: 1; }
+  .header-stat-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
 
   /* Progress bar */
   .progress-wrap { background: var(--gray-bg); border-radius: 99px; height: 6px; margin-bottom: 1.5rem; overflow: hidden; }
@@ -304,9 +306,8 @@
   /* Mobile */
   @media (max-width: 600px) {
     .app { padding: 0 0.6rem 4rem; }
-    .stats { gap: 6px; }
-    .stat { padding: 0.6rem 0.75rem; }
-    .stat-value { font-size: 20px; }
+    .header-stats { margin: 0.4rem 0 0.75rem; }
+    .header-stat-value { font-size: 15px; }
     .header h1 { font-size: 22px; }
     .header-toggle { margin-top: 0.75rem; }
     .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; flex-wrap: nowrap; }
@@ -348,12 +349,25 @@
   <div class="header header--hike" id="main-header">
     <div class="header-inner">
       <div class="header-controls">
-        <button onclick="logout()" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 6px" title="Sign out">Sign out</button>
+        <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
-        <div class="header-flag">🇨🇭</div>
       </div>
       <h1><span id="header-title">Swiss Hiking</span><span id="header-mode"> 🥾 Walking trails</span></h1>
       <p id="subtitle">Loading routes…</p>
+      <div class="header-stats" id="stats" style="display:none">
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-done">0</div>
+          <div class="header-stat-label" id="stat-done-sub">stages done</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-km">0</div>
+          <div class="header-stat-label" id="stat-km-label">km walked</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-remaining">—</div>
+          <div class="header-stat-label">km remaining</div>
+        </div>
+      </div>
       <div class="header-toggle">
         <button class="header-tab active" id="header-land-hike"  onclick="setLand('hike')" >🥾 Hiking</button>
         <button class="header-tab"        id="header-land-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
@@ -386,23 +400,6 @@
 
   <div id="error-area"></div>
 
-  <div class="stats" id="stats" style="display:none">
-    <div class="stat">
-      <div class="stat-label">Stages completed</div>
-      <div class="stat-value" id="stat-done">0</div>
-      <div class="stat-sub" id="stat-done-sub"></div>
-    </div>
-    <div class="stat">
-      <div class="stat-label" id="stat-km-label">Km walked</div>
-      <div class="stat-value" id="stat-km">0</div>
-      <div class="stat-sub">km</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Km remaining</div>
-      <div class="stat-value" id="stat-remaining">—</div>
-      <div class="stat-sub">km</div>
-    </div>
-  </div>
   <div class="progress-wrap" id="progress-wrap" style="display:none">
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
@@ -557,52 +554,71 @@ function saveNote(key, val) {
 // Data loading
 // ---------------------------------------------------------------------------
 async function loadData() {
-  try {
-    const [{ data: routes, error: routesErr }, { data: stages, error: stagesErr }] =
-      await Promise.all([
-        sb.from('routes').select('*').limit(2000),
-        sb.from('stages').select('*').limit(5000),
-      ]);
-    if (routesErr) throw new Error(routesErr.message);
-    if (stagesErr) throw new Error(stagesErr.message);
+  const MAX_RETRIES = 4;
+  const RETRY_DELAY_MS = 3000;
 
-    allRoutes = routes.map(r => ({
-      route_id:    r.id,
-      land:        r.land,
-      route_type:  r.route_type,
-      name:        r.name,
-      description: r.description || '',
-      start:       r.start_name || '',
-      end:         r.end_name || '',
-      total_km:    r.total_km,
-      stages: stages
-        .filter(s => s.route_id === r.id && s.land === r.land)
-        .sort((a, b) => a.stage_nr - b.stage_nr),
-    }));
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      if (attempt > 1) {
+        document.getElementById('subtitle').textContent = `Connecting… (attempt ${attempt}/${MAX_RETRIES})`;
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+      }
 
-    updateSubtitle();
-    document.getElementById('stats').style.display = 'grid';
-    document.getElementById('progress-wrap').style.display = 'block';
-    populateCantons();
-    populateDifficulties();
-    populateStations();
-    updateStats();
-    render();
-  } catch(e) {
-    showError(e.message);
+      // Fetch routes (well under 1000)
+      const { data: routes, error: routesErr } = await sb.from('routes').select('*').limit(1000);
+      if (routesErr) throw new Error(routesErr.message);
+
+      // Fetch stages in pages of 1000 (Supabase hard cap per request)
+      let stages = [], from = 0;
+      while (true) {
+        const { data: page, error: stagesErr } = await sb.from('stages').select('*').range(from, from + 999);
+        if (stagesErr) throw new Error(stagesErr.message);
+        stages = stages.concat(page);
+        if (page.length < 1000) break;
+        from += 1000;
+      }
+
+      // Empty result on first attempt likely means DB is waking up — retry
+      if (!routes.length && attempt < MAX_RETRIES) continue;
+
+      allRoutes = routes.map(r => ({
+        route_id:    r.id,
+        land:        r.land,
+        route_type:  r.route_type,
+        name:        r.name,
+        description: r.description || '',
+        start:       r.start_name || '',
+        end:         r.end_name || '',
+        total_km:    r.total_km,
+        stages: stages
+          .filter(s => s.route_id === r.id && s.land === r.land)
+          .sort((a, b) => a.stage_nr - b.stage_nr),
+      }));
+
+      document.getElementById('error-area').innerHTML = '';
+      updateSubtitle();
+      document.getElementById('stats').style.display = 'grid';
+      document.getElementById('progress-wrap').style.display = 'block';
+      populateCantons();
+      populateDifficulties();
+      populateStations();
+      updateStats();
+      render();
+      return;
+    } catch(e) {
+      if (attempt === MAX_RETRIES) showError(e.message);
+    }
   }
 }
 
 function showError(msg) {
   document.getElementById('error-area').innerHTML = `
     <div class="error-box">
-      <strong>Could not load hikes.json</strong><br>
+      <strong>Could not load route data</strong><br>
       ${msg}<br><br>
-      Make sure you've run <code>python scraper.py</code> and placed <code>hikes.json</code>
-      in the same folder as this file, then open via a local server
-      (<code>python -m http.server 8000</code>).
+      <a href="#" onclick="loadData();return false;">Try again</a>
     </div>`;
-  document.getElementById('subtitle').textContent = 'Data not loaded';
+  document.getElementById('subtitle').textContent = 'Could not load data';
 }
 
 // ---------------------------------------------------------------------------
@@ -772,8 +788,8 @@ function updateStats() {
   const totalKm = allStages.reduce((s, st) => s + (st.dist_km || 0), 0);
   const pct = totalStages ? Math.round(doneStages.length / totalStages * 100) : 0;
 
-  document.getElementById('stat-done').textContent = doneStages.length;
-  document.getElementById('stat-done-sub').textContent = `of ${totalStages} stages (${pct}%)`;
+  document.getElementById('stat-done').textContent = `${doneStages.length} / ${totalStages}`;
+  document.getElementById('stat-done-sub').textContent = `${pct}% of stages`;
   document.getElementById('stat-km').textContent = Math.round(doneKm).toLocaleString();
   document.getElementById('stat-remaining').textContent = Math.round(totalKm - doneKm).toLocaleString();
   document.getElementById('progress-fill').style.width = pct + '%';
@@ -794,11 +810,11 @@ function setLand(l) {
   if (l === 'hike') {
     document.getElementById('header-title').textContent  = 'Swiss Hiking';
     document.getElementById('header-mode').textContent   = ' 🥾 Walking trails';
-    document.getElementById('stat-km-label').textContent = 'Km walked';
+    document.getElementById('stat-km-label').textContent = 'km walked';
   } else {
     document.getElementById('header-title').textContent  = 'Swiss Cycling';
     document.getElementById('header-mode').textContent   = ' 🚴 Cycling routes';
-    document.getElementById('stat-km-label').textContent = 'Km cycled';
+    document.getElementById('stat-km-label').textContent = 'km cycled';
   }
   populateDifficulties();
   updateSubtitle();
@@ -1444,13 +1460,17 @@ async function migrateFromLocalStorage() {
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
+const DEV_MODE = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
 sb.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null;
-  if (currentUser) {
+  if (currentUser || DEV_MODE) {
     document.getElementById('auth-screen').style.display = 'none';
     document.querySelector('.app').style.display = '';
-    await migrateFromLocalStorage();
-    await loadUserState();
+    if (currentUser) {
+      await migrateFromLocalStorage();
+      await loadUserState();
+    }
     await loadData();
   } else {
     document.getElementById('auth-screen').style.display = 'flex';

@@ -178,6 +178,20 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 
 All routes are cached after the first `--routes-only` run. Each subsequent `--sbb-only` pass makes ~1–2 SBB API calls per stage (start + end, with reuse when names repeat), so roughly 600–1200 requests per origin. With the daily quota this typically takes 1–2 nights per origin.
 
+### Planned SBB origins
+
+Basel SBB is done. Remaining cities to scrape (run one per night with `--sbb-only`):
+
+- Zürich HB
+- Bern
+- Lausanne
+- Genève
+- Luzern
+- St. Gallen
+- Winterthur
+- Biel/Bienne
+- Lugano
+
 ### Dev servers
 
 `.claude/launch.json` defines two runnable configurations:
