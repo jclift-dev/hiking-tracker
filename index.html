@@ -97,6 +97,7 @@
     position: absolute; top: 1.1rem; right: 1.5rem;
     display: flex; flex-direction: column; gap: 6px; align-items: stretch;
   }
+  .header-user { font-size: 10px; color: rgba(255,255,255,0.45); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
   .signout-btn {
     width: 34px; height: 34px; border-radius: 8px;
     background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
@@ -371,6 +372,7 @@
   <div class="header header--hike" id="main-header">
     <div class="header-inner">
       <div class="header-controls">
+        <div class="header-user" id="header-user"></div>
         <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
       </div>
@@ -1622,6 +1624,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
     if (currentUser || DEV_MODE) {
       document.getElementById('auth-screen').style.display = 'none';
       document.querySelector('.app').style.display = '';
+      const emailEl = document.getElementById('header-user');
+      if (emailEl) emailEl.textContent = currentUser?.email?.split('@')[0] || '';
       if (currentUser) {
         await migrateFromLocalStorage();
         await loadUserState();
