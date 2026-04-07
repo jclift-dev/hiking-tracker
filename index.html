@@ -629,8 +629,16 @@ function showError(msg) {
       <strong>Could not load route data</strong><br>
       ${msg}<br><br>
       <a href="#" onclick="loadData();return false;">Try again</a>
+      &nbsp;·&nbsp;
+      <a href="#" onclick="hardReset();return false;">Sign out &amp; reset</a>
     </div>`;
   document.getElementById('subtitle').textContent = 'Could not load data';
+}
+
+function hardReset() {
+  localStorage.clear();
+  sessionStorage.clear();
+  window.location.href = window.location.pathname;
 }
 
 // ---------------------------------------------------------------------------
