@@ -3,4 +3,7 @@ __pycache__/
 .env
 scraper.log
 discover_local.py
-.env
+
+# Stitch reference designs (local only)
+stitch*/
+DESIGN.md
