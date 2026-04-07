@@ -109,17 +109,17 @@
   }
   .header-inner { position: relative; z-index: 2; padding: 1.5rem 1.5rem 1.75rem; }
   .header-eyebrow {
-    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;
-    color: rgba(255,255,255,0.55); margin-bottom: 6px; font-family: 'Manrope', sans-serif;
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.5); margin-bottom: 8px; font-family: 'Manrope', sans-serif;
   }
   .header h1 {
     font-family: 'Manrope', sans-serif;
-    font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
-    color: #fff; line-height: 1.1;
+    font-size: 42px; font-weight: 800; letter-spacing: -0.03em;
+    color: #fff; line-height: 1.0;
     text-shadow: 0 2px 20px rgba(0,0,0,0.4);
   }
-  .header h1 span { opacity: 0.6; font-weight: 500; font-size: 16px; margin-left: 5px; letter-spacing: 0; font-family: 'Inter', sans-serif; }
-  .header p  { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .header h1 span { opacity: 0.55; font-weight: 500; font-size: 16px; margin-left: 6px; letter-spacing: 0; font-family: 'Inter', sans-serif; display: block; margin-top: 4px; }
+  .header p  { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; margin-top: 8px; letter-spacing: 0; text-transform: none; }
   /* Mountain silhouette */
   .header-controls {
     position: absolute; top: 1.1rem; right: 1.5rem; z-index: 3;
@@ -165,7 +165,7 @@
   }
   .settings-section { margin-bottom: 1rem; }
   .settings-section:last-child { margin-bottom: 0; }
-  .settings-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .settings-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; font-family: 'Manrope', sans-serif; }
   .settings-label strong { color: var(--text); text-transform: none; letter-spacing: 0; font-size: 13px; font-family: 'Manrope', sans-serif; }
   .settings-pills { display: flex; gap: 6px; flex-wrap: wrap; }
   .settings-pill {
@@ -200,11 +200,11 @@
   }
 
   /* Stats (inline in header) */
-  .header-stats { display: flex; gap: 0; margin: 0.75rem 0 1.1rem; }
+  .header-stats { display: flex; gap: 0; margin: 1rem 0 1.1rem; }
   .header-stat { flex: 1; padding: 0.5rem 0.85rem; border-left: 1px solid rgba(255,255,255,0.10); }
   .header-stat:first-child { border-left: none; padding-left: 0; }
-  .header-stat-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; }
-  .header-stat-label { font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .header-stat-value { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; font-family: 'Manrope', sans-serif; letter-spacing: -0.03em; }
+  .header-stat-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.45); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.1em; }
 
   /* Progress bar */
   .progress-wrap { background: var(--sec-container); border-radius: 99px; height: 5px; margin-bottom: 1.5rem; overflow: visible; position: relative; }
@@ -257,13 +257,13 @@
   .badge-cycle  { background: var(--cycle-bg);  color: var(--cycle-dark); }
 
   .route-meta { flex: 1; min-width: 0; }
-  .route-name { font-size: 17px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; }
+  .route-name { font-size: 20px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; line-height: 1.2; }
   .route-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   /* Editorial stat columns (reference: Stitch mockup) */
   .route-stats-row { display: flex; gap: 18px; margin-top: 10px; }
   .route-stat-col { display: flex; flex-direction: column; gap: 2px; }
-  .route-stat-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-  .route-stat-val { font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif; color: var(--text); line-height: 1; }
+  .route-stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  .route-stat-val { font-size: 17px; font-weight: 800; font-family: 'Manrope', sans-serif; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
 
   .badge { font-size: 12px; padding: 3px 8px; border-radius: 99px; font-weight: 400; white-space: nowrap; }
   .badge-green  { background: var(--green-bg);  color: var(--green-dark); }
@@ -276,7 +276,7 @@
   .route-prog-bar { background: var(--sec-container); border-radius: 99px; height: 4px; overflow: visible; position: relative; }
   .route-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; transition: width 0.3s; position: relative; }
   .route-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--surface); }
-  .route-prog-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.01em; }
+  .route-prog-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 4px; letter-spacing: 0.02em; }
 
   .route-chevron { color: var(--muted); font-size: 14px; margin-top: 4px; flex-shrink: 0; transition: transform 0.2s; }
   .route-card.open .route-chevron { transform: rotate(180deg); }
@@ -293,7 +293,7 @@
   .stage-check.done::after { content: ''; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: block; }
 
   .stage-info { flex: 1; min-width: 0; }
-  .stage-title { font-size: 14px; font-weight: 500; }
+  .stage-title { font-size: 15px; font-weight: 600; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; line-height: 1.3; }
   .stage-title.done-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
   .stage-places { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
@@ -479,7 +479,7 @@
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
-  <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;font-family:'Manrope',sans-serif">Trail Selection</div>
+  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;font-family:'Manrope',sans-serif">Trail Selection</div>
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="setFilter('all')">All</button>
     <button class="tab" onclick="setFilter('national')">National</button>
@@ -1305,7 +1305,7 @@ function renderRoute(route) {
         ${doneCount > 0 ? `
         <div class="route-progress">
           <div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%"></div></div>
-          <div class="route-prog-label">${pct}% · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
+          <div class="route-prog-label"><span style="color:var(--primary);font-family:'Manrope',sans-serif">${pct}%</span> · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
         </div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
