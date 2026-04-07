@@ -121,20 +121,35 @@
   }
   .header p  { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; margin-top: 8px; letter-spacing: 0; text-transform: none; }
   /* Mountain silhouette */
-  /* Top bar inside header */
+  /* Top bar inside header — dark emerald band */
   .header-topbar {
     position: relative; z-index: 3;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1.1rem 1.5rem 0;
+    padding: 0.85rem 1.25rem;
+    background: rgba(1, 12, 7, 0.82);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
   .header-nav { display: flex; gap: 2px; }
   .header-nav-btn {
-    padding: 7px 16px; font-size: 13px; font-weight: 600;
-    border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.55);
-    cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
+    padding: 6px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.45);
+    cursor: pointer; transition: all 0.15s; font-family: 'Manrope', sans-serif;
   }
-  .header-nav-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
-  .header-nav-btn.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 700; }
+  .header-nav-btn:hover { color: rgba(255,255,255,0.85); }
+  .header-nav-btn.active { color: #fff; border-bottom: 2px solid rgba(165,208,185,0.8); border-radius: 0; padding-bottom: 4px; }
+  /* Hiking / Cycling pill toggle */
+  .land-pill {
+    display: flex; align-items: center; gap: 2px;
+    background: rgba(255,255,255,0.08); border-radius: 99px; padding: 3px;
+  }
+  .land-pill-btn {
+    padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+    border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.5);
+    cursor: pointer; transition: all 0.18s; font-family: 'Manrope', sans-serif; white-space: nowrap;
+  }
+  .land-pill-btn:hover { color: rgba(255,255,255,0.85); }
+  .land-pill-btn.active { background: #fff; color: var(--primary); font-weight: 800; }
   .header-controls {
     display: flex; gap: 8px; align-items: center; z-index: 3;
   }
@@ -542,6 +557,10 @@
         <button class="header-nav-btn" id="view-stages" onclick="setView('stages')">Stages</button>
       </nav>
       <div class="header-controls">
+        <div class="land-pill" id="land-pill">
+          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
+          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+        </div>
         <div class="header-user" id="header-user"></div>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
         <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
@@ -551,7 +570,7 @@
     <div class="header-inner">
       <div class="header-left">
         <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
-        <h1><span id="header-title">Via</span></h1>
+        <h1><span id="header-title">VIA</span></h1>
         <p id="subtitle">Loading routes…</p>
       </div>
       <div class="header-right">
@@ -661,6 +680,7 @@ let notes           = {};   // key: "land_routeId_stageNr" → string
 let wishlist        = {};   // key: "land_routeId_stageNr" → true
 let expanded        = {};   // key: "land_routeId" → bool
 let filter          = 'all';
+let landFilter      = 'hike';
 let viewMode        = 'routes';
 let visible         = 20;
 let selectedStation = 'Basel SBB';
@@ -951,15 +971,14 @@ function setStation(val) {
 }
 
 function updateSubtitle() {
-  const hikeRoutes  = allRoutes.filter(r => r.land === 'hike');
-  const cycleRoutes = allRoutes.filter(r => r.land === 'cycle');
-  const totalStages = allRoutes.reduce((s, r) => s + r.stages.length, 0);
-  document.getElementById('subtitle').textContent =
-    `${hikeRoutes.length} hiking · ${cycleRoutes.length} cycling · ${totalStages} stages`;
+  const vis    = allRoutes.filter(r => r.land === landFilter);
+  const stages = vis.reduce((s, r) => s + r.stages.length, 0);
+  document.getElementById('subtitle').textContent = `${vis.length} routes · ${stages} stages`;
 }
 
 function updateStats() {
-  const allFlat     = allRoutes.flatMap(r => r.stages.map(s => ({...s, _land: r.land, _routeId: r.route_id})));
+  const visRoutes   = allRoutes.filter(r => r.land === landFilter);
+  const allFlat     = visRoutes.flatMap(r => r.stages.map(s => ({...s, _land: r.land, _routeId: r.route_id})));
   const totalStages = allFlat.length;
   const doneStages  = allFlat.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
   const doneKm      = doneStages.reduce((s, st) => s + (st.dist_km || 0), 0);
@@ -969,6 +988,7 @@ function updateStats() {
   document.getElementById('stat-done').textContent = `${doneStages.length} / ${totalStages}`;
   document.getElementById('stat-done-sub').textContent = `${pct}% of stages`;
   document.getElementById('stat-km').textContent = Math.round(doneKm).toLocaleString();
+  document.getElementById('stat-km-label').textContent = landFilter === 'cycle' ? 'km cycled' : 'km walked';
   document.getElementById('stat-remaining').textContent = Math.round(totalKm - doneKm).toLocaleString();
   document.getElementById('progress-fill').style.width = pct + '%';
 }
@@ -976,6 +996,17 @@ function updateStats() {
 // ---------------------------------------------------------------------------
 // Filtering + sorting
 // ---------------------------------------------------------------------------
+
+function setLand(l) {
+  landFilter = l;
+  visible = 20;
+  ['hike','cycle'].forEach(x =>
+    document.getElementById('land-btn-' + x).classList.toggle('active', x === l)
+  );
+  updateSubtitle();
+  updateStats();
+  render();
+}
 
 function setView(v) {
   viewMode = v;
@@ -1009,6 +1040,7 @@ function filteredRoutes() {
   let routes = allRoutes.filter(r => {
     r.stages.forEach(s => { s._routeId = r.route_id; s._land = r.land; });
 
+    if (r.land !== landFilter) return false;
     if (filter === 'national') return r.route_type === 'national';
     if (filter === 'regional') return r.route_type === 'regional';
     if (filter === 'local')    return r.route_type === 'local';
@@ -1076,7 +1108,7 @@ function filteredStages() {
 
   // Pre-compute next-up stage keys for in-progress routes
   const nextUpKeys = new Set();
-  allRoutes.forEach(r => {
+  allRoutes.filter(r => r.land === landFilter).forEach(r => {
     const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
     if (!sorted.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)])) return;
     const next = sorted.find(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
@@ -1084,6 +1116,7 @@ function filteredStages() {
   });
 
   stages = stages.filter(s => {
+    if (s._land !== landFilter) return false;
     const rt = s._route.route_type;
     if (filter === 'national') return rt === 'national';
     if (filter === 'regional') return rt === 'regional';
@@ -1166,6 +1199,7 @@ function seasonInfo(stage, land) {
 function surpriseMe() {
   const sbbMax = getSbbMax();
   const pool = allRoutes
+    .filter(r => r.land === landFilter)
     .flatMap(r => {
       const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
       const isSingle = r.stages.length === 1;
@@ -1478,8 +1512,9 @@ function renderDashboard() {
   const doneElev   = Math.round(doneFlat.reduce((n, s) => n + (s.elev_up  || 0), 0));
   const doneCount  = doneFlat.length;
 
-  // In-progress routes (all lands)
+  // In-progress routes for current land
   const inProgress = allRoutes
+    .filter(r => r.land === landFilter)
     .map(r => {
       const done  = r.stages.filter(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]).length;
       const total = r.stages.length;
@@ -1595,7 +1630,7 @@ function renderDashboard() {
       <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1VOouX-SzLwW1uhVxK26aHSVy3XYrJ7iN6xTXxRMcMKEQv_NhtoZ39xm3zfG6BRqb1-LPLvdDjrQxBXcn8efScma1I_EN2wjpQqf7W598u9XinzlhDtdd5WeG0DKiPs6QEcAPnWvQJj7rnUBJ_96LVz_Jokw36qTSYujzqwQWgsKUJedW-SsM7yC-sMn0RCbyfKvMm6AwiM1kSdah8ELvLTNQx6x6Mgo8z_KWMCqMEiflRb96OZvAaZaRrwR1ia6jBS3aKTQ5j50r" alt="Switzerland trail map">
       <div class="dash-map-overlay">
         <div class="dash-map-title">Switzerland Trail Network</div>
-        <div class="dash-map-sub">${allRoutes.length} routes · explore on SchweizMobil</div>
+        <div class="dash-map-sub">${allRoutes.filter(r => r.land === landFilter).length} routes · explore on SchweizMobil</div>
       </div>
     </div>`;
 
@@ -1618,19 +1653,10 @@ function render() {
       : '<div class="empty">No stages match your filter.</div>';
     btn.style.display = stages.length > visible ? 'block' : 'none';
   } else {
-    const routes      = filteredRoutes();
-    const hikeRoutes  = routes.filter(r => r.land === 'hike');
-    const cycleRoutes = routes.filter(r => r.land === 'cycle');
-    if (!routes.length) {
-      list.innerHTML = '<div class="empty">No routes match your filter.</div>';
-      btn.style.display = 'none';
-    } else {
-      let html = '';
-      if (hikeRoutes.length)  html += `<div class="section-divider">🥾 Hiking · ${hikeRoutes.length} routes</div>`  + hikeRoutes.map(renderRoute).join('');
-      if (cycleRoutes.length) html += `<div class="section-divider">🚴 Cycling · ${cycleRoutes.length} routes</div>` + cycleRoutes.map(renderRoute).join('');
-      list.innerHTML = html;
-      btn.style.display = 'none';
-    }
+    const routes = filteredRoutes();
+    const slice  = routes.slice(0, visible);
+    list.innerHTML = slice.length ? slice.map(renderRoute).join('') : '<div class="empty">No routes match your filter.</div>';
+    btn.style.display = routes.length > visible ? 'block' : 'none';
   }
 }
 
