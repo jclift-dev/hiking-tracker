@@ -31,11 +31,13 @@
     --ghost:      rgba(25,28,29,0.07);
     --border:     rgba(25,28,29,0.10);
     --surface:    #ffffff;
-    --surface-low:#f4f3ef;
-    --page:       #f0eeea;
-    --text:       #161614;
+    --surface-low:#f3f4f5;
+    --sec-container: #cce6fb;
+    --page:       #f8f9fa;
+    --text:       #191c1d;
     --muted:      #6b6b67;
-    --radius:     14px;
+    --radius:     20px;
+    --radius-lg:  28px;
     --shadow:     0 2px 16px rgba(25,28,29,0.07), 0 1px 4px rgba(25,28,29,0.04);
     --shadow-lg:  0 12px 40px rgba(25,28,29,0.09), 0 2px 8px rgba(25,28,29,0.05);
   }
@@ -43,6 +45,7 @@
     :root {
       --surface:    #1e1e1c;
       --surface-low:#181816;
+      --sec-container: #1a2d3a;
       --page:       #111110;
       --text:       #e8e8e4;
       --muted:      #9a9a96;
@@ -193,7 +196,7 @@
   .header-stat-label { font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
 
   /* Progress bar */
-  .progress-wrap { background: var(--gray-bg); border-radius: 99px; height: 5px; margin-bottom: 1.5rem; overflow: visible; position: relative; }
+  .progress-wrap { background: var(--sec-container); border-radius: 99px; height: 5px; margin-bottom: 1.5rem; overflow: visible; position: relative; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; transition: width 0.4s ease; position: relative; }
   .progress-fill::after { content: ''; position: absolute; right: -3px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: var(--tertiary); border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
@@ -222,10 +225,10 @@
   .controls select:focus { box-shadow: 0 0 0 2px rgba(29,158,117,0.25), 0 1px 3px rgba(25,28,29,0.07); }
 
   /* Route cards */
-  .route-list { display: flex; flex-direction: column; gap: 12px; }
-  .route-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.2s; }
+  .route-list { display: flex; flex-direction: column; gap: 14px; }
+  .route-card { background: var(--surface-low); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.2s; }
   .route-card:hover { box-shadow: var(--shadow-lg); }
-  .route-header { padding: 1.1rem 1.25rem; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; }
+  .route-header { padding: 1.25rem 1.4rem; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; }
   .route-header:hover { background: rgba(25,28,29,0.02); }
 
   .route-num { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--gray-bg); border-radius: 5px; padding: 3px 7px; flex-shrink: 0; margin-top: 1px; }
@@ -244,8 +247,12 @@
 
   .route-meta { flex: 1; min-width: 0; }
   .route-name { font-size: 17px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; }
-  .route-sub  { font-size: 12px; color: var(--muted); margin-top: 3px; letter-spacing: 0.01em; }
   .route-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  /* Editorial stat columns (reference: Stitch mockup) */
+  .route-stats-row { display: flex; gap: 18px; margin-top: 10px; }
+  .route-stat-col { display: flex; flex-direction: column; gap: 2px; }
+  .route-stat-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .route-stat-val { font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif; color: var(--text); line-height: 1; }
 
   .badge { font-size: 12px; padding: 3px 8px; border-radius: 99px; font-weight: 400; white-space: nowrap; }
   .badge-green  { background: var(--green-bg);  color: var(--green-dark); }
@@ -255,7 +262,7 @@
   .badge-red    { background: var(--red-bg);    color: var(--red); }
 
   .route-progress { margin-top: 10px; }
-  .route-prog-bar { background: var(--gray-bg); border-radius: 99px; height: 4px; overflow: visible; position: relative; }
+  .route-prog-bar { background: var(--sec-container); border-radius: 99px; height: 4px; overflow: visible; position: relative; }
   .route-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; transition: width 0.3s; position: relative; }
   .route-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--surface); }
   .route-prog-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.01em; }
@@ -364,15 +371,15 @@
     .surprise-card { padding: 0.9rem 1rem; }
   }
 
-  /* Difficulty colours — hiking */
-  .diff-t1 { background: var(--green-bg);  color: var(--green-dark); }
-  .diff-t2 { background: var(--blue-bg);   color: var(--blue); }
-  .diff-t3 { background: var(--amber-bg);  color: var(--amber); }
-  .diff-t4, .diff-t5, .diff-t6 { background: var(--red-bg); color: var(--red); }
-  /* Difficulty colours — cycling (easy/medium/difficult) */
-  .diff-easy       { background: var(--green-bg);  color: var(--green-dark); }
-  .diff-medium     { background: var(--amber-bg);  color: var(--amber); }
-  .diff-difficult  { background: var(--red-bg);    color: var(--red); }
+  /* Difficulty colours — hiking (spec: primary-fixed for easy, tertiary for demanding) */
+  .diff-t1 { background: #c1ecd4; color: #274e3d; }
+  .diff-t2 { background: var(--blue-bg); color: var(--blue); }
+  .diff-t3 { background: #ffdad5; color: #930002; }
+  .diff-t4, .diff-t5, .diff-t6 { background: #7f0001; color: #ffdad5; font-weight: 600; }
+  /* Difficulty colours — cycling */
+  .diff-easy       { background: #c1ecd4; color: #274e3d; }
+  .diff-medium     { background: var(--amber-bg); color: var(--amber); }
+  .diff-difficult  { background: #7f0001; color: #ffdad5; font-weight: 600; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -468,6 +475,7 @@
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
+  <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;font-family:'Manrope',sans-serif">Trail Selection</div>
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="setFilter('all')">All</button>
     <button class="tab" onclick="setFilter('national')">National</button>
@@ -1282,11 +1290,12 @@ function renderRoute(route) {
       <span class="route-num ${numClass}">${route.route_type === 'national' ? '★ ' : ''}${route.route_id}</span>
       <div class="route-meta">
         <div class="route-name">${icon} ${route.name || 'Route ' + route.route_id}</div>
-        <div class="route-sub">${totalStages} stage${totalStages !== 1 ? 's' : ''} · ${Math.round(totalKm)} km total</div>
-        <div class="route-badges">
-          ${doneCount > 0 ? `<span class="badge badge-green">✓ ${doneCount}/${totalStages} done</span>` : ''}
+        <div class="route-stats-row">
+          <div class="route-stat-col"><span class="route-stat-label">Stages</span><span class="route-stat-val">${totalStages}</span></div>
+          <div class="route-stat-col"><span class="route-stat-label">Total km</span><span class="route-stat-val">${Math.round(totalKm)}</span></div>
+          ${doneCount > 0 ? `<div class="route-stat-col"><span class="route-stat-label">Done</span><span class="route-stat-val" style="color:var(--green)">${doneCount}/${totalStages}</span></div>` : ''}
         </div>
-        ${routeCantons.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">
+        ${routeCantons.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
           ${routeCantons.map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="16" height="16" onerror="this.style.display='none'"></span>`).join('')}
         </div>` : ''}
         ${doneCount > 0 ? `
