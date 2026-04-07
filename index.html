@@ -151,9 +151,9 @@
     background: rgba(255,255,255,0.08); border-radius: 99px; padding: 3px;
   }
   .land-pill-btn {
-    padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+    padding: 3px 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
     border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.5);
-    cursor: pointer; transition: all 0.18s; font-family: 'Manrope', sans-serif; white-space: nowrap;
+    cursor: pointer; transition: all 0.18s; font-family: 'Manrope', sans-serif; white-space: nowrap; text-transform: uppercase;
   }
   .land-pill-btn:hover { color: rgba(255,255,255,0.85); }
   .land-pill-btn.active { background: #fff; color: var(--primary); font-weight: 800; }
@@ -253,10 +253,6 @@
   .header-stat-value { font-size: 26px; font-weight: 800; color: #fff; line-height: 1; font-family: 'Manrope', sans-serif; letter-spacing: -0.03em; }
   .header-stat-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.45); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.1em; }
 
-  /* Progress bar */
-  .progress-wrap { background: var(--sec-container); border-radius: 99px; height: 5px; margin-bottom: 1.5rem; overflow: visible; position: relative; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; transition: width 0.4s ease; position: relative; }
-  .progress-fill::after { content: ''; position: absolute; right: -3px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: var(--tertiary); border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
   /* View toggle */
   .view-btn { padding: 6px 18px; font-size: 13px; font-weight: 500; border: none; border-radius: 10px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 3px rgba(25,28,29,0.06); }
@@ -579,8 +575,8 @@
       </nav>
       <div class="header-topbar-right">
         <div class="land-pill" id="land-pill">
-          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
-          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">Hiking</button>
+          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">Cycling</button>
         </div>
         <div class="header-user" id="header-user"></div>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
@@ -632,9 +628,6 @@
 
   <div id="error-area"></div>
 
-  <div class="progress-wrap" id="progress-wrap" style="display:none">
-    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-  </div>
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem" id="surprise-wrap-row">
     <div class="subview-toggle" id="subview-toggle">
@@ -831,7 +824,6 @@ async function loadData() {
       document.getElementById('error-area').innerHTML = '';
       updateSubtitle();
       document.getElementById('stats').style.display = 'grid';
-      document.getElementById('progress-wrap').style.display = 'block';
       populateCantons();
       populateStations();
       updateStats();
@@ -1015,7 +1007,6 @@ function updateStats() {
   document.getElementById('stat-km').textContent = Math.round(doneKm).toLocaleString();
   document.getElementById('stat-km-label').textContent = landFilter === 'cycle' ? 'km cycled' : 'km walked';
   document.getElementById('stat-remaining').textContent = Math.round(totalKm - doneKm).toLocaleString();
-  document.getElementById('progress-fill').style.width = pct + '%';
 }
 
 // ---------------------------------------------------------------------------
