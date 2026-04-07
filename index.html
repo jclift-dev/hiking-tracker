@@ -255,7 +255,7 @@
 
 
   /* View toggle */
-  .view-btn { padding: 6px 18px; font-size: 13px; font-weight: 500; border: none; border-radius: 10px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 3px rgba(25,28,29,0.06); }
+  .view-btn { padding: 6px 18px; font-size: 13px; font-weight: 500; border: none; border-radius: 10px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 3px rgba(25,28,29,0.06); flex-shrink: 0; }
   .view-btn:hover { color: var(--text); }
   .view-btn.active { background: var(--text); color: var(--surface); box-shadow: 0 2px 8px rgba(25,28,29,0.2); }
 
@@ -629,7 +629,7 @@
   <div id="error-area"></div>
 
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem" id="surprise-wrap-row">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:nowrap;gap:0.5rem" id="surprise-wrap-row">
     <div class="subview-toggle" id="subview-toggle">
       <button class="subview-btn active" id="subview-routes" onclick="setView('routes')">Routes</button>
       <button class="subview-btn" id="subview-stages" onclick="setView('stages')">All Stages</button>
