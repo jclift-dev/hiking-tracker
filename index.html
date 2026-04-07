@@ -1469,11 +1469,13 @@ async function signIn() {
 async function logout() {
   _inPasswordRecovery = false;
   _booting = false;
+  _loggingOut = true;
   allRoutes = [];
   try { await sb.auth.signOut(); } catch(e) { /* ignore — force UI reset regardless */ }
   document.getElementById('auth-screen').style.display = 'flex';
   document.querySelector('.app').style.display = 'none';
   showLoginForm();
+  setTimeout(() => { _loggingOut = false; }, 2000);
 }
 
 async function migrateFromLocalStorage() {
@@ -1517,6 +1519,7 @@ const DEV_MODE = location.hostname === 'localhost' || location.hostname === '127
 
 let _booting = false;
 let _inPasswordRecovery = false;
+let _loggingOut = false;
 
 sb.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;
@@ -1534,6 +1537,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('auth-newpass').style.display = 'flex';
     return;
   }
+
+  // Block all events while logout is in progress
+  if (_loggingOut) return;
 
   // Always handle sign-out, even during password recovery
   if (!user && !DEV_MODE) {
