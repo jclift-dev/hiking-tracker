@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Swiss Hiking & Cycling Tracker</title>
+<title>Via</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -78,17 +78,18 @@
   /* Layout */
   .app { max-width: 800px; margin: 0 auto; padding: 0 1rem 4rem; }
 
-  /* Header */
+  /* Header — floating card */
   .header {
     position: relative;
-    margin: 0 -1rem 1.75rem;
+    margin: 0.75rem 0 1.75rem;
     padding: 0;
     background: var(--primary);
     overflow: hidden;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-radius: var(--radius-lg);
     min-height: 260px;
     display: flex; flex-direction: column; justify-content: flex-end;
     transition: background 0.5s ease;
+    box-shadow: var(--shadow-lg);
   }
   .header-bg-img {
     position: absolute; inset: 0; width: 100%; height: 100%;
@@ -504,7 +505,7 @@
 </head>
 <body>
 <div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
-  <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem">🥾 Swiss Hiking Tracker</div>
+  <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;font-family:'Manrope',sans-serif;letter-spacing:-0.03em">Via</div>
   <div id="auth-login" style="display:flex;flex-direction:column;gap:0.5rem;width:280px">
     <input id="auth-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
     <input id="auth-password" type="password" placeholder="Password" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
@@ -548,7 +549,7 @@
     <!-- Main content -->
     <div class="header-inner">
       <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
-      <h1><span id="header-title">Swiss Hiking</span><span id="header-mode"> 🥾 Walking trails</span></h1>
+      <h1><span id="header-title">Via</span><span id="header-mode"> 🥾 Walking trails</span></h1>
       <p id="subtitle">Loading routes…</p>
       <div class="header-stats" id="stats" style="display:none">
         <div class="header-stat">
@@ -1002,11 +1003,11 @@ function setLand(l) {
   header.classList.toggle('header--hike',  l === 'hike');
   header.classList.toggle('header--cycle', l === 'cycle');
   if (l === 'hike') {
-    document.getElementById('header-title').textContent  = 'Swiss Hiking';
+    document.getElementById('header-title').textContent  = 'Via';
     document.getElementById('header-mode').textContent   = ' 🥾 Walking trails';
     document.getElementById('stat-km-label').textContent = 'km walked';
   } else {
-    document.getElementById('header-title').textContent  = 'Swiss Cycling';
+    document.getElementById('header-title').textContent  = 'Via';
     document.getElementById('header-mode').textContent   = ' 🚴 Cycling routes';
     document.getElementById('stat-km-label').textContent = 'km cycled';
   }
@@ -1578,7 +1579,7 @@ function renderDashboard() {
     <div class="dash-hero">
       <img class="dash-hero-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC" alt="">
       <div class="dash-hero-inner">
-        <div class="dash-hero-eyebrow">Swiss Trail Tracker</div>
+        <div class="dash-hero-eyebrow">Current Expedition</div>
         <h2>Your Alpine Journey</h2>
         <div class="dash-hero-sub">Pick a route and start exploring Switzerland's best trails.</div>
         <div class="dash-hero-btns">
