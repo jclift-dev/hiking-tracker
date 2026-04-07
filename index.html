@@ -342,6 +342,20 @@
     <input id="auth-password" type="password" placeholder="Password" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
     <button onclick="signIn()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Sign in</button>
     <div id="auth-error" style="font-size:12px;color:#e05;display:none"></div>
+    <a href="#" onclick="showResetForm();return false;" style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px">Forgot password?</a>
+  </div>
+  <div id="auth-reset" style="display:none;flex-direction:column;gap:0.5rem;width:280px">
+    <input id="auth-reset-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
+    <button onclick="sendReset()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Send reset link</button>
+    <div id="auth-reset-error" style="font-size:12px;color:#e05;display:none"></div>
+    <div id="auth-reset-sent" style="font-size:13px;color:var(--muted);text-align:center;display:none">Check your email for a reset link ✓</div>
+    <a href="#" onclick="showLoginForm();return false;" style="font-size:12px;color:var(--muted);text-align:center">← Back to sign in</a>
+  </div>
+  <div id="auth-newpass" style="display:none;flex-direction:column;gap:0.5rem;width:280px">
+    <div style="font-size:14px;color:var(--muted);text-align:center;margin-bottom:4px">Set your new password</div>
+    <input id="auth-newpass-input" type="password" placeholder="New password" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
+    <button onclick="setNewPassword()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Set password</button>
+    <div id="auth-newpass-error" style="font-size:12px;color:#e05;display:none"></div>
   </div>
 </div>
 <div class="app">
@@ -1394,6 +1408,42 @@ function setRating(key, n) {
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
+const PROD_URL = 'https://jclift-dev.github.io/hiking-tracker/';
+const APP_URL  = location.hostname === 'localhost' ? `${location.origin}/` : PROD_URL;
+
+function showLoginForm() {
+  document.getElementById('auth-login').style.display = 'flex';
+  document.getElementById('auth-reset').style.display = 'none';
+  document.getElementById('auth-newpass').style.display = 'none';
+}
+function showResetForm() {
+  document.getElementById('auth-login').style.display = 'none';
+  document.getElementById('auth-reset').style.display = 'flex';
+  document.getElementById('auth-newpass').style.display = 'none';
+}
+
+async function sendReset() {
+  const email  = document.getElementById('auth-reset-email').value.trim();
+  const errEl  = document.getElementById('auth-reset-error');
+  const sentEl = document.getElementById('auth-reset-sent');
+  errEl.style.display = 'none';
+  sentEl.style.display = 'none';
+  if (!email) { errEl.textContent = 'Please enter your email.'; errEl.style.display = 'block'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+  else sentEl.style.display = 'block';
+}
+
+async function setNewPassword() {
+  const password = document.getElementById('auth-newpass-input').value;
+  const errEl    = document.getElementById('auth-newpass-error');
+  errEl.style.display = 'none';
+  if (!password) { errEl.textContent = 'Please enter a password.'; errEl.style.display = 'block'; return; }
+  const { error } = await sb.auth.updateUser({ password });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+  // onAuthStateChange will handle showing the app after password is set
+}
+
 async function signIn() {
   const email    = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
@@ -1460,6 +1510,16 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
   // Ignore token refreshes if already loaded — avoids wiping routes mid-session
   if (event === 'TOKEN_REFRESHED' && allRoutes.length > 0) return;
+
+  // Password recovery — show set-password form instead of loading the app
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.querySelector('.app').style.display = 'none';
+    document.getElementById('auth-login').style.display = 'none';
+    document.getElementById('auth-reset').style.display = 'none';
+    document.getElementById('auth-newpass').style.display = 'flex';
+    return;
+  }
 
   // Prevent concurrent boot sequences
   if (_booting) return;
