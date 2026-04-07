@@ -438,6 +438,14 @@ def sbb_canonical_station(name):
     return None
 
 
+def _next_monday():
+    """Return the date of the next Monday (or today if today is Monday) as YYYY-MM-DD."""
+    from datetime import date, timedelta
+    today = date.today()
+    days_ahead = (7 - today.weekday()) % 7  # Monday = 0
+    return (today + timedelta(days=days_ahead or 7)).strftime("%Y-%m-%d")
+
+
 def sbb_travel_minutes(destination):
     """
     Get travel time in minutes from origin to destination.
@@ -451,7 +459,8 @@ def sbb_travel_minutes(destination):
         try:
             r = SESSION.get(
                 f"{SBB_API}/connections",
-                params={"from": ORIGIN, "to": destination, "limit": 1},
+                params={"from": ORIGIN, "to": destination, "limit": 1,
+                        "date": _next_monday(), "time": "08:00"},
                 timeout=15,
             )
             if r.status_code == 429:
@@ -898,7 +907,10 @@ def main():
     if args.sbb_all:
         # Determine which origins still have incomplete data
         pending = []
-        for origin in ALL_ORIGINS:
+        import random
+        shuffled_origins = ALL_ORIGINS[:]
+        random.shuffle(shuffled_origins)
+        for origin in shuffled_origins:
             incomplete = sum(
                 1 for r in routes for s in r["stages"]
                 if s.get("sbb_times", {}).get(origin, {}).get("start") is None
@@ -914,6 +926,7 @@ def main():
         else:
             print(f"\n── SBB enrichment: {len(pending)} origin(s) to process ──────────")
             for origin, incomplete in pending:
+                ORIGIN = origin  # update global used by sbb_travel_minutes
                 print(f"\n{'='*60}")
                 print(f"── Origin: {origin}  ({incomplete} lookups remaining)")
                 print(f"   Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
