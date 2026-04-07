@@ -92,8 +92,8 @@
   }
   .header-bg-img {
     position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; opacity: 0.55;
-    mix-blend-mode: luminosity;
+    object-fit: cover; object-position: center 20%;
+    opacity: 0.55; mix-blend-mode: luminosity;
     pointer-events: none;
   }
   .header--hike  .header-bg-img { opacity: 0.55; }
@@ -121,11 +121,24 @@
   .header h1 span { opacity: 0.55; font-weight: 500; font-size: 16px; margin-left: 6px; letter-spacing: 0; font-family: 'Inter', sans-serif; display: block; margin-top: 4px; }
   .header p  { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; margin-top: 8px; letter-spacing: 0; text-transform: none; }
   /* Mountain silhouette */
-  .header-controls {
-    position: absolute; top: 1.1rem; right: 1.5rem; z-index: 3;
-    display: flex; flex-direction: column; gap: 6px; align-items: stretch;
+  /* Top bar inside header */
+  .header-topbar {
+    position: relative; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 1.5rem 0;
   }
-  .header-user { font-size: 10px; color: rgba(255,255,255,0.45); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+  .header-nav { display: flex; gap: 2px; }
+  .header-nav-btn {
+    padding: 7px 16px; font-size: 13px; font-weight: 600;
+    border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.55);
+    cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
+  }
+  .header-nav-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
+  .header-nav-btn.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 700; }
+  .header-controls {
+    display: flex; gap: 8px; align-items: center; z-index: 3;
+  }
+  .header-user { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
   .signout-btn {
     width: 34px; height: 34px; border-radius: 10px;
     background: rgba(255,255,255,0.08); border: none;
@@ -382,6 +395,101 @@
     .surprise-card { padding: 0.9rem 1rem; }
   }
 
+  /* ── Dashboard ──────────────────────────────────────────────── */
+  .dash-hero {
+    background: var(--primary); border-radius: var(--radius-lg);
+    padding: 2rem 2rem 1.75rem; margin-bottom: 20px;
+    position: relative; overflow: hidden; color: #fff;
+  }
+  .dash-hero-bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center 30%; opacity: 0.35;
+    mix-blend-mode: luminosity; pointer-events: none;
+  }
+  .dash-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(1,45,29,0.85) 0%, rgba(1,45,29,0.4) 100%);
+    pointer-events: none;
+  }
+  .dash-hero-inner { position: relative; z-index: 1; }
+  .dash-hero-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; font-family: 'Manrope', sans-serif; margin-bottom: 8px; }
+  .dash-hero h2 { font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 6px; }
+  .dash-hero-sub { font-size: 13px; font-weight: 500; opacity: 0.7; margin-bottom: 1.25rem; }
+  .dash-hero-prog-wrap { background: rgba(255,255,255,0.15); border-radius: 99px; height: 4px; margin-bottom: 6px; }
+  .dash-hero-prog-fill { height: 100%; background: #fff; border-radius: 99px; position: relative; }
+  .dash-hero-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--primary); }
+  .dash-hero-prog-label { font-size: 11px; font-weight: 700; opacity: 0.7; margin-bottom: 1.25rem; }
+  .dash-hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .dash-hero-btn { padding: 9px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; }
+  .dash-hero-btn-primary { background: #fff; color: var(--primary); }
+  .dash-hero-btn-primary:hover { transform: scale(0.97); }
+  .dash-hero-btn-secondary { background: rgba(255,255,255,0.12); color: #fff; backdrop-filter: blur(8px); }
+  .dash-hero-btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+  .dash-section-label { font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-family: 'Manrope', sans-serif; margin-bottom: 6px; }
+  .dash-section-title { font-size: 24px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; margin-bottom: 14px; }
+
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 540px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  .dash-trail-card {
+    background: var(--surface-low); border-radius: var(--radius-lg);
+    padding: 1.4rem; display: flex; flex-direction: column; gap: 0;
+    box-shadow: var(--shadow); transition: box-shadow 0.2s; cursor: pointer;
+  }
+  .dash-trail-card:hover { box-shadow: var(--shadow-lg); }
+  .dash-trail-name { font-size: 18px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 4px; }
+  .dash-trail-desc { font-size: 12px; color: var(--muted); margin-bottom: 1rem; line-height: 1.5; flex: 1; }
+  .dash-trail-stats { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+  .dash-trail-stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .dash-trail-stat-val { font-size: 15px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; color: var(--text); }
+  .dash-trail-prog-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .dash-trail-prog-pct { color: var(--primary); font-family: 'Manrope', sans-serif; }
+  .dash-trail-prog-bar { background: var(--sec-container); border-radius: 99px; height: 5px; position: relative; overflow: visible; }
+  .dash-trail-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; position: relative; }
+  .dash-trail-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--surface-low); }
+  .dash-trail-next { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  .dash-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 540px) { .dash-bottom { grid-template-columns: 1fr; } }
+
+  .dash-big-stat {
+    background: var(--primary); color: #fff;
+    border-radius: var(--radius-lg); padding: 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  .dash-big-stat::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+  .dash-big-stat-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.55; font-family: 'Manrope', sans-serif; }
+  .dash-big-stat-num { font-size: 52px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.04em; line-height: 1; margin: 10px 0 2px; }
+  .dash-big-stat-unit { font-size: 18px; font-weight: 700; opacity: 0.55; }
+  .dash-big-stat-sub { font-size: 12px; font-weight: 500; opacity: 0.65; margin-top: 4px; margin-bottom: 1.25rem; }
+  .dash-big-stat-divider { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-big-sub-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.55; font-family: 'Manrope', sans-serif; }
+  .dash-big-sub-val { font-size: 18px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; margin-top: 3px; }
+
+  .dash-activity {
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 1.4rem; box-shadow: var(--shadow);
+  }
+  .dash-activity-title { font-size: 17px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; margin-bottom: 1.1rem; }
+  .dash-activity-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--ghost); }
+  .dash-activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .dash-activity-icon { width: 38px; height: 38px; border-radius: 12px; background: var(--green-bg); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .dash-activity-body { flex: 1; min-width: 0; }
+  .dash-activity-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-activity-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .dash-activity-age { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0; }
+
+  .dash-map { border-radius: var(--radius-lg); overflow: hidden; height: 180px; position: relative; box-shadow: var(--shadow); }
+  .dash-map img { width: 100%; height: 100%; object-fit: cover; }
+  .dash-map-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.1rem 1.25rem; }
+  .dash-map-title { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: #fff; }
+  .dash-map-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+  .dash-empty { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 14px; background: var(--surface-low); border-radius: var(--radius-lg); }
+
+  /* ── End Dashboard ───────────────────────────────────────────── */
+
   /* Difficulty colours — hiking (spec: primary-fixed for easy, tertiary for demanding) */
   .diff-t1 { background: #c1ecd4; color: #274e3d; }
   .diff-t2 { background: var(--blue-bg); color: var(--blue); }
@@ -424,12 +532,21 @@
     <img class="header-bg-img" id="header-bg-img"
       src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC"
       alt="Swiss Alps">
-    <div class="header-inner">
+    <!-- Top bar: nav + user controls -->
+    <div class="header-topbar">
+      <nav class="header-nav">
+        <button class="header-nav-btn" id="view-dashboard" onclick="setView('dashboard')">Dashboard</button>
+        <button class="header-nav-btn active" id="view-routes" onclick="setView('routes')">Routes</button>
+        <button class="header-nav-btn" id="view-stages" onclick="setView('stages')">Stages</button>
+      </nav>
       <div class="header-controls">
         <div class="header-user" id="header-user"></div>
-        <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+        <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
       </div>
+    </div>
+    <!-- Main content -->
+    <div class="header-inner">
       <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
       <h1><span id="header-title">Swiss Hiking</span><span id="header-mode"> 🥾 Walking trails</span></h1>
       <p id="subtitle">Loading routes…</p>
@@ -472,10 +589,7 @@
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
 
-  <div style="display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap;align-items:center">
-    <button class="view-btn active" id="view-routes" onclick="setView('routes')">Routes</button>
-    <button class="view-btn" id="view-stages" onclick="setView('stages')">Stages</button>
-    <div style="flex:1"></div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem">
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
@@ -905,10 +1019,15 @@ function setLand(l) {
 function setView(v) {
   viewMode = v;
   visible = 20;
-  document.getElementById('view-routes').classList.toggle('active', v === 'routes');
-  document.getElementById('view-stages').classList.toggle('active', v === 'stages');
+  ['dashboard','routes','stages'].forEach(id =>
+    document.getElementById('view-'+id).classList.toggle('active', v === id)
+  );
   document.getElementById('sort').style.display       = v === 'routes' ? '' : 'none';
   document.getElementById('stage-sort').style.display = v === 'stages' ? '' : 'none';
+  // Hide filters/tabs when in dashboard mode
+  document.getElementById('tabs').style.display         = v === 'dashboard' ? 'none' : '';
+  document.querySelector('.controls').style.display     = v === 'dashboard' ? 'none' : '';
+  document.getElementById('surprise-wrap').style.display = v === 'dashboard' ? 'none' : '';
   render();
 }
 
@@ -1386,12 +1505,161 @@ function renderFlatStage(stage) {
   </div>`;
 }
 
+function relativeDate(chDate) {
+  if (!chDate) return '';
+  const [d, m, y] = chDate.split('.');
+  const diff = Math.round((Date.now() - new Date(`${y}-${m}-${d}`)) / 86400000);
+  if (diff <= 0) return 'TODAY';
+  if (diff === 1) return '1D AGO';
+  if (diff < 7)  return `${diff}D AGO`;
+  if (diff < 30) return `${Math.round(diff/7)}W AGO`;
+  if (diff < 365) return `${Math.round(diff/30)}MO AGO`;
+  return `${Math.round(diff/365)}Y AGO`;
+}
+
+function renderDashboard() {
+  const allFlat = allRoutes.flatMap(r =>
+    r.stages.map(s => ({ ...s, _route: r, _land: r.land, _routeId: r.route_id }))
+  );
+  const doneFlat = allFlat.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
+  const doneKm     = Math.round(doneFlat.reduce((n, s) => n + (s.dist_km || 0), 0));
+  const doneElev   = Math.round(doneFlat.reduce((n, s) => n + (s.elev_up  || 0), 0));
+  const doneCount  = doneFlat.length;
+
+  // In-progress routes for current land
+  const inProgress = allRoutes
+    .filter(r => r.land === landFilter)
+    .map(r => {
+      const done  = r.stages.filter(s => completed[stageKey(r.land, r.route_id, s.stage_nr)]).length;
+      const total = r.stages.length;
+      const km    = Math.round(r.stages.reduce((n, s) => n + (s.dist_km || 0), 0));
+      const elev  = r.stages.reduce((n, s) => n + (s.elev_up || 0), 0);
+      const next  = r.stages.find(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
+      return { ...r, _done: done, _total: total, _pct: total ? Math.round(done/total*100) : 0, _km: km, _elev: elev, _next: next };
+    })
+    .filter(r => r._done > 0 && r._done < r._total)
+    .sort((a, b) => b._pct - a._pct);
+
+  const heroRoute = inProgress[0] || null;
+  const gridRoutes = inProgress.slice(0, 4);
+
+  // Recent activity sorted by date
+  const recentDone = [...doneFlat]
+    .map(s => {
+      const key = stageKey(s._land, s._routeId, s.stage_nr);
+      const [dd, mm, yy] = (completed[key] || '01.01.2000').split('.');
+      return { ...s, _key: key, _date: completed[key], _ts: new Date(`${yy}-${mm}-${dd}`) };
+    })
+    .sort((a, b) => b._ts - a._ts)
+    .slice(0, 6);
+
+  // Fun fact
+  const everests = (doneElev / 8849).toFixed(1);
+  const funFact = doneElev >= 8849
+    ? `That's ${everests}× the height of Mount Everest`
+    : doneElev > 0 ? `Keep going — ${Math.round(8849 - doneElev).toLocaleString()} m to your first Everest` : 'Start hiking to build your elevation record';
+
+  // Hero section
+  const heroHtml = heroRoute ? `
+    <div class="dash-hero">
+      <img class="dash-hero-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC" alt="">
+      <div class="dash-hero-inner">
+        <div class="dash-hero-eyebrow">Current Expedition</div>
+        <h2>${heroRoute.name}</h2>
+        <div class="dash-hero-sub">${heroRoute.start} → ${heroRoute.end}</div>
+        <div class="dash-hero-prog-wrap"><div class="dash-hero-prog-fill" style="width:${heroRoute._pct}%"></div></div>
+        <div class="dash-hero-prog-label">${heroRoute._pct}% complete · ${heroRoute._done}/${heroRoute._total} stages</div>
+        <div class="dash-hero-btns">
+          <button class="dash-hero-btn dash-hero-btn-primary" onclick="setView('routes');setFilter('all')">Continue →</button>
+          <button class="dash-hero-btn dash-hero-btn-secondary" onclick="setView('routes')">View Routes</button>
+        </div>
+      </div>
+    </div>` : `
+    <div class="dash-hero">
+      <img class="dash-hero-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC" alt="">
+      <div class="dash-hero-inner">
+        <div class="dash-hero-eyebrow">Swiss Trail Tracker</div>
+        <h2>Your Alpine Journey</h2>
+        <div class="dash-hero-sub">Pick a route and start exploring Switzerland's best trails.</div>
+        <div class="dash-hero-btns">
+          <button class="dash-hero-btn dash-hero-btn-primary" onclick="setView('routes')">Explore Routes →</button>
+        </div>
+      </div>
+    </div>`;
+
+  // In-progress route cards
+  const trailCardsHtml = gridRoutes.length ? `
+    <div class="dash-section-label">In Progress</div>
+    <div class="dash-section-title">Your Trails</div>
+    <div class="dash-grid">
+      ${gridRoutes.map(r => `
+        <div class="dash-trail-card" onclick="setView('routes')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <span class="dash-trail-name">${r.name}</span>
+            <span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px;background:${r.route_type==='national'?'#c1ecd4':'var(--gray-bg)'};color:${r.route_type==='national'?'#274e3d':'var(--muted)'};white-space:nowrap;flex-shrink:0;margin-left:8px">${r.route_type==='national'?'NATIONAL':'REGIONAL'}</span>
+          </div>
+          <div class="dash-trail-desc">${r.start} → ${r.end}</div>
+          <div class="dash-trail-stats">
+            <div><div class="dash-trail-stat-label">Distance</div><div class="dash-trail-stat-val">${r._km} km</div></div>
+            <div><div class="dash-trail-stat-label">Stages</div><div class="dash-trail-stat-val">${r._total}</div></div>
+            <div><div class="dash-trail-stat-label">Elev. Gain</div><div class="dash-trail-stat-val">${r._elev >= 1000 ? (r._elev/1000).toFixed(1)+'k' : r._elev} m</div></div>
+          </div>
+          <div class="dash-trail-prog-header">
+            <span>Progress</span><span class="dash-trail-prog-pct">${r._pct}%</span>
+          </div>
+          <div class="dash-trail-prog-bar"><div class="dash-trail-prog-fill" style="width:${r._pct}%"></div></div>
+          ${r._next ? `<div class="dash-trail-next">Next: ${r._next.start_name} → ${r._next.end_name}</div>` : ''}
+        </div>`).join('')}
+    </div>` : '';
+
+  // Big stat + recent activity
+  const bottomHtml = `
+    <div class="dash-bottom">
+      <div class="dash-big-stat">
+        <div class="dash-big-stat-eyebrow">Total Distance</div>
+        <div><span class="dash-big-stat-num">${doneKm.toLocaleString()}</span> <span class="dash-big-stat-unit">KM</span></div>
+        <div class="dash-big-stat-sub">${funFact}</div>
+        <div class="dash-big-stat-divider">
+          <div><div class="dash-big-sub-label">Stages Done</div><div class="dash-big-sub-val">${doneCount}</div></div>
+          <div><div class="dash-big-sub-label">Elevation</div><div class="dash-big-sub-val">${doneElev >= 1000 ? (doneElev/1000).toFixed(1)+'k' : doneElev} m</div></div>
+        </div>
+      </div>
+      <div class="dash-activity">
+        <div class="dash-activity-title">Recent Activity</div>
+        ${recentDone.length ? recentDone.map(s => `
+          <div class="dash-activity-item">
+            <div class="dash-activity-icon">${s._land === 'cycle' ? '🚴' : '🥾'}</div>
+            <div class="dash-activity-body">
+              <div class="dash-activity-name">${s.start_name} → ${s.end_name}</div>
+              <div class="dash-activity-meta">${s._route.name}${s.dist_km ? ` · ${s.dist_km} km` : ''}</div>
+            </div>
+            <div class="dash-activity-age">${relativeDate(s._date)}</div>
+          </div>`).join('') : '<div style="font-size:13px;color:var(--muted);padding:1rem 0">No completed stages yet. Go hike something! 🏔</div>'}
+      </div>
+    </div>`;
+
+  // Map card
+  const mapHtml = `
+    <div class="dash-map">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1VOouX-SzLwW1uhVxK26aHSVy3XYrJ7iN6xTXxRMcMKEQv_NhtoZ39xm3zfG6BRqb1-LPLvdDjrQxBXcn8efScma1I_EN2wjpQqf7W598u9XinzlhDtdd5WeG0DKiPs6QEcAPnWvQJj7rnUBJ_96LVz_Jokw36qTSYujzqwQWgsKUJedW-SsM7yC-sMn0RCbyfKvMm6AwiM1kSdah8ELvLTNQx6x6Mgo8z_KWMCqMEiflRb96OZvAaZaRrwR1ia6jBS3aKTQ5j50r" alt="Switzerland trail map">
+      <div class="dash-map-overlay">
+        <div class="dash-map-title">Switzerland Trail Network</div>
+        <div class="dash-map-sub">${allRoutes.filter(r => r.land === landFilter).length} routes · explore on SchweizMobil</div>
+      </div>
+    </div>`;
+
+  return heroHtml + trailCardsHtml + bottomHtml + mapHtml;
+}
+
 function render() {
   const list = document.getElementById('route-list');
   const btn  = document.getElementById('load-more');
   document.getElementById('surprise-wrap').innerHTML = renderSurprise();
 
-  if (viewMode === 'stages') {
+  if (viewMode === 'dashboard') {
+    list.innerHTML = renderDashboard();
+    btn.style.display = 'none';
+  } else if (viewMode === 'stages') {
     const stages = filteredStages();
     const slice  = stages.slice(0, visible);
     list.innerHTML = slice.length
