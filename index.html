@@ -82,38 +82,47 @@
   .header {
     position: relative;
     margin: 0 -1rem 1.75rem;
-    padding: 2rem 1.5rem 0;
-    background: linear-gradient(160deg, var(--primary) 0%, var(--primary-lt) 55%, #0d4530 100%);
+    padding: 0;
+    background: var(--primary);
     overflow: hidden;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    min-height: 260px;
+    display: flex; flex-direction: column; justify-content: flex-end;
     transition: background 0.5s ease;
   }
-  .header--hike  { background: linear-gradient(160deg, #012d1d 0%, #1b4332 45%, #0d4530 100%) !important; }
-  .header--cycle { background: linear-gradient(160deg, #011824 0%, #0a2845 50%, #0e3570 100%) !important; }
-  /* Depth blobs — canopy light effect */
-  .header::before {
+  .header-bg-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0.55;
+    mix-blend-mode: luminosity;
+    pointer-events: none;
+  }
+  .header--hike  .header-bg-img { opacity: 0.55; }
+  .header--cycle .header-bg-img { opacity: 0.35; filter: hue-rotate(180deg) saturate(0.6); }
+  /* Bottom-up gradient overlay */
+  .header::after {
     content: '';
     position: absolute; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(ellipse 55% 70% at 15% 35%, rgba(29,158,117,0.22) 0%, transparent 65%),
-      radial-gradient(ellipse 45% 55% at 85% 15%, rgba(16,98,192,0.16) 0%, transparent 60%),
-      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(1,45,29,0.35) 0%, transparent 55%);
+    background: linear-gradient(to top, var(--primary) 0%, rgba(1,45,29,0.7) 45%, rgba(1,45,29,0.15) 100%);
   }
-  .header-inner { position: relative; padding-bottom: 1.5rem; }
+  .header--cycle::after {
+    background: linear-gradient(to top, #011824 0%, rgba(1,24,36,0.75) 45%, rgba(1,24,36,0.1) 100%);
+  }
+  .header-inner { position: relative; z-index: 2; padding: 1.5rem 1.5rem 1.75rem; }
+  .header-eyebrow {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.55); margin-bottom: 6px; font-family: 'Manrope', sans-serif;
+  }
   .header h1 {
     font-family: 'Manrope', sans-serif;
-    font-size: 30px; font-weight: 800; letter-spacing: -0.02em;
-    color: #fff; line-height: 1.15;
-    text-shadow: 0 2px 16px rgba(0,0,0,0.35);
+    font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+    color: #fff; line-height: 1.1;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
   }
-  .header h1 span { opacity: 0.65; font-weight: 500; font-size: 17px; margin-left: 5px; letter-spacing: 0; font-family: 'Inter', sans-serif; }
+  .header h1 span { opacity: 0.6; font-weight: 500; font-size: 16px; margin-left: 5px; letter-spacing: 0; font-family: 'Inter', sans-serif; }
   .header p  { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
   /* Mountain silhouette */
-  .header-mountain {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    width: 100%; height: 72px; pointer-events: none; display: block;
-  }
   .header-controls {
-    position: absolute; top: 1.1rem; right: 1.5rem;
+    position: absolute; top: 1.1rem; right: 1.5rem; z-index: 3;
     display: flex; flex-direction: column; gap: 6px; align-items: stretch;
   }
   .header-user { font-size: 10px; color: rgba(255,255,255,0.45); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
@@ -183,9 +192,11 @@
   .header-tab:hover { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
   .header-tab.active { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.6); color: #fff; font-weight: 600; }
   @media (prefers-color-scheme: dark) {
-    .header        { background: linear-gradient(160deg, #010f09 0%, #041a10 50%, #030d1e 100%); }
-    .header--hike  { background: linear-gradient(160deg, #010f09 0%, #041408 50%, #061510 100%) !important; }
-    .header--cycle { background: linear-gradient(160deg, #010509 0%, #030c1e 50%, #050f28 100%) !important; }
+    .header        { background: #010f09; }
+    .header--hike  { background: #010f09; }
+    .header--cycle { background: #010916; }
+    .header::after { background: linear-gradient(to top, #010f09 0%, rgba(1,15,9,0.8) 45%, rgba(1,15,9,0.1) 100%); }
+    .header--cycle::after { background: linear-gradient(to top, #010916 0%, rgba(1,9,22,0.8) 45%, rgba(1,9,22,0.1) 100%); }
   }
 
   /* Stats (inline in header) */
@@ -410,12 +421,16 @@
 <div class="app">
 
   <div class="header header--hike" id="main-header">
+    <img class="header-bg-img" id="header-bg-img"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC"
+      alt="Swiss Alps">
     <div class="header-inner">
       <div class="header-controls">
         <div class="header-user" id="header-user"></div>
         <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
       </div>
+      <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
       <h1><span id="header-title">Swiss Hiking</span><span id="header-mode"> 🥾 Walking trails</span></h1>
       <p id="subtitle">Loading routes…</p>
       <div class="header-stats" id="stats" style="display:none">
@@ -437,17 +452,6 @@
         <button class="header-tab"        id="header-land-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
       </div>
     </div>
-    <!-- Alpine silhouette -->
-    <svg class="header-mountain" viewBox="0 0 800 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Distant range -->
-      <path d="M0,58 Q60,42 120,52 Q180,62 250,32 Q310,8 370,28 Q420,44 480,18 Q540,0 600,22 Q660,42 720,30 Q760,20 800,35 L800,72 L0,72Z" fill="rgba(255,255,255,0.04)"/>
-      <!-- Mid range -->
-      <path d="M0,65 L60,55 L110,62 L170,40 L230,58 L290,24 L350,52 L400,14 L455,46 L510,20 L565,58 L620,38 L675,56 L730,28 L780,50 L800,44 L800,72 L0,72Z" fill="rgba(255,255,255,0.07)"/>
-      <!-- Snow caps on tallest peaks -->
-      <path d="M393,22 L400,14 L407,22Z" fill="rgba(255,255,255,0.55)"/>
-      <path d="M504,27 L510,20 L516,27Z" fill="rgba(255,255,255,0.45)"/>
-      <path d="M284,31 L290,24 L296,31Z" fill="rgba(255,255,255,0.35)"/>
-    </svg>
   </div>
 
   <div class="settings-panel" id="settings-panel">
