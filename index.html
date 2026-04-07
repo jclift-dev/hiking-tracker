@@ -121,23 +121,30 @@
   }
   .header p  { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; margin-top: 8px; letter-spacing: 0; text-transform: none; }
   /* Mountain silhouette */
-  /* Top bar inside header — dark emerald band */
+  /* Top bar inside header — dark emerald band, three-column */
   .header-topbar {
     position: relative; z-index: 3;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center;
     padding: 0.85rem 1.25rem;
     background: rgba(1, 12, 7, 0.82);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
-  .header-nav { display: flex; gap: 2px; }
+  .header-topbar-left  { flex: 1; display: flex; align-items: center; }
+  .header-topbar-center { flex: none; display: flex; align-items: center; gap: 2px; }
+  .header-topbar-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+  .topbar-logo {
+    font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800;
+    letter-spacing: 0.12em; color: #fff;
+  }
   .header-nav-btn {
-    padding: 6px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-    border: none; border-radius: 99px; background: transparent; color: rgba(255,255,255,0.45);
+    padding: 6px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    border: none; border-radius: 0; background: transparent; color: rgba(255,255,255,0.45);
     cursor: pointer; transition: all 0.15s; font-family: 'Manrope', sans-serif;
+    border-bottom: 2px solid transparent; padding-bottom: 4px;
   }
   .header-nav-btn:hover { color: rgba(255,255,255,0.85); }
-  .header-nav-btn.active { color: #fff; border-bottom: 2px solid rgba(165,208,185,0.8); border-radius: 0; padding-bottom: 4px; }
+  .header-nav-btn.active { color: #fff; border-bottom-color: rgba(165,208,185,0.85); }
   /* Hiking / Cycling pill toggle */
   .land-pill {
     display: flex; align-items: center; gap: 2px;
@@ -214,6 +221,18 @@
   .settings-pill:hover { background: var(--green-bg); color: var(--green-dark); }
   .settings-pill.active { background: var(--primary); color: #fff; font-weight: 500; }
   #sbb-slider { width: 100%; accent-color: var(--green); cursor: pointer; margin-top: 6px; display: block; }
+  /* Routes / All Stages sub-view toggle */
+  .subview-toggle {
+    display: flex; gap: 2px; background: var(--ghost); border-radius: 10px; padding: 3px;
+  }
+  .subview-btn {
+    padding: 5px 14px; font-size: 12px; font-weight: 600; border: none;
+    border-radius: 8px; background: transparent; color: var(--muted);
+    cursor: pointer; transition: all 0.15s; font-family: 'Manrope', sans-serif;
+  }
+  .subview-btn:hover { color: var(--text); }
+  .subview-btn.active { background: var(--surface); color: var(--primary); font-weight: 700; box-shadow: var(--shadow); }
+
   /* Section dividers between hiking/cycling in list */
   .section-divider {
     font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;
@@ -549,14 +568,16 @@
     <img class="header-bg-img" id="header-bg-img"
       src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC"
       alt="Swiss Alps">
-    <!-- Top bar: nav + user controls -->
+    <!-- Top bar -->
     <div class="header-topbar">
-      <nav class="header-nav">
+      <div class="header-topbar-left">
+        <span class="topbar-logo">VIA</span>
+      </div>
+      <nav class="header-topbar-center">
         <button class="header-nav-btn" id="view-dashboard" onclick="setView('dashboard')">Dashboard</button>
-        <button class="header-nav-btn active" id="view-routes" onclick="setView('routes')">Routes</button>
-        <button class="header-nav-btn" id="view-stages" onclick="setView('stages')">Stages</button>
+        <button class="header-nav-btn active" id="view-tracking" onclick="setView('routes')">Tracking</button>
       </nav>
-      <div class="header-controls">
+      <div class="header-topbar-right">
         <div class="land-pill" id="land-pill">
           <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
           <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
@@ -615,7 +636,11 @@
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
 
-  <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem" id="surprise-wrap-row">
+    <div class="subview-toggle" id="subview-toggle">
+      <button class="subview-btn active" id="subview-routes" onclick="setView('routes')">Routes</button>
+      <button class="subview-btn" id="subview-stages" onclick="setView('stages')">All Stages</button>
+    </div>
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
@@ -1011,15 +1036,26 @@ function setLand(l) {
 function setView(v) {
   viewMode = v;
   visible = 20;
-  ['dashboard','routes','stages'].forEach(id =>
-    document.getElementById('view-'+id).classList.toggle('active', v === id)
-  );
+  const isDash = v === 'dashboard';
+  const isTracking = v === 'routes' || v === 'stages';
+
+  // Top nav: Dashboard vs Tracking
+  document.getElementById('view-dashboard').classList.toggle('active', isDash);
+  document.getElementById('view-tracking').classList.toggle('active', isTracking);
+
+  // Subview toggle: Routes vs All Stages
+  const subviewToggle = document.getElementById('subview-toggle');
+  if (subviewToggle) {
+    document.getElementById('subview-routes').classList.toggle('active', v === 'routes');
+    document.getElementById('subview-stages').classList.toggle('active', v === 'stages');
+  }
+
   document.getElementById('sort').style.display       = v === 'routes' ? '' : 'none';
   document.getElementById('stage-sort').style.display = v === 'stages' ? '' : 'none';
-  // Hide filters/tabs when in dashboard mode
-  document.getElementById('tabs').style.display         = v === 'dashboard' ? 'none' : '';
-  document.querySelector('.controls').style.display     = v === 'dashboard' ? 'none' : '';
-  document.getElementById('surprise-wrap').style.display = v === 'dashboard' ? 'none' : '';
+  const hideContent = isDash;
+  document.getElementById('tabs').style.display              = hideContent ? 'none' : '';
+  document.querySelector('.controls').style.display          = hideContent ? 'none' : '';
+  document.getElementById('surprise-wrap-row').style.display = hideContent ? 'none' : '';
   render();
 }
 
