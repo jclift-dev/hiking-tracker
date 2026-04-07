@@ -1467,7 +1467,14 @@ async function signIn() {
 }
 
 async function logout() {
+  _inPasswordRecovery = false;
+  _booting = false;
+  allRoutes = [];
   await sb.auth.signOut();
+  // Force UI reset in case onAuthStateChange is delayed
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.querySelector('.app').style.display = 'none';
+  showLoginForm();
 }
 
 async function migrateFromLocalStorage() {
@@ -1526,6 +1533,16 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('auth-login').style.display = 'none';
     document.getElementById('auth-reset').style.display = 'none';
     document.getElementById('auth-newpass').style.display = 'flex';
+    return;
+  }
+
+  // Always handle sign-out, even during password recovery
+  if (!user && !DEV_MODE) {
+    _inPasswordRecovery = false;
+    _booting = false;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.querySelector('.app').style.display = 'none';
+    showLoginForm();
     return;
   }
 
