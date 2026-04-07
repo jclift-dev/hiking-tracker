@@ -330,6 +330,73 @@
   .stage-row:last-child { border-bottom: none; }
   .stage-row:hover { background: rgba(25,28,29,0.025); }
 
+  /* ── Stage Timeline ───────────────────────────────────── */
+  .stage-timeline { padding: 1rem 1.25rem 0.75rem 1.4rem; }
+  .tl-item { position: relative; padding: 0 0 1.1rem 2.1rem; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item:not(:last-child)::before {
+    content: ''; position: absolute; left: 8px; top: 21px; bottom: 0;
+    width: 2px; background: var(--ghost);
+  }
+  .tl-dot {
+    position: absolute; left: 0; top: 1px;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; z-index: 1; transition: all 0.15s; cursor: pointer;
+  }
+  .tl-dot--done  { background: var(--primary); color: #fff; }
+  .tl-dot--done:hover { background: var(--secondary); }
+  .tl-dot--next  { background: var(--surface); border: 2.5px solid var(--primary); cursor: default; }
+  .tl-dot--todo  { background: var(--surface); border: 2px solid var(--border); }
+  .tl-dot--todo:hover  { border-color: var(--primary); }
+  .tl-dot--future { background: var(--surface-low); border: 2px solid var(--ghost); cursor: default; }
+  .tl-dot-pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--tertiary);
+    animation: tl-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes tl-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.35; transform: scale(0.65); }
+  }
+  .tl-item--future > .tl-body { opacity: 0.38; pointer-events: none; }
+  .tl-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 0.875rem 1rem; box-shadow: var(--shadow);
+    border: 1px solid var(--ghost);
+  }
+  .tl-next-eyebrow {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--tertiary); margin-bottom: 4px; font-family: 'Manrope', sans-serif;
+  }
+  .tl-done-btn {
+    margin-top: 0.75rem; padding: 6px 16px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+    background: var(--primary); color: #fff;
+    border: none; border-radius: 99px; cursor: pointer;
+    font-family: 'Manrope', sans-serif; transition: background 0.15s;
+  }
+  .tl-done-btn:hover { background: var(--primary-lt); }
+
+  /* Transport mini (SBB dot-line) */
+  .transport-mini { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--ghost); }
+  .transport-mini-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 5px; font-family: 'Manrope', sans-serif;
+  }
+  .transport-stop { position: relative; padding-left: 15px; padding-bottom: 7px; font-size: 12px; }
+  .transport-stop:last-child { padding-bottom: 0; }
+  .transport-stop::before {
+    content: ''; position: absolute; left: 1px; top: 5px;
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .transport-stop--start::before { background: var(--secondary); }
+  .transport-stop--end::before   { background: var(--tertiary); opacity: 0.65; }
+  .transport-stop--start::after  {
+    content: ''; position: absolute; left: 4px; top: 13px; bottom: 0; width: 2px; background: var(--ghost);
+  }
+  .transport-stop-name { font-weight: 600; color: var(--text); }
+  .transport-stop-time { font-size: 11px; color: var(--muted); margin-left: 5px; }
+
   .stage-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); }
   .stage-check:hover { border-color: var(--green); }
   .stage-check.done { background: var(--green); border-color: var(--green); }
@@ -1332,78 +1399,125 @@ function fmtKm(km) {
 
 function renderStages(route) {
   if (!expanded[routeKey(route.land, route.route_id)]) return '';
-  // Find the first uncompleted stage for the "next up" badge
-  const nextStageNr = (() => {
-    const s = route.stages.find(s => !completed[stageKey(route.land, route.route_id, s.stage_nr)]);
-    return s ? s.stage_nr : null;
-  })();
-  const anyDone = route.stages.some(s => completed[stageKey(route.land, route.route_id, s.stage_nr)]);
 
-  return `<div class="stages">` +
-    route.stages.map(stage => {
-      stage._routeId = route.route_id;
-      stage._land    = route.land;
-      const key  = stageKey(route.land, route.route_id, stage.stage_nr);
-      const done = !!completed[key];
-      const isNext = anyDone && !done && stage.stage_nr === nextStageNr;
-      const distStr   = fmtKm(stage.dist_km);
-      const diff = stage.difficulty;
-      const viaStr = stage.via ? ` via ${stage.via}` : '';
-      const hrsStr = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
-      const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
-      const startTravel = fmtMins(sbbTimes.start);
-      const endTravel   = fmtMins(sbbTimes.end);
-      const aspStr = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
-      const smLink = smUrl(route, stage.stage_nr);
+  const stages   = [...route.stages].sort((a, b) => a.stage_nr - b.stage_nr);
+  const anyDone  = stages.some(s => completed[stageKey(route.land, route.route_id, s.stage_nr)]);
+  const nextNr   = stages.find(s => !completed[stageKey(route.land, route.route_id, s.stage_nr)])?.stage_nr ?? null;
+  const multi    = stages.length > 1;
 
-      const starsHtml = done ? `
-        <div class="stage-stars" id="stars-${key}" onmouseleave="starsLeave('${key}')">
-          ${[1,2,3,4,5].map(n => {
-            const filled = (ratings[key]||0) >= n;
-            return `<span class="star" style="color:${filled?'#f5a623':'var(--border)'}"
-                         onmouseover="starsHover('${key}',${n})"
-                         onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
-          }).join('')}
-        </div>` : '';
+  const items = stages.map(stage => {
+    stage._routeId = route.route_id; stage._land = route.land;
+    const key     = stageKey(route.land, route.route_id, stage.stage_nr);
+    const done    = !!completed[key];
+    const isNext  = !done && anyDone && stage.stage_nr === nextNr;
+    const isFuture= !done && anyDone && !isNext;
 
-      const wished = !!wishlist[key];
-      return `<div class="stage-row${isNext ? ' next-up' : ''}">
-        <div class="stage-check ${done ? 'done' : ''}"
-             onclick="toggleStage('${key}')"
-             title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
-        <div class="stage-info">
-          <div class="stage-title ${done ? 'done-text' : ''}">${route.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}${isNext ? '<span class="next-up-badge">next up</span>' : ''}
-            <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
-          </div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
-            ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
-            ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
-            ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
-            ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
-            ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
-            ${(() => { const s = seasonInfo(stage, route.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
-            ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
-          </div>
-          ${startTravel || endTravel ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
-            ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from ${selectedStation}</span>` : ''}
-            ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
-          </div>` : ''}
-          ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
-          <textarea class="stage-note" rows="1" placeholder="Add a note…"
-            oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
-            onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
-            onblur="if(!this.value.trim())this.rows=1"
-          >${notes[key] || ''}</textarea>` : ''}
+    const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
+    const startTravel = fmtMins(sbbTimes.start);
+    const endTravel   = fmtMins(sbbTimes.end);
+    const distStr     = fmtKm(stage.dist_km);
+    const hrsStr      = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
+    const aspStr      = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
+    const diff        = stage.difficulty;
+    const wished      = !!wishlist[key];
+    const smLink      = smUrl(route, stage.stage_nr);
+    const season      = seasonInfo(stage, route.land);
+    const viaStr      = stage.via ? ` via ${stage.via}` : '';
+    const title       = `${multi ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}`;
+
+    // Dot
+    const dot = done
+      ? `<div class="tl-dot tl-dot--done" onclick="toggleStage('${key}')" title="Undo">✓</div>`
+      : isNext
+        ? `<div class="tl-dot tl-dot--next"><div class="tl-dot-pulse"></div></div>`
+        : `<div class="tl-dot tl-dot--${isFuture ? 'future' : 'todo'}" onclick="toggleStage('${key}')" title="Mark done"></div>`;
+
+    // Badges
+    const badges = `<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:5px">
+      ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
+      ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
+      ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
+      ${aspStr   ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
+      ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
+      ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
+      ${elevProfile(stage.elev_up, stage.elev_down)}
+    </div>`;
+
+    // SBB transport mini
+    const transport = (startTravel || endTravel) ? `
+      <div class="transport-mini">
+        <div class="transport-mini-label">🚆 from ${selectedStation}</div>
+        ${startTravel ? `<div class="transport-stop transport-stop--start">
+          <span class="transport-stop-name">${stage.start_name || '?'}</span>
+          <span class="transport-stop-time">${startTravel}</span>
+        </div>` : ''}
+        ${endTravel ? `<div class="transport-stop transport-stop--end">
+          <span class="transport-stop-name">${stage.end_name || '?'}</span>
+          <span class="transport-stop-time">${endTravel}</span>
+        </div>` : ''}
+      </div>` : '';
+
+    // Stars
+    const stars = done ? `<div class="stage-stars" id="stars-${key}" onmouseleave="starsLeave('${key}')">
+      ${[1,2,3,4,5].map(n => {
+        const f = (ratings[key]||0) >= n;
+        return `<span class="star" style="color:${f?'#f5a623':'var(--border)'}"
+          onmouseover="starsHover('${key}',${n})" onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
+      }).join('')}</div>` : '';
+
+    const wish = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')">${wished?'♥':'♡'}</div>`;
+    const sm   = `<a href="${smLink}" target="_blank" rel="noopener" class="sm-link" onclick="event.stopPropagation()">↗</a>`;
+
+    // ── Done: compact row ──
+    if (done) return `<div class="tl-item">
+      ${dot}
+      <div class="tl-body">
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="stage-title done-text" style="font-size:13px;flex:1">${title}</span>
+          ${sm}${wish}
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
-          ${elevProfile(stage.elev_up, stage.elev_down)}
-          ${starsHtml}
-          <div class="stage-wish${wished ? ' active' : ''}" onclick="toggleWishlist('${key}')" title="${wished ? 'Remove from wishlist' : 'Add to wishlist'}">${wished ? '♥' : '♡'}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
+          <span class="stage-done-date" style="margin:0">✓ ${completed[key]}</span>
+          ${stars}
         </div>
-      </div>`;
-    }).join('') +
-  `</div>`;
+        <textarea class="stage-note" rows="1" placeholder="Add a note…"
+          oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
+          onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
+          onblur="if(!this.value.trim())this.rows=1"
+        >${notes[key] || ''}</textarea>
+      </div>
+    </div>`;
+
+    // ── Next up: elevated card ──
+    if (isNext) return `<div class="tl-item">
+      ${dot}
+      <div class="tl-card">
+        <div class="tl-next-eyebrow">NEXT UP</div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="stage-title" style="font-size:14px;font-weight:700;flex:1">${title}</span>
+          ${sm}${wish}
+        </div>
+        ${badges}
+        ${transport}
+        <button class="tl-done-btn" onclick="toggleStage('${key}')">✓ Mark as done</button>
+      </div>
+    </div>`;
+
+    // ── Todo / Future ──
+    return `<div class="tl-item${isFuture?' tl-item--future':''}">
+      ${dot}
+      <div class="tl-body">
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="stage-title" style="font-size:13px;flex:1">${title}</span>
+          ${sm}${wish}
+        </div>
+        ${badges}
+        ${transport}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="stage-timeline">${items}</div>`;
 }
 
 function renderRoute(route) {
