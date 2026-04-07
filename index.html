@@ -1440,8 +1440,13 @@ async function setNewPassword() {
   errEl.style.display = 'none';
   if (!password) { errEl.textContent = 'Please enter a password.'; errEl.style.display = 'block'; return; }
   const { error } = await sb.auth.updateUser({ password });
-  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
-  // onAuthStateChange will handle showing the app after password is set
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  } else {
+    _inPasswordRecovery = false;
+    showLoginForm();
+  }
 }
 
 async function signIn() {
@@ -1505,14 +1510,17 @@ async function migrateFromLocalStorage() {
 const DEV_MODE = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 let _booting = false;
+let _inPasswordRecovery = false;
+
 sb.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;
 
   // Ignore token refreshes if already loaded — avoids wiping routes mid-session
   if (event === 'TOKEN_REFRESHED' && allRoutes.length > 0) return;
 
-  // Password recovery — show set-password form instead of loading the app
+  // Password recovery — show set-password form, block any app boot until done
   if (event === 'PASSWORD_RECOVERY') {
+    _inPasswordRecovery = true;
     document.getElementById('auth-screen').style.display = 'flex';
     document.querySelector('.app').style.display = 'none';
     document.getElementById('auth-login').style.display = 'none';
@@ -1520,6 +1528,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('auth-newpass').style.display = 'flex';
     return;
   }
+
+  // Don't boot the app while the user is setting a new password
+  if (_inPasswordRecovery) return;
 
   // Prevent concurrent boot sequences
   if (_booting) return;
