@@ -1046,7 +1046,7 @@ function setView(v) {
   const hideContent = isDash;
   document.getElementById('tabs').style.display              = hideContent ? 'none' : '';
   document.querySelector('.controls').style.display          = hideContent ? 'none' : '';
-  document.getElementById('surprise-wrap-row').style.display = hideContent ? 'none' : '';
+  document.getElementById('surprise-wrap-row').style.display = hideContent ? 'none' : 'flex';
   render();
 }
 
