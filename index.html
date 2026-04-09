@@ -1183,6 +1183,17 @@ function setView(v) {
   render();
 }
 
+function goToRoute(rkey) {
+  expanded[rkey] = true;
+  setFilter('all');
+  setView('routes');
+  // Scroll to the route card after render
+  requestAnimationFrame(() => {
+    const el = document.getElementById('route-' + rkey);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 function setFilter(f) {
   filter = f;
   visible = 20;
@@ -1711,9 +1722,9 @@ function relativeDate(chDate) {
 }
 
 function renderDashboard() {
-  const allFlat = allRoutes.flatMap(r =>
-    r.stages.map(s => ({ ...s, _route: r, _land: r.land, _routeId: r.route_id }))
-  );
+  const allFlat = allRoutes
+    .filter(r => r.land === landFilter)
+    .flatMap(r => r.stages.map(s => ({ ...s, _route: r, _land: r.land, _routeId: r.route_id })));
   const doneFlat = allFlat.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
   const doneKm     = Math.round(doneFlat.reduce((n, s) => n + (s.dist_km || 0), 0));
   const doneElev   = Math.round(doneFlat.reduce((n, s) => n + (s.elev_up   || 0), 0));
@@ -1750,7 +1761,7 @@ function renderDashboard() {
         <div class="dash-hero-prog-wrap"><div class="dash-hero-prog-fill" style="width:${heroRoute._pct}%"></div></div>
         <div class="dash-hero-prog-label">${heroRoute._pct}% complete · ${heroRoute._done}/${heroRoute._total} stages</div>
         <div class="dash-hero-btns">
-          <button class="dash-hero-btn dash-hero-btn-primary" onclick="setView('routes');setFilter('all')">Continue →</button>
+          <button class="dash-hero-btn dash-hero-btn-primary" onclick="goToRoute('${routeKey(heroRoute.land, heroRoute.route_id)}')">Continue →</button>
           <button class="dash-hero-btn dash-hero-btn-secondary" onclick="setView('routes')">View Routes</button>
         </div>
       </div>
