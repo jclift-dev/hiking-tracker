@@ -2349,7 +2349,7 @@ async function migrateFromLocalStorage() {
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
-const DEV_MODE = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const DEV_MODE = false;
 
 // Emergency escape hatch — ?reset clears all storage and reloads clean
 if (new URLSearchParams(location.search).has('reset')) {
