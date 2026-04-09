@@ -2043,7 +2043,7 @@ function renderDashboard() {
   // ── Canton Map ──
   const hikedCantons   = new Set();
   const visitedCounts  = {};
-  allRoutes.forEach(r => r.stages.forEach(s => {
+  allRoutes.filter(r => r.land === landFilter).forEach(r => r.stages.forEach(s => {
     if (!completed[stageKey(r.land, r.route_id, s.stage_nr)]) return;
     (s.cantons || []).forEach(c => {
       const lc = c.toLowerCase();
@@ -2095,14 +2095,14 @@ function renderDashboard() {
     <div class="dash-canton-map">
       <div class="dash-canton-map-header">
         <div>
-          <div class="dash-card-eyebrow">Where I've Hiked</div>
+          <div class="dash-card-eyebrow">Where I've ${landFilter === 'cycle' ? 'Cycled' : 'Hiked'}</div>
           <div style="font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.02em">${hikedCount} of 26 cantons</div>
         </div>
         <div style="text-align:right;font-size:12px;color:var(--muted)">${hikedCount > 0 ? `${Math.round(hikedCount/26*100)}% of Switzerland` : 'Start exploring'}</div>
       </div>
       <svg viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg">${svgPaths}</svg>
       <div class="dash-canton-map-legend">
-        <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary)"></div> Hiked here</div>
+        <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary)"></div> ${landFilter === 'cycle' ? 'Cycled' : 'Hiked'} here</div>
         <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary-lt);opacity:0.6"></div> Passing through</div>
         <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--surface-low);border:1px solid var(--border)"></div> Not yet</div>
       </div>
