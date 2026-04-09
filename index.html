@@ -676,6 +676,7 @@
     <button onclick="signIn()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Sign in</button>
     <div id="auth-error" style="font-size:12px;color:#e05;display:none"></div>
     <a href="#" onclick="showResetForm();return false;" style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px">Forgot password?</a>
+    <a href="?reset" style="font-size:11px;color:var(--muted);opacity:0.5;text-align:center;margin-top:8px">Stuck? Clear session & reload</a>
   </div>
   <div id="auth-reset" style="display:none;flex-direction:column;gap:0.5rem;width:280px">
     <input id="auth-reset-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
@@ -2302,15 +2303,8 @@ async function signIn() {
 }
 
 async function logout() {
-  _inPasswordRecovery = false;
-  _booting = false;
-  _loggingOut = true;
-  allRoutes = [];
-  try { await sb.auth.signOut(); } catch(e) { /* ignore — force UI reset regardless */ }
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.querySelector('.app').style.display = 'none';
-  showLoginForm();
-  setTimeout(() => { _loggingOut = false; }, 2000);
+  try { await sb.auth.signOut(); } catch(e) {}
+  window.location.reload();
 }
 
 async function migrateFromLocalStorage() {
