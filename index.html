@@ -1187,9 +1187,10 @@ function setView(v) {
 function goToRoute(rkey) {
   expanded[rkey] = true;
   filter = 'all';
-  visible = 999;
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-  setView('routes');
+  setView('routes');   // sets visible=20 and renders
+  visible = 999;       // expand to show all routes
+  render();            // re-render with all routes visible
   setTimeout(() => {
     const el = document.getElementById('route-' + rkey);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
