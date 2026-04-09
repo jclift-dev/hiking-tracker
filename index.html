@@ -142,6 +142,7 @@
   }
   .header-topbar-left  { flex: 1; display: flex; align-items: center; }
   .header-topbar-center { flex: none; display: flex; align-items: center; gap: 2px; }
+  #land-pill { flex: none; }
   .header-topbar-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
   .topbar-logo {
     font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800;
@@ -485,23 +486,50 @@
 
   /* Mobile */
   @media (max-width: 600px) {
-    .app { padding: 0 0.6rem 4rem; }
+    .app { padding: 0 0.75rem 4rem; }
+    /* Topbar: two-row layout on mobile */
+    .header-topbar { flex-wrap: wrap; padding: 0.65rem 1rem; row-gap: 8px; }
+    .header-topbar-left  { order: 1; flex: 1; }
+    .header-topbar-right { order: 2; flex: none; gap: 6px; }
+    .header-topbar-center { order: 3; flex: 1; }
+    #land-pill { order: 4; flex: none; }
+    .header-user { display: none; }
+    /* Header inner */
     .header-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
     .header-right { width: 100%; }
     .header-stats { flex-direction: row; align-items: flex-end; text-align: left; gap: 0; }
     .header-stat { padding: 0.25rem 0.75rem; border-left: 1px solid rgba(255,255,255,0.1); }
     .header-stat:first-child { border-left: none; padding-left: 0; }
     .header-stat-value { font-size: 18px; }
-    .header h1 { font-size: 42px; }
+    .header h1 { font-size: 38px; }
+    /* Tabs + controls */
     .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; flex-wrap: nowrap; }
     .tab { white-space: nowrap; flex-shrink: 0; }
     .controls { flex-direction: column; }
     .controls input, .controls select { width: 100%; min-width: 0; }
+    /* Route + stage rows */
     .route-header { padding: 0.75rem 1rem; }
     .stage-row { padding: 0.65rem 1rem; gap: 8px; }
     .route-num { font-size: 10px; }
     .stage-title { font-size: 13px; }
     .surprise-card { padding: 0.9rem 1rem; }
+    /* Dashboard hero */
+    .dash-hero { padding: 1.5rem 1.25rem 1.25rem; }
+    .dash-hero h2 { font-size: 24px; }
+    /* Dashboard stats row: keep 3-col, compact it */
+    .dash-stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .dash-stat-card { padding: 0.85rem 0.75rem; }
+    .dash-stat-num { font-size: 24px; }
+    .dash-stat-fun { display: none; }
+    /* Dashboard two-col: keep 2-col, reduce gap */
+    .dash-two-col { gap: 8px; }
+    .dash-card { padding: 1rem; }
+    .dash-month-num { font-size: 36px; }
+    /* Next Up card */
+    .dash-next-up { padding: 1.1rem; }
+    .dash-next-up-title { font-size: 17px; }
+    /* Canton map */
+    .dash-canton-map { padding: 1.1rem; }
   }
 
   /* ── Dashboard ──────────────────────────────────────────────── */
@@ -539,7 +567,6 @@
   .dash-section-title { font-size: 24px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; margin-bottom: 14px; }
 
   .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-  @media (max-width: 540px) { .dash-grid { grid-template-columns: 1fr; } }
 
   .dash-trail-card {
     background: var(--surface-low); border-radius: var(--radius-lg);
@@ -560,7 +587,6 @@
   .dash-trail-next { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
   .dash-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; margin-bottom: 20px; }
-  @media (max-width: 540px) { .dash-bottom { grid-template-columns: 1fr; } }
 
   .dash-big-stat {
     background: var(--primary); color: #fff;
@@ -603,7 +629,6 @@
 
   /* Stats row */
   .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-  @media (max-width: 540px) { .dash-stats-row { grid-template-columns: 1fr; } }
   .dash-stat-card { background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow); }
   .dash-stat-eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-family: 'Manrope', sans-serif; margin-bottom: 6px; }
   .dash-stat-num { font-size: 36px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.04em; line-height: 1; color: var(--text); }
@@ -613,7 +638,6 @@
 
   /* 2-col cards row */
   .dash-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-  @media (max-width: 540px) { .dash-two-col { grid-template-columns: 1fr; } }
   .dash-card { background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem 1.4rem; box-shadow: var(--shadow); }
   .dash-card-eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-family: 'Manrope', sans-serif; margin-bottom: 10px; }
   .dash-card-title { font-family: 'Manrope', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; line-height: 1.2; }
@@ -717,11 +741,11 @@
         <button class="header-nav-btn" id="view-dashboard" onclick="setView('dashboard')">Dashboard</button>
         <button class="header-nav-btn active" id="view-tracking" onclick="setView('routes')">Tracking</button>
       </nav>
+      <div class="land-pill" id="land-pill">
+        <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">Hiking</button>
+        <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">Cycling</button>
+      </div>
       <div class="header-topbar-right">
-        <div class="land-pill" id="land-pill">
-          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">Hiking</button>
-          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">Cycling</button>
-        </div>
         <div class="header-user" id="header-user"></div>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
         <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
