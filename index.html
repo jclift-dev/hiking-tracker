@@ -231,6 +231,78 @@
   .settings-pill:hover { background: var(--green-bg); color: var(--green-dark); }
   .settings-pill.active { background: var(--primary); color: #fff; font-weight: 500; }
   #sbb-slider { width: 100%; accent-color: var(--green); cursor: pointer; margin-top: 6px; display: block; }
+  /* Filter panel */
+  .filter-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 10px; border: none;
+    background: var(--ghost); color: var(--text); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; font-family: 'Manrope', sans-serif;
+  }
+  .filter-btn:hover { background: var(--gray-bg); }
+  .filter-btn.active { background: var(--primary); color: #fff; }
+  .filter-count {
+    background: var(--tertiary); color: #fff; border-radius: 99px;
+    font-size: 10px; font-weight: 800; padding: 1px 6px; line-height: 1.4;
+  }
+  .filter-btn.active .filter-count { background: rgba(255,255,255,0.3); }
+  .filter-panel-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .filter-panel-overlay.open { display: block; }
+  .filter-panel {
+    display: none; position: fixed; z-index: 201;
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 1.5rem; width: min(480px, 95vw);
+    box-shadow: var(--shadow-lg);
+    /* Bottom sheet on mobile, centered on desktop */
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+    max-height: 90vh; overflow-y: auto;
+  }
+  @media (min-width: 600px) {
+    .filter-panel {
+      top: 50%; bottom: auto; transform: translate(-50%, -50%);
+      border-radius: var(--radius-lg);
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    .filter-panel { background: #1c1c1c; }
+  }
+  .filter-panel.open { display: block; }
+  .filter-panel-hdr {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
+  }
+  .filter-panel-title { font-size: 16px; font-weight: 700; font-family: 'Manrope', sans-serif; }
+  .filter-panel-hdr-actions { display: flex; align-items: center; gap: 8px; }
+  .filter-clear-btn {
+    font-size: 12px; font-weight: 600; color: var(--tertiary); background: none;
+    border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.15s;
+  }
+  .filter-clear-btn:hover { background: var(--red-bg); }
+  .filter-close-btn {
+    width: 30px; height: 30px; border-radius: 8px; border: none;
+    background: var(--ghost); color: var(--muted); cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .filter-close-btn:hover { background: var(--gray-bg); color: var(--text); }
+  .filter-group { margin-bottom: 1.1rem; }
+  .filter-group:last-child { margin-bottom: 0; }
+  .filter-group-label {
+    font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.12em; margin-bottom: 6px; font-family: 'Manrope', sans-serif;
+  }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .filter-panel input[type="text"],
+  .filter-panel select {
+    width: 100%; padding: 9px 12px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface-low);
+    color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif;
+    box-sizing: border-box; outline: none; transition: border-color 0.15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .filter-panel input[type="text"]:focus,
+  .filter-panel select:focus { border-color: var(--primary); }
   /* Routes / All Stages sub-view toggle */
   .subview-toggle {
     display: flex; gap: 2px; background: var(--ghost); border-radius: 10px; padding: 3px;
@@ -274,19 +346,6 @@
   .tab { padding: 6px 15px; font-size: 13px; border: none; border-radius: 99px; background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 3px rgba(25,28,29,0.06); }
   .tab:hover { background: var(--green-bg); color: var(--green-dark); }
   .tab.active { background: var(--primary); color: #fff; font-weight: 500; box-shadow: 0 2px 8px rgba(1,45,29,0.25); }
-
-  .controls { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-  .controls input, .controls select {
-    padding: 8px 12px; font-size: 14px; border: none; border-radius: 10px;
-    background: var(--surface); color: var(--text); outline: none;
-    box-shadow: 0 1px 3px rgba(25,28,29,0.07);
-    transition: box-shadow 0.15s, background 0.15s;
-  }
-  .controls input { flex: 1; min-width: 200px; }
-  .controls input:focus {
-    background: var(--surface); box-shadow: 0 0 0 2px rgba(29,158,117,0.25), 0 1px 3px rgba(25,28,29,0.07);
-  }
-  .controls select:focus { box-shadow: 0 0 0 2px rgba(29,158,117,0.25), 0 1px 3px rgba(25,28,29,0.07); }
 
   /* Route cards */
   .route-list { display: flex; flex-direction: column; gap: 14px; }
@@ -503,8 +562,6 @@
     /* Tabs + controls */
     .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; flex-wrap: nowrap; }
     .tab { white-space: nowrap; flex-shrink: 0; }
-    .controls { flex-direction: column; }
-    .controls input, .controls select { width: 100%; min-width: 0; }
     /* Route + stage rows */
     .route-header { padding: 0.75rem 1rem; }
     .stage-row { padding: 0.65rem 1rem; gap: 8px; }
@@ -800,6 +857,9 @@
       <button class="subview-btn active" id="subview-routes" onclick="setView('routes')">Routes</button>
       <button class="subview-btn" id="subview-stages" onclick="setView('stages')">All Stages</button>
     </div>
+    <button class="filter-btn" id="filter-btn" onclick="openFilters()">
+      ⚙ Filters <span class="filter-count" id="filter-count" style="display:none"></span>
+    </button>
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
 
@@ -815,40 +875,74 @@
     <button class="tab" onclick="setFilter('wishlist')">♡ Wishlist</button>
   </div>
 
-  <div class="controls">
-    <input type="text" id="search" placeholder="Search routes or places…" oninput="render()" />
-    <select id="canton-filter" onchange="render()">
-      <option value="">All cantons</option>
-    </select>
-    <select id="diff-filter" onchange="render()">
-      <option value="">All difficulties</option>
-    </select>
-    <select id="km-filter" onchange="render()">
-      <option value="">All lengths</option>
-      <option value="short">Short (under 15 km)</option>
-      <option value="medium">Medium (15–25 km)</option>
-      <option value="long">Long (over 25 km)</option>
-    </select>
-    <select id="time-filter" onchange="render()">
-      <option value="">All durations</option>
-      <option value="quick">Quick (under 4 hrs)</option>
-      <option value="half">Half day (4–6 hrs)</option>
-      <option value="full">Full day (over 6 hrs)</option>
-    </select>
-    <select id="sort" onchange="render()">
-      <option value="num">Sort by route number</option>
-      <option value="dist">Shortest first</option>
-      <option value="sbb">Closest to home</option>
-      <option value="alpha">A–Z</option>
-    </select>
-    <select id="stage-sort" onchange="render()" style="display:none">
-      <option value="sbb_asc">Closest to home</option>
-      <option value="dist_asc">Shortest first</option>
-      <option value="dist_desc">Longest first</option>
-      <option value="elev_desc">Most ascent</option>
-      <option value="time_asc">Quickest first</option>
-      <option value="sbb_desc">Furthest from home</option>
-    </select>
+  <!-- Filter panel (hidden inputs — still read by JS) -->
+  <div class="filter-panel-overlay" id="filter-panel-overlay" onclick="closeFilters()"></div>
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-panel-hdr">
+      <span class="filter-panel-title">Filters</span>
+      <div class="filter-panel-hdr-actions">
+        <button class="filter-clear-btn" id="filter-clear-btn" onclick="clearFilters()" style="display:none">Clear all</button>
+        <button class="filter-close-btn" onclick="closeFilters()">✕</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Search</div>
+      <input type="text" id="search" placeholder="Route name or place…" oninput="updateFilterBtn();render()" enterkeyhint="search" autocomplete="off" />
+    </div>
+    <div class="filter-row">
+      <div class="filter-group">
+        <div class="filter-group-label">Canton</div>
+        <select id="canton-filter" onchange="updateFilterBtn();render()">
+          <option value="">All cantons</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Difficulty</div>
+        <select id="diff-filter" onchange="updateFilterBtn();render()">
+          <option value="">All difficulties</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-group">
+        <div class="filter-group-label">Stage length</div>
+        <select id="km-filter" onchange="updateFilterBtn();render()">
+          <option value="">Any length</option>
+          <option value="short">Short (under 15 km)</option>
+          <option value="medium">Medium (15–25 km)</option>
+          <option value="long">Long (over 25 km)</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Duration</div>
+        <select id="time-filter" onchange="updateFilterBtn();render()">
+          <option value="">Any duration</option>
+          <option value="quick">Quick (under 4 hrs)</option>
+          <option value="half">Half day (4–6 hrs)</option>
+          <option value="full">Full day (over 6 hrs)</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-group" id="sort-routes-group">
+      <div class="filter-group-label">Sort routes by</div>
+      <select id="sort" onchange="render()">
+        <option value="num">Route number</option>
+        <option value="dist">Shortest first</option>
+        <option value="sbb">Closest to home</option>
+        <option value="alpha">A–Z</option>
+      </select>
+    </div>
+    <div class="filter-group" id="sort-stages-group" style="display:none">
+      <div class="filter-group-label">Sort stages by</div>
+      <select id="stage-sort" onchange="render()">
+        <option value="sbb_asc">Closest to home</option>
+        <option value="dist_asc">Shortest first</option>
+        <option value="dist_desc">Longest first</option>
+        <option value="elev_desc">Most ascent</option>
+        <option value="time_asc">Quickest first</option>
+        <option value="sbb_desc">Furthest from home</option>
+      </select>
+    </div>
   </div>
 
 
@@ -1057,6 +1151,47 @@ function updateSbbSlider() {
   render();
 }
 
+function activeFilterCount() {
+  let n = 0;
+  if (document.getElementById('search').value.trim()) n++;
+  if (document.getElementById('canton-filter').value) n++;
+  if (document.getElementById('diff-filter').value) n++;
+  if (document.getElementById('km-filter').value) n++;
+  if (document.getElementById('time-filter').value) n++;
+  return n;
+}
+function updateFilterBtn() {
+  const n = activeFilterCount();
+  const btn   = document.getElementById('filter-btn');
+  const badge = document.getElementById('filter-count');
+  const clearBtn = document.getElementById('filter-clear-btn');
+  btn.classList.toggle('active', n > 0);
+  badge.style.display = n > 0 ? '' : 'none';
+  badge.textContent   = n;
+  if (clearBtn) clearBtn.style.display = n > 0 ? '' : 'none';
+}
+function openFilters() {
+  document.getElementById('filter-panel').classList.add('open');
+  document.getElementById('filter-panel-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFilters() {
+  document.getElementById('filter-panel').classList.remove('open');
+  document.getElementById('filter-panel-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Dismiss keyboard on iOS
+  document.activeElement?.blur();
+}
+function clearFilters() {
+  document.getElementById('search').value = '';
+  document.getElementById('canton-filter').value = '';
+  document.getElementById('diff-filter').value = '';
+  document.getElementById('km-filter').value = '';
+  document.getElementById('time-filter').value = '';
+  updateFilterBtn();
+  render();
+}
+
 function toggleSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
@@ -1245,11 +1380,12 @@ function setView(v) {
     document.getElementById('subview-stages').classList.toggle('active', v === 'stages');
   }
 
-  document.getElementById('sort').style.display       = v === 'routes' ? '' : 'none';
-  document.getElementById('stage-sort').style.display = v === 'stages' ? '' : 'none';
+  // In filter panel, show relevant sort group
+  document.getElementById('sort-routes-group').style.display = v === 'routes' ? '' : 'none';
+  document.getElementById('sort-stages-group').style.display = v === 'stages' ? '' : 'none';
   const hideContent = isDash;
   document.getElementById('tabs').style.display              = hideContent ? 'none' : '';
-  document.querySelector('.controls').style.display          = hideContent ? 'none' : '';
+  document.getElementById('filter-btn').style.display        = hideContent ? 'none' : '';
   document.getElementById('surprise-wrap-row').style.display = hideContent ? 'none' : 'flex';
   render();
 }
@@ -2221,6 +2357,7 @@ function renderDashboard() {
 }
 
 function render() {
+  updateFilterBtn();
   const list = document.getElementById('route-list');
   const btn  = document.getElementById('load-more');
   document.getElementById('surprise-wrap').innerHTML = renderSurprise();
