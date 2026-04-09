@@ -142,7 +142,6 @@
   }
   .header-topbar-left  { flex: 1; display: flex; align-items: center; }
   .header-topbar-center { flex: none; display: flex; align-items: center; gap: 2px; }
-  #land-pill { flex: none; }
   .header-topbar-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
   .topbar-logo {
     font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800;
@@ -492,7 +491,6 @@
     .header-topbar-left  { order: 1; flex: 1; }
     .header-topbar-right { order: 2; flex: none; gap: 6px; }
     .header-topbar-center { order: 3; flex: 1; }
-    #land-pill { order: 4; flex: none; }
     .header-user { display: none; }
     /* Header inner */
     .header-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
@@ -741,10 +739,6 @@
         <button class="header-nav-btn" id="view-dashboard" onclick="setView('dashboard')">Dashboard</button>
         <button class="header-nav-btn active" id="view-tracking" onclick="setView('routes')">Tracking</button>
       </nav>
-      <div class="land-pill" id="land-pill">
-        <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">Hiking</button>
-        <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">Cycling</button>
-      </div>
       <div class="header-topbar-right">
         <div class="header-user" id="header-user"></div>
         <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
@@ -757,6 +751,10 @@
         <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
         <h1><span id="header-title">VIA</span></h1>
         <p id="subtitle">Loading routes…</p>
+        <div class="land-pill" id="land-pill" style="margin-top:12px">
+          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
+          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+        </div>
       </div>
       <div class="header-right">
         <div class="header-stats" id="stats" style="display:none">
@@ -821,6 +819,21 @@
     <input type="text" id="search" placeholder="Search routes or places…" oninput="render()" />
     <select id="canton-filter" onchange="render()">
       <option value="">All cantons</option>
+    </select>
+    <select id="diff-filter" onchange="render()">
+      <option value="">All difficulties</option>
+    </select>
+    <select id="km-filter" onchange="render()">
+      <option value="">All lengths</option>
+      <option value="short">Short (under 15 km)</option>
+      <option value="medium">Medium (15–25 km)</option>
+      <option value="long">Long (over 25 km)</option>
+    </select>
+    <select id="time-filter" onchange="render()">
+      <option value="">All durations</option>
+      <option value="quick">Quick (under 4 hrs)</option>
+      <option value="half">Half day (4–6 hrs)</option>
+      <option value="full">Full day (over 6 hrs)</option>
     </select>
     <select id="sort" onchange="render()">
       <option value="num">Sort by route number</option>
@@ -993,6 +1006,7 @@ async function loadData() {
       updateSubtitle();
       document.getElementById('stats').style.display = 'grid';
       populateCantons();
+      updateDiffFilter(landFilter);
       populateStations();
       updateStats();
       render();
@@ -1181,6 +1195,26 @@ function updateStats() {
 // Filtering + sorting
 // ---------------------------------------------------------------------------
 
+const DIFF_OPTIONS = {
+  hike: [
+    ['hiking trail',                    'T1 · Hiking trail'],
+    ['mountain hiking trail',           'T2 · Mountain hiking'],
+    ['demanding mountain hiking trail', 'T3 · Demanding mountain'],
+    ['alpine hiking trail',             'T4 · Alpine'],
+  ],
+  cycle: [
+    ['easy',      'Easy'],
+    ['medium',    'Medium'],
+    ['difficult', 'Difficult'],
+  ],
+};
+function updateDiffFilter(l) {
+  const sel = document.getElementById('diff-filter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All difficulties</option>'
+    + DIFF_OPTIONS[l].map(([v, label]) => `<option value="${v}"${cur===v?' selected':''}>${label}</option>`).join('');
+}
+
 function setLand(l) {
   landFilter = l;
   visible = 20;
@@ -1188,6 +1222,7 @@ function setLand(l) {
   ['hike','cycle'].forEach(x =>
     document.getElementById('land-btn-' + x).classList.toggle('active', x === l)
   );
+  updateDiffFilter(l);
   updateSubtitle();
   updateStats();
   render();
@@ -1240,11 +1275,33 @@ function setFilter(f) {
   render();
 }
 
+function stageMatchesFilters(s, land, diffVal, kmVal, timeVal) {
+  if (diffVal) {
+    if (canonDiff(s.difficulty, land) !== diffVal) return false;
+  }
+  if (kmVal) {
+    const km = s.dist_km || 0;
+    if (kmVal === 'short'  && km >= 15) return false;
+    if (kmVal === 'medium' && (km < 15 || km > 25)) return false;
+    if (kmVal === 'long'   && km <= 25) return false;
+  }
+  if (timeVal) {
+    const hrs = s.hiking_hrs || 0;
+    if (timeVal === 'quick' && hrs >= 4) return false;
+    if (timeVal === 'half'  && (hrs < 4 || hrs > 6)) return false;
+    if (timeVal === 'full'  && hrs <= 6) return false;
+  }
+  return true;
+}
+
 function filteredRoutes() {
   const q = document.getElementById('search').value.toLowerCase().trim();
   const cantonFilter = document.getElementById('canton-filter').value;
-  const sbbMax       = getSbbMax();
-  const sortBy = document.getElementById('sort').value;
+  const diffVal  = document.getElementById('diff-filter').value;
+  const kmVal    = document.getElementById('km-filter').value;
+  const timeVal  = document.getElementById('time-filter').value;
+  const sbbMax   = getSbbMax();
+  const sortBy   = document.getElementById('sort').value;
 
   let routes = allRoutes.filter(r => {
     r.stages.forEach(s => { s._routeId = r.route_id; s._land = r.land; });
@@ -1271,6 +1328,9 @@ function filteredRoutes() {
   }).filter(r => {
     if (!cantonFilter) return true;
     return r.stages.some(s => (s.cantons || []).includes(cantonFilter));
+  }).filter(r => {
+    if (!diffVal && !kmVal && !timeVal) return true;
+    return r.stages.some(s => stageMatchesFilters(s, r.land, diffVal, kmVal, timeVal));
   }).filter(r => {
     if (sbbMax >= 240) return true;
     return r.stages.some(s => stageWithinSbb(s, sbbMax));
@@ -1339,6 +1399,11 @@ function filteredStages() {
 
   if (cantonFilter) stages = stages.filter(s => (s.cantons || []).includes(cantonFilter));
   if (sbbMax < 240) stages = stages.filter(s => stageWithinSbb(s, sbbMax));
+  const diffVal2 = document.getElementById('diff-filter').value;
+  const kmVal2   = document.getElementById('km-filter').value;
+  const timeVal2 = document.getElementById('time-filter').value;
+  if (diffVal2 || kmVal2 || timeVal2)
+    stages = stages.filter(s => stageMatchesFilters(s, s._land, diffVal2, kmVal2, timeVal2));
 
   if (q) stages = stages.filter(s =>
     s._route.name.toLowerCase().includes(q) ||
