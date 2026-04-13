@@ -1208,8 +1208,9 @@ function getSbbMax() {
 
 function stageBestSbb(stage) {
   const times = (stage.sbb_times || {})[selectedStation] || {};
-  const startIsBasel = (stage.start_name || '').toLowerCase().startsWith('basel');
-  const endIsBasel   = (stage.end_name   || '').toLowerCase().startsWith('basel');
+  const isBaselStation = selectedStation.toLowerCase().startsWith('basel');
+  const startIsBasel = isBaselStation && (stage.start_name || '').toLowerCase().startsWith('basel');
+  const endIsBasel   = isBaselStation && (stage.end_name   || '').toLowerCase().startsWith('basel');
   const vals = [
     startIsBasel ? 0 : times.start,
     endIsBasel   ? 0 : times.end,
