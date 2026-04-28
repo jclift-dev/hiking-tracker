@@ -180,17 +180,17 @@ All routes are cached after the first `--routes-only` run. Each subsequent `--sb
 
 ### Planned SBB origins
 
-Basel SBB is done. Remaining cities to scrape (run one per night with `--sbb-only`):
+Use `python3 scraper.py --sbb-all` to process all origins in sequence (run in `tmux` so it survives laptop sleep). It skips complete origins and processes incomplete ones shortest-first.
 
-- Zürich HB
-- Bern
-- Lausanne
-- Genève
-- Luzern
-- St. Gallen
-- Winterthur
-- Biel/Bienne
-- Lugano
+Complete: Zürich HB, Lausanne, St. Gallen, Interlaken Ost, Biel/Bienne, Lugano
+
+In progress (as of 2026-04-28):
+- Basel SBB — 714/1179
+- Genève — 782/1179
+- Bern — 1007/1179
+- Luzern — 0/1179
+- Chur — 236/1179
+- Thun — 0/1179
 
 ### Dev servers
 

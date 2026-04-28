@@ -83,7 +83,9 @@ ALL_ORIGINS = [
     "Genève",
     "Luzern",
     "St. Gallen",
-    "Winterthur",
+    "Interlaken Ost",
+    "Chur",
+    "Thun",
     "Biel/Bienne",
     "Lugano",
 ]
@@ -450,12 +452,14 @@ def sbb_travel_minutes(destination):
     """
     Get travel time in minutes from origin to destination.
     Returns int (minutes) or None on failure/bad match.
-    Retries once after 30s on 429 rate-limit.
+    Retries indefinitely on 429 rate-limit (30s between attempts).
     Raises SbbDailyLimitError if the daily quota is exhausted.
     """
     if not destination:
         return None
-    for attempt in range(2):
+    attempt = 0
+    while True:
+        attempt += 1
         try:
             r = SESSION.get(
                 f"{SBB_API}/connections",
@@ -464,11 +468,21 @@ def sbb_travel_minutes(destination):
                 timeout=15,
             )
             if r.status_code == 429:
-                if attempt == 0:
-                    print(f"\n    [rate-limited] waiting 30s...", end=" ", flush=True)
-                    time.sleep(30)
-                    continue
-                return None
+                # Check body: daily quota returns 429 with "Too many requests today"
+                try:
+                    body_429 = r.json()
+                    errs_429 = body_429.get("errors", [])
+                    if errs_429:
+                        msg_429 = (errs_429[0].get("message") or "").lower()
+                        if "today" in msg_429 or "daily" in msg_429:
+                            raise SbbDailyLimitError(errs_429[0]["message"])
+                except SbbDailyLimitError:
+                    raise
+                except Exception:
+                    pass
+                print(f"\n    [rate-limited] waiting 30s (attempt {attempt})...", end=" ", flush=True)
+                time.sleep(30)
+                continue
             r.raise_for_status()
             body = r.json()
             # Check for daily quota error returned as JSON body (not a 429)
@@ -652,8 +666,8 @@ def wait_for_quota_reset():
     test_from, test_to = "Basel SBB", "Zürich HB"
     while True:
         now = datetime.now().strftime("%Y-%m-%d %H:%M")
-        print(f"\n  [quota] Daily limit reached at {now}.")
-        print(f"  [quota] Sleeping {QUOTA_POLL // 60} min, then polling until quota resets...")
+        print(f"\n  [quota] Daily limit reached at {now}.", flush=True)
+        print(f"  [quota] Sleeping {QUOTA_POLL // 60} min, then polling until quota resets...", flush=True)
         time.sleep(QUOTA_POLL)
         try:
             r = SESSION.get(
@@ -666,13 +680,13 @@ def wait_for_quota_reset():
             if errors:
                 msg = (errors[0].get("message") or "").lower()
                 if "too many requests" in msg or "rate limit" in msg:
-                    print(f"  [quota] Still rate-limited at {datetime.now().strftime('%H:%M')} — waiting again...")
+                    print(f"  [quota] Still rate-limited at {datetime.now().strftime('%H:%M')} — waiting again...", flush=True)
                     continue
             # No quota error — API is back
-            print(f"  [quota] Quota reset confirmed at {datetime.now().strftime('%Y-%m-%d %H:%M')}. Resuming.")
+            print(f"  [quota] Quota reset confirmed at {datetime.now().strftime('%Y-%m-%d %H:%M')}. Resuming.", flush=True)
             return
         except Exception as e:
-            print(f"  [quota] Poll failed ({e}) — will retry in {QUOTA_POLL // 60} min.")
+            print(f"  [quota] Poll failed ({e}) — will retry in {QUOTA_POLL // 60} min.", flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -905,12 +919,9 @@ def main():
 
     # --- SBB enrichment ---
     if args.sbb_all:
-        # Determine which origins still have incomplete data
+        # Determine which origins still have incomplete data, ordered by fewest remaining first
         pending = []
-        import random
-        shuffled_origins = ALL_ORIGINS[:]
-        random.shuffle(shuffled_origins)
-        for origin in shuffled_origins:
+        for origin in ALL_ORIGINS:
             incomplete = sum(
                 1 for r in routes for s in r["stages"]
                 if s.get("sbb_times", {}).get(origin, {}).get("start") is None
@@ -920,6 +931,7 @@ def main():
                 pending.append((origin, incomplete))
             else:
                 print(f"  ✓ {origin} — already complete, skipping")
+        pending.sort(key=lambda x: x[1])
 
         if not pending:
             print("\nAll origins already complete.")
