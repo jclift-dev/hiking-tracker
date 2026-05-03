@@ -38,10 +38,10 @@ import sys
 import time
 
 try:
-    import requests
+    import cloudscraper
     from bs4 import BeautifulSoup
 except ImportError:
-    print("Missing dependency. Run:  pip3 install requests beautifulsoup4")
+    print("Missing dependency. Run:  pip3 install cloudscraper beautifulsoup4")
     sys.exit(1)
 
 # Reuse persistence helpers from scraper.py — keeps the on-disk format
@@ -70,18 +70,14 @@ ROUTE_DESC    = (
 
 MILES_TO_KM = 1.60934
 
-SESSION = requests.Session()
+# cloudscraper handles Cloudflare JS-challenge (the site returns 403 to plain requests)
+SESSION = cloudscraper.create_scraper(
+    browser={"browser": "chrome", "platform": "darwin", "mobile": False}
+)
 SESSION.headers.update({
-    "User-Agent": (
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-GB,en;q=0.9",
     "Referer": f"{BASE}/",
 })
-
-GRADES = ("severe", "strenuous", "moderate", "easy")  # checked in order — most-specific first
 
 
 # ---------------------------------------------------------------------------
@@ -131,20 +127,19 @@ def discover_walk_ids(html):
     return ids
 
 
-_TITLE_TAIL_RE = re.compile(r"\s*[|·\-–—]\s*(South West Coast Path|SWCP).*$", re.I)
-
-
 def parse_walk(html, walk_id):
     """Parse a /walksdb/{id}/ page into a stage dict (without stage_nr)."""
     soup = BeautifulSoup(html, "html.parser")
 
-    # --- Title ---
+    # --- Title: h1 is '<span>Walk</span> - Foo to Bar', strip the "Walk - " prefix ---
     h1 = soup.find("h1")
-    title = h1.get_text(strip=True) if h1 else ""
+    title = re.sub(r"^Walk\s*[-–—]\s*", "", h1.get_text(" ", strip=True), flags=re.I).strip() if h1 else ""
     if not title:
         t = soup.find("title")
-        title = t.get_text(strip=True) if t else f"SWCP walk {walk_id}"
-    title = _TITLE_TAIL_RE.sub("", title).strip()
+        # "<title>Foo to Bar - Walk - South West Coast Path</title>"
+        raw = t.get_text(strip=True) if t else ""
+        title = re.sub(r"\s*[-–—]\s*(Walk|South West Coast Path|SWCP).*$", "", raw, flags=re.I).strip()
+    title = title or f"SWCP walk {walk_id}"
 
     # "Foo to Bar" → start / end
     if " to " in title:
@@ -152,53 +147,59 @@ def parse_walk(html, walk_id):
     else:
         start_name = end_name = title
 
-    # --- Body text for regex extraction ---
-    main = soup.find("main") or soup.find("article") or soup.body or soup
-    text = main.get_text(" ", strip=True)
-
-    # --- Distance: miles → km ---
-    miles = None
-    m = re.search(r"(\d+(?:\.\d+)?)\s*mile", text, re.I)
-    if m:
-        try:
-            miles = float(m.group(1))
-        except ValueError:
-            pass
-    dist_km = round(miles * MILES_TO_KM) if miles else None
-
-    # --- Walking time ---
-    duration_hrs = None
-    # "5h 30m" / "5 hours 30 minutes" / "5 hr 30 min"
-    m = re.search(r"(\d+)\s*h(?:ou)?r?s?\s*(?:and\s*)?(\d+)\s*m(?:in)?", text, re.I)
-    if m:
-        duration_hrs = int(m.group(1)) + int(m.group(2)) / 60
-    else:
-        # "5.5 hours" / "5 hrs" / "5h"
-        m = re.search(r"(\d+(?:\.\d+)?)\s*h(?:ou)?r?s?\b", text, re.I)
+    # --- Distance: use km from h2.mainTitle to avoid unit-conversion rounding ---
+    dist_km = None
+    h2 = soup.find("h2", class_="mainTitle")
+    if h2:
+        h2_text = h2.get_text()
+        m = re.search(r"\((\d+(?:\.\d+)?)\s*km\)", h2_text)
         if m:
-            try:
-                duration_hrs = float(m.group(1))
-            except ValueError:
-                pass
-    if duration_hrs is not None:
-        duration_hrs = round(duration_hrs, 1)
+            dist_km = round(float(m.group(1)))
+        else:
+            m = re.search(r"(\d+(?:\.\d+)?)\s*mile", h2_text, re.I)
+            if m:
+                dist_km = round(float(m.group(1)) * MILES_TO_KM)
 
-    # --- Difficulty grade (first match of severe > strenuous > moderate > easy) ---
+    # --- Walking time: not published by the SWCP site for these stages ---
+    duration_hrs = None
+
+    # --- Difficulty: from <p class="difficulty"> image filename (most reliable) ---
+    # Site uses: easy / moderate / challenging  (image names like "challenging-walk.png")
     difficulty = None
-    lower = text.lower()
-    for grade in GRADES:
-        if re.search(rf"\b{grade}\b", lower):
-            difficulty = grade
-            break
+    diff_p = soup.find("p", class_="difficulty")
+    if diff_p:
+        img = diff_p.find("img")
+        if img and img.get("src"):
+            m = re.search(r"/(easy|moderate|challenging|strenuous|severe)-walk", img["src"], re.I)
+            if m:
+                difficulty = m.group(1).lower()
+        if not difficulty:
+            diff_text = diff_p.get_text(" ", strip=True).lower()
+            for grade in ("challenging", "strenuous", "severe", "moderate", "easy"):
+                if re.search(rf"\b{grade}\b", diff_text):
+                    difficulty = grade
+                    break
 
-    # --- Description: first few substantive paragraphs ---
+    # --- Description: substantive paragraphs from the walkDetails div ---
+    walk_div = soup.find(id="walkDetails")
     paras = []
-    for p in main.find_all("p"):
-        s = p.get_text(" ", strip=True)
-        if len(s) > 60:
-            paras.append(s)
-        if len(paras) >= 3:
-            break
+    if walk_div:
+        for p in walk_div.find_all("p"):
+            if p.get("class"):   # skip location / difficulty paragraphs (have CSS classes)
+                continue
+            s = p.get_text(" ", strip=True)
+            if len(s) > 60:
+                paras.append(s)
+            if len(paras) >= 3:
+                break
+    if not paras:
+        main = soup.find("main") or soup.find("article") or soup.body or soup
+        for p in main.find_all("p"):
+            s = p.get_text(" ", strip=True)
+            if len(s) > 60:
+                paras.append(s)
+            if len(paras) >= 3:
+                break
     description = "\n\n".join(paras)
 
     return {
@@ -292,10 +293,11 @@ def main():
             stage = parse_walk(page, wid)
             stage["stage_nr"] = i
             new_stages.append(stage)
+            hrs = f"{stage['duration_hrs']}h" if stage["duration_hrs"] else "-"
             print(
                 f"{stage['start_name']} → {stage['end_name']} "
                 f"({stage['dist_km']} km, "
-                f"{stage['duration_hrs']}h, "
+                f"{hrs}, "
                 f"{stage['difficulty'] or '?'})"
             )
     except KeyboardInterrupt:

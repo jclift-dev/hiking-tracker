@@ -1265,7 +1265,7 @@ function normalizeDiff(d) {
 const VALID_DIFFS = {
   hike:      new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
   cycle:     new Set(['easy', 'medium', 'difficult']),
-  'uk-hike': new Set(['easy', 'moderate', 'strenuous', 'severe']),
+  'uk-hike': new Set(['easy', 'moderate', 'challenging']),
 };
 function canonDiff(d, land) {
   const n = normalizeDiff(d);
@@ -1282,9 +1282,10 @@ const DIFF_LABELS = {
   'easy':      'Easy',
   'medium':    'Medium',
   'difficult': 'Difficult',
-  'moderate':  'Moderate',
-  'strenuous': 'Strenuous',
-  'severe':    'Severe',
+  'moderate':    'Moderate',
+  'challenging': 'Challenging',
+  'strenuous':   'Strenuous',
+  'severe':      'Severe',
 };
 
 
@@ -1357,10 +1358,9 @@ const DIFF_OPTIONS = {
     ['difficult', 'Difficult'],
   ],
   'uk-hike': [
-    ['easy',      'Easy'],
-    ['moderate',  'Moderate'],
-    ['strenuous', 'Strenuous'],
-    ['severe',    'Severe'],
+    ['easy',        'Easy'],
+    ['moderate',    'Moderate'],
+    ['challenging', 'Challenging'],
   ],
 };
 function updateDiffFilter(l) {
