@@ -2,7 +2,7 @@
 """
 South West Coast Path (UK) Stage Scraper
 =========================================
-Fetches the 52 day-stages of the South West Coast Path from
+Fetches the 53 day-stages of the South West Coast Path from
 southwestcoastpath.org.uk's "walksdb" pages and merges them into hikes.json
 with land="uk-hike", route_id=1, route_type="national".
 
@@ -10,10 +10,11 @@ Output is the same hikes.json the Swiss scraper writes to. Existing Swiss
 routes are preserved (entries are keyed by (land, route_type, route_id)).
 
 Usage:
-    pip3 install requests beautifulsoup4
-    python3 scraper_swcp.py             # fetch all 52 stages
-    python3 scraper_swcp.py --refresh   # re-fetch even if already cached
-    python3 scraper_swcp.py --limit 3   # smoke test (first N stages only)
+    pip3 install cloudscraper beautifulsoup4 requests
+    python3 scraper_swcp.py               # fetch all 53 stages + elevation
+    python3 scraper_swcp.py --refresh     # re-fetch even if already cached
+    python3 scraper_swcp.py --limit 3     # smoke test (first N stages only)
+    python3 scraper_swcp.py --skip-elevation  # skip elevation enrichment
 
 Push to Supabase via the shared importer (no UK-specific code needed):
     python3 scraper.py --import
@@ -22,11 +23,11 @@ Notes
 -----
 - Source: https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/
   Each linked /walksdb/{id}/ page is one day-stage.
-- Distances are converted miles → km on scrape (rounded to nearest int) so
-  the existing schema (`dist_km`) stays consistent.
-- elev_up / elev_down are left null for now — walksdb pages don't reliably
-  publish per-stage ascent. The web app's elevProfile() already silently
-  hides the terrain icon when both are null.
+- The site is behind Cloudflare; cloudscraper handles the JS challenge.
+- Distances are read directly from the "(X km)" figure on each page.
+- Elevation (elev_up / elev_down) is computed from the route geometry returned
+  by /walksdb/{id}/data/ (GeoJSON LineString), sampled and looked up via the
+  free OpenTopoData SRTM 30m API (1000 req/day quota, 1 req/sec limit).
 - sbb_times = {}, cantons = [], arrival_stations = [] — all gracefully
   ignored by the existing UI for UK rows.
 """
@@ -36,6 +37,8 @@ import json
 import re
 import sys
 import time
+
+import requests as std_requests  # plain requests for OpenTopoData (no Cloudflare)
 
 try:
     import cloudscraper
@@ -54,23 +57,23 @@ from scraper import save, load_existing  # noqa: E402
 
 BASE          = "https://www.southwestcoastpath.org.uk"
 ITINERARY_URL = f"{BASE}/walk-coast-path/trip-planning/SWCP-itinerary/"
-DELAY         = 1.0   # seconds between requests — small site, be polite
+DELAY         = 1.0   # seconds between SWCP requests — be polite
 
-ROUTE_ID      = 1
-LAND          = "uk-hike"
-ROUTE_TYPE    = "national"
-ROUTE_NAME    = "South West Coast Path"
-ROUTE_DESC    = (
+ROUTE_ID   = 1
+LAND       = "uk-hike"
+ROUTE_TYPE = "national"
+ROUTE_NAME = "South West Coast Path"
+ROUTE_DESC = (
     "England's longest waymarked footpath: 630 miles (1,014 km) along the "
     "coastline of South West England from Minehead in Somerset to South "
-    "Haven Point near Poole in Dorset. Officially divided into 52 day-stages "
+    "Haven Point near Poole in Dorset. Officially divided into 53 day-stages "
     "passing through Exmoor, North Devon, Cornwall, South Devon and the "
     "Jurassic Coast."
 )
 
 MILES_TO_KM = 1.60934
 
-# cloudscraper handles Cloudflare JS-challenge (the site returns 403 to plain requests)
+# cloudscraper handles Cloudflare JS-challenge (site returns 403 to plain requests)
 SESSION = cloudscraper.create_scraper(
     browser={"browser": "chrome", "platform": "darwin", "mobile": False}
 )
@@ -79,13 +82,20 @@ SESSION.headers.update({
     "Referer": f"{BASE}/",
 })
 
+# Elevation enrichment via OpenTopoData (SRTM 30m — good UK coverage)
+ELEV_SESSION    = std_requests.Session()
+ELEV_DELAY      = 1.5   # OpenTopoData rate limit: 1 req/sec, so 1.5s is safe
+ELEV_MAX_POINTS = 80    # points to sample per stage (API accepts up to 100)
+ELEV_NOISE_M    = 2     # ignore elevation changes smaller than this (GPS noise)
+OPENTOPODATA    = "https://api.opentopodata.org/v1/srtm30m"
+
 
 # ---------------------------------------------------------------------------
-# Fetch + parse
+# Fetch helpers
 # ---------------------------------------------------------------------------
 
 def fetch(url, label):
-    """GET with one retry on transient errors. Returns text, or None on 404 / give-up."""
+    """GET via SESSION (cloudscraper). Returns text, or None on 404 / give-up."""
     for attempt in range(2):
         try:
             r = SESSION.get(url, timeout=15)
@@ -98,7 +108,7 @@ def fetch(url, label):
                 continue
             r.raise_for_status()
             return r.text
-        except requests.RequestException as e:
+        except Exception as e:
             if attempt == 0:
                 print(f"  [warn] error for {label}: {e}, retrying in 5s")
                 time.sleep(5)
@@ -107,6 +117,80 @@ def fetch(url, label):
             return None
     return None
 
+
+# ---------------------------------------------------------------------------
+# Elevation
+# ---------------------------------------------------------------------------
+
+def fetch_elevation(walk_id):
+    """
+    Fetch route geometry from /walksdb/{id}/data/ then compute cumulative
+    ascent/descent via OpenTopoData SRTM 30m.
+    Returns (elev_up, elev_down) as int metres, or (None, None) on failure.
+    """
+    # 1. Route coordinates from the SWCP data endpoint
+    try:
+        r = SESSION.get(f"{BASE}/walksdb/{walk_id}/data/", timeout=15)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        print(f" [warn] route data fetch failed for walk {walk_id}: {e}")
+        return None, None
+
+    all_coords = []  # [[lng, lat], ...]
+    for poly_str in data.get("route_polys", []):
+        try:
+            ls = json.loads(poly_str)
+            all_coords.extend(ls.get("coordinates", []))
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    if len(all_coords) < 2:
+        return None, None
+
+    # 2. Sample to ELEV_MAX_POINTS, always keeping the last point.
+    # Use ceil division so we never exceed the cap even for short polylines.
+    n       = len(all_coords)
+    step    = max(1, -(-n // ELEV_MAX_POINTS))  # ceiling division
+    sampled = all_coords[::step][:ELEV_MAX_POINTS]
+    if sampled[-1] != all_coords[-1]:
+        sampled.append(all_coords[-1])
+
+    # 3. Query OpenTopoData
+    time.sleep(ELEV_DELAY)
+    loc_str = "|".join(f"{c[1]:.6f},{c[0]:.6f}" for c in sampled)
+    try:
+        resp = ELEV_SESSION.get(f"{OPENTOPODATA}?locations={loc_str}", timeout=30)
+        if resp.status_code == 429:
+            print(" [warn] OpenTopoData rate limited — elevation skipped")
+            return None, None
+        resp.raise_for_status()
+        elevations = [
+            pt["elevation"] for pt in resp.json().get("results", [])
+            if pt.get("elevation") is not None
+        ]
+    except Exception as e:
+        print(f" [warn] OpenTopoData error for walk {walk_id}: {e}")
+        return None, None
+
+    if len(elevations) < 2:
+        return None, None
+
+    # 4. Cumulative ascent / descent with noise threshold
+    asc = desc = 0.0
+    for i in range(1, len(elevations)):
+        diff = elevations[i] - elevations[i - 1]
+        if diff > ELEV_NOISE_M:
+            asc += diff
+        elif diff < -ELEV_NOISE_M:
+            desc += abs(diff)
+
+    return round(asc), round(desc)
+
+
+# ---------------------------------------------------------------------------
+# Page parsers
+# ---------------------------------------------------------------------------
 
 def discover_walk_ids(html):
     """
@@ -164,7 +248,7 @@ def parse_walk(html, walk_id):
     duration_hrs = None
 
     # --- Difficulty: from <p class="difficulty"> image filename (most reliable) ---
-    # Site uses: easy / moderate / challenging  (image names like "challenging-walk.png")
+    # Site uses: easy / moderate / challenging  (e.g. "challenging-walk.png")
     difficulty = None
     diff_p = soup.find("p", class_="difficulty")
     if diff_p:
@@ -208,7 +292,7 @@ def parse_walk(html, walk_id):
         "end_name":         end_name,
         "via":              None,
         "dist_km":          dist_km,
-        "elev_up":          None,
+        "elev_up":          None,           # filled by fetch_elevation()
         "elev_down":        None,
         "duration_hrs":     duration_hrs,
         "difficulty":       difficulty,
@@ -230,6 +314,8 @@ def main():
                    help="Re-fetch every stage even if cached in hikes.json")
     p.add_argument("--limit", type=int, default=None,
                    help="Only fetch the first N stages (smoke test)")
+    p.add_argument("--skip-elevation", action="store_true",
+                   help="Skip elevation enrichment (faster; elev_up/down stay null)")
     args = p.parse_args()
 
     existing = load_existing()
@@ -261,7 +347,7 @@ def main():
         sys.exit(1)
 
     print(f"Found {len(walk_ids)} walk IDs"
-          + (f" (expected ~52)" if len(walk_ids) != 52 else ""))
+          + ("" if len(walk_ids) == 53 else f" (expected 53)"))
     if args.limit:
         walk_ids = walk_ids[:args.limit]
         print(f"  (limited to first {len(walk_ids)})")
@@ -269,22 +355,43 @@ def main():
     new_stages = []
     try:
         for i, wid in enumerate(walk_ids, start=1):
-            if not args.refresh and wid in existing_by_walk:
-                stage = existing_by_walk[wid]
+            cached = existing_by_walk.get(wid)
+
+            # ---- Use cached stage if we have one and aren't refreshing ----
+            if cached and not args.refresh:
+                stage = cached
                 stage["stage_nr"] = i
+
+                # Fill in elevation if it's missing and not skipped
+                needs_elev = (
+                    not args.skip_elevation
+                    and stage.get("elev_up") is None
+                )
+                if needs_elev:
+                    print(f"  [{i:2d}/{len(walk_ids)}] walk {wid}: cached, fetching elevation...",
+                          end=" ", flush=True)
+                    elev_up, elev_down = fetch_elevation(wid)
+                    stage["elev_up"]   = elev_up
+                    stage["elev_down"] = elev_down
+                    if elev_up is not None:
+                        print(f"↑{elev_up}m ↓{elev_down}m")
+                    else:
+                        print("elevation unavailable")
+                else:
+                    elev_str = f"↑{stage['elev_up']}m" if stage.get("elev_up") else "no elev"
+                    print(f"  [{i:2d}/{len(walk_ids)}] walk {wid}: cached ({elev_str})")
+
                 new_stages.append(stage)
-                print(f"  [{i:2d}/{len(walk_ids)}] walk {wid}: cached")
                 continue
 
+            # ---- Fetch the walk page ----
             time.sleep(DELAY)
             print(f"  [{i:2d}/{len(walk_ids)}] walk {wid}: fetching...", end=" ", flush=True)
             page = fetch(f"{BASE}/walksdb/{wid}/", f"walk {wid}")
             if not page:
-                # Preserve any existing data we already had
-                if wid in existing_by_walk:
-                    stage = existing_by_walk[wid]
-                    stage["stage_nr"] = i
-                    new_stages.append(stage)
+                if cached:
+                    cached["stage_nr"] = i
+                    new_stages.append(cached)
                     print("kept cached data")
                 else:
                     print("skipped")
@@ -292,14 +399,23 @@ def main():
 
             stage = parse_walk(page, wid)
             stage["stage_nr"] = i
+
+            # ---- Elevation ----
+            if not args.skip_elevation:
+                elev_up, elev_down = fetch_elevation(wid)
+                stage["elev_up"]   = elev_up
+                stage["elev_down"] = elev_down
+            else:
+                elev_up = elev_down = None
+
             new_stages.append(stage)
-            hrs = f"{stage['duration_hrs']}h" if stage["duration_hrs"] else "-"
+            hrs      = f"{stage['duration_hrs']}h" if stage["duration_hrs"] else "-"
+            elev_str = f"↑{elev_up}m ↓{elev_down}m" if elev_up is not None else "no elev"
             print(
                 f"{stage['start_name']} → {stage['end_name']} "
-                f"({stage['dist_km']} km, "
-                f"{hrs}, "
-                f"{stage['difficulty'] or '?'})"
+                f"({stage['dist_km']} km, {hrs}, {stage['difficulty'] or '?'}, {elev_str})"
             )
+
     except KeyboardInterrupt:
         print("\nInterrupted. Saving progress...")
 
@@ -314,11 +430,11 @@ def main():
     save(list(existing.values()))
 
     parsed_dist = sum(1 for s in new_stages if s.get("dist_km"))
-    parsed_time = sum(1 for s in new_stages if s.get("duration_hrs"))
+    parsed_elev = sum(1 for s in new_stages if s.get("elev_up") is not None)
     parsed_diff = sum(1 for s in new_stages if s.get("difficulty"))
     print(
         f"\nDone. {len(new_stages)} UK stages — "
-        f"{parsed_dist} with distance, {parsed_time} with walking time, "
+        f"{parsed_dist} with distance, {parsed_elev} with elevation, "
         f"{parsed_diff} with difficulty."
     )
 
