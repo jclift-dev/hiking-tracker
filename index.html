@@ -811,6 +811,7 @@
         <div class="land-pill" id="land-pill" style="margin-top:12px">
           <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
           <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+          <button class="land-pill-btn" id="land-btn-uk-hike" onclick="setLand('uk-hike')">🌊 UK Coast</button>
         </div>
       </div>
       <div class="header-right">
@@ -1136,6 +1137,9 @@ function stageKey(land, routeId, stageNr) { return `${land}_${routeId}_${stageNr
 function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 
 function smUrl(route, stageNr) {
+  if (route.land === 'uk-hike') {
+    return 'https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/';
+  }
   const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
   const single = route.stages.length === 1;
@@ -1143,6 +1147,7 @@ function smUrl(route, stageNr) {
     ? `https://schweizmobil.ch/en/${activity}/route-${id}`
     : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
+function sourceLabel(land) { return land === 'uk-hike' ? 'SWCP' : 'SchweizMobil'; }
 
 function updateSbbSlider() {
   const val = parseInt(document.getElementById('sbb-slider').value);
@@ -1245,6 +1250,10 @@ const DIFF_CANON = {
   'easy':     'easy',
   'medium':   'medium',
   'difficult':'difficult',
+  // UK Coast Path — walksdb grades pass through unchanged
+  'moderate':  'moderate',
+  'strenuous': 'strenuous',
+  'severe':    'severe',
 };
 function normalizeDiff(d) {
   if (!d) return null;
@@ -1254,8 +1263,9 @@ function normalizeDiff(d) {
 
 // Valid canonical difficulties per land — anything else is discarded
 const VALID_DIFFS = {
-  hike:  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
-  cycle: new Set(['easy', 'medium', 'difficult']),
+  hike:      new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
+  cycle:     new Set(['easy', 'medium', 'difficult']),
+  'uk-hike': new Set(['easy', 'moderate', 'challenging']),
 };
 function canonDiff(d, land) {
   const n = normalizeDiff(d);
@@ -1272,6 +1282,10 @@ const DIFF_LABELS = {
   'easy':      'Easy',
   'medium':    'Medium',
   'difficult': 'Difficult',
+  'moderate':    'Moderate',
+  'challenging': 'Challenging',
+  'strenuous':   'Strenuous',
+  'severe':      'Severe',
 };
 
 
@@ -1343,6 +1357,11 @@ const DIFF_OPTIONS = {
     ['medium',    'Medium'],
     ['difficult', 'Difficult'],
   ],
+  'uk-hike': [
+    ['easy',        'Easy'],
+    ['moderate',    'Moderate'],
+    ['challenging', 'Challenging'],
+  ],
 };
 function updateDiffFilter(l) {
   const sel = document.getElementById('diff-filter');
@@ -1355,9 +1374,12 @@ function setLand(l) {
   landFilter = l;
   visible = 20;
   document.body.setAttribute('data-land', l);
-  ['hike','cycle'].forEach(x =>
+  ['hike','cycle','uk-hike'].forEach(x =>
     document.getElementById('land-btn-' + x).classList.toggle('active', x === l)
   );
+  const isUk = l === 'uk-hike';
+  document.getElementById('header-eyebrow').textContent = isUk ? 'UK Coast Path' : 'Swiss Trail Tracker';
+  document.getElementById('header-title').textContent   = isUk ? 'SWCP' : 'VIA';
   updateDiffFilter(l);
   updateSubtitle();
   updateStats();
@@ -1667,7 +1689,7 @@ function renderSurprise() {
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
     <div class="surprise-actions">
-      <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on SchweizMobil ↗</a>
+      <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on ${sourceLabel(r.land)} ↗</a>
       <button class="surprise-btn" onclick="surpriseMe()">Try another</button>
       <button class="surprise-btn ${done ? 'surprise-btn-primary' : ''}" onclick="toggleStage('${key}')">${done ? '✓ Done — undo?' : 'Mark as done'}</button>
     </div>
@@ -2056,7 +2078,7 @@ function renderDashboard() {
       <div class="dash-next-up-actions">
         <button class="dash-next-up-btn dash-next-up-btn-primary" onclick="toggleStage('${key}')">✓ Mark as done</button>
         <a href="${smUrl(r, s.stage_nr)}" target="_blank" rel="noopener" style="text-decoration:none">
-          <button class="dash-next-up-btn dash-next-up-btn-secondary">↗ SchweizMobil</button>
+          <button class="dash-next-up-btn dash-next-up-btn-secondary">↗ ${sourceLabel(r.land)}</button>
         </a>
       </div>
     </div>`;
@@ -2354,7 +2376,7 @@ function renderDashboard() {
     + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`
     + (seasonHtml ? `<div class="dash-two-col">${seasonHtml}<div class="dash-card"><div class="dash-card-eyebrow">Stages Done</div><div class="dash-month-num">${doneCount}</div><div class="dash-month-label">total stages completed</div><div class="dash-month-divider"><div><div class="dash-month-sub-val">${doneKm.toLocaleString()}</div><div class="dash-month-sub-label">km total</div></div><div><div class="dash-month-sub-val">${doneElev>=1000?(doneElev/1000).toFixed(1)+'k':doneElev}</div><div class="dash-month-sub-label">m ascent</div></div></div></div></div>` : '')
     + activityHtml
-    + cantonMapHtml;
+    + (landFilter === 'uk-hike' ? '' : cantonMapHtml);
 }
 
 function render() {
