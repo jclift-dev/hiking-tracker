@@ -30,14 +30,22 @@ python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SER
 ### UK South West Coast Path
 
 ```bash
-pip3 install cloudscraper beautifulsoup4
-python3 scraper_swcp.py            # fetch all 53 SWCP day-stages into hikes.json
-python3 scraper_swcp.py --refresh  # re-fetch stages already cached
-python3 scraper_swcp.py --limit 3  # smoke test: first N stages only
-python3 scraper.py --import        # push everything (Swiss + UK) to Supabase
+pip3 install cloudscraper beautifulsoup4 requests
+python3 scraper_swcp.py                 # fetch all 53 stages + elevation
+python3 scraper_swcp.py --refresh       # re-fetch everything, including elevation
+python3 scraper_swcp.py --limit 3       # smoke test: first N stages only
+python3 scraper_swcp.py --skip-elevation  # skip elevation calls (faster)
+python3 scraper.py --import             # push everything (Swiss + UK) to Supabase
 ```
 
-The SWCP scraper writes a single route entry (`route_id=1`, `land="uk-hike"`, `route_type="national"`, `name="South West Coast Path"`) with 53 stages (the itinerary has one non-sequential walk ID — 189 — between stages 5 and 6). It's resumable: re-running skips walks already in `hikes.json` (matched by an internal `_walk_id`). It does no travel-time enrichment — `sbb_times` is `{}` for all UK stages, and the web app's station picker / sort-by-time degrade gracefully. Distances are taken directly from the `(X km)` figure on each page (not converted from miles) so the schema stays consistent. Per-stage ascent/descent is left `null` for now.
+The SWCP scraper writes a single route entry (`route_id=1`, `land="uk-hike"`, `route_type="national"`, `name="South West Coast Path"`) with 53 stages (the itinerary has one non-sequential walk ID — 189 — between stages 5 and 6). It's resumable: re-running skips walks already in `hikes.json` (matched by an internal `_walk_id`). It does no travel-time enrichment — `sbb_times` is `{}` for all UK stages, and the web app's station picker / sort-by-time degrade gracefully. Distances are taken directly from the `(X km)` figure on each page.
+
+**Elevation** (`elev_up` / `elev_down`) is computed per stage via two extra requests:
+1. `GET /walksdb/{id}/data/` — returns a GeoJSON `LineString` with the route geometry
+2. Sample up to 80 points (ceiling division to stay under the 100-point API cap) and query [OpenTopoData](https://www.opentopodata.org/) SRTM 30m: `GET api.opentopodata.org/v1/srtm30m?locations=lat,lng|...`
+3. Cumulative ascent/descent computed with a 2 m noise threshold
+
+OpenTopoData is free with a **1000 req/day quota** (one request per stage = 53 calls per full run). Cached stages with `elev_up=null` are backfilled automatically on the next run without re-scraping the pages.
 
 The site is behind Cloudflare — `cloudscraper` handles the JS challenge automatically. No cookies or tokens needed.
 
@@ -142,6 +150,8 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 `difficulty` values from the Swiss API are English text: `"hiking trail"`, `"mountain hiking trail"`, `"demanding mountain hiking trail"`, `"alpine hiking trail"`. `index.html` normalises these via `DIFF_CANON` and `canonDiff()` to clean T1–T4 labels.
 
 For `land="uk-hike"` stages, difficulty is `"easy"`, `"moderate"`, or `"challenging"` — read from the primary-grade image filename on each walksdb page (e.g. `challenging-walk.png`). Walking time is not published by the SWCP site, so `duration_hrs` is `null` for all UK stages.
+
+`_walk_id` in hikes.json is an internal scraper field (not imported to Supabase). `index.html` contains a static `SWCP_WALK_IDS` array (53 entries) that maps `stage_nr → walksdb ID` so the "View on SWCP ↗" link can go directly to the stage page. If the SWCP ever renumbers stages, update this array alongside a re-scrape.
 
 ### Assets
 
