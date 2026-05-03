@@ -1136,9 +1136,21 @@ function hardReset() {
 function stageKey(land, routeId, stageNr) { return `${land}_${routeId}_${stageNr}`; }
 function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 
+// Walk IDs in itinerary order — stage_nr 1 = index 0. Note ID 189 at position 5
+// (stage 6: Braunton → Instow) breaks the otherwise-sequential 136–188 run.
+const SWCP_WALK_IDS = [
+  136,137,138,139,140,189,142,143,144,145,146,147,148,149,150,
+  151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,
+  166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,
+  181,182,183,184,185,186,187,188,
+];
+
 function smUrl(route, stageNr) {
   if (route.land === 'uk-hike') {
-    return 'https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/';
+    const walkId = SWCP_WALK_IDS[stageNr - 1];
+    return walkId
+      ? `https://www.southwestcoastpath.org.uk/walksdb/${walkId}/`
+      : 'https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/';
   }
   const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
