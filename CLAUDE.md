@@ -7,8 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A Swiss hiking tracker for a small group of users, with three components:
 
 1. **`scraper.py`** — fetches route and stage data from the SchweizMobil map API and enriches each stage with SBB travel times from multiple Swiss cities via transport.opendata.ch. Outputs `hikes.json` locally and can import to Supabase.
-2. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase magic link, loads route data from Supabase, and lets users track completed stages, filter/search routes, sort by travel time, and switch between hiking and cycling modes.
-3. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via magic link (passwordless email).
+2. **`scraper_swcp.py`** — fetches the 52 day-stages of the UK South West Coast Path from `southwestcoastpath.org.uk` and merges them into the same `hikes.json` with `land="uk-hike"`.
+3. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase magic link, loads route data from Supabase, and lets users track completed stages, filter/search routes, sort by travel time, and switch between hiking, cycling, and UK Coast Path modes.
+4. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via magic link (passwordless email).
 
 ## Running the scraper
 
@@ -25,6 +26,18 @@ python3 scraper.py --sbb-only --origin "Bern"
 # Push to Supabase (after scraping):
 python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
 ```
+
+### UK South West Coast Path
+
+```bash
+pip3 install beautifulsoup4
+python3 scraper_swcp.py            # fetch all 52 SWCP day-stages into hikes.json
+python3 scraper_swcp.py --refresh  # re-fetch stages already cached
+python3 scraper_swcp.py --limit 3  # smoke test: first N stages only
+python3 scraper.py --import        # push everything (Swiss + UK) to Supabase
+```
+
+The SWCP scraper writes a single route entry (`route_id=1`, `land="uk-hike"`, `route_type="national"`, `name="South West Coast Path"`) with 52 stages. It's resumable: re-running skips walks already in `hikes.json` (matched by an internal `_walk_id`). It does no travel-time enrichment — `sbb_times` is `{}` for all UK stages, and the web app's station picker / sort-by-time degrade gracefully. Distances are converted miles → km on scrape so the schema stays consistent. Per-stage ascent/descent is left `null` for now.
 
 **Workflow:** Run `--routes-only` to pick up newly added routes. Run `--sbb-only` overnight to avoid burning the daily API quota. Run `--import` to push updated data to Supabase.
 
