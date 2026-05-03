@@ -809,9 +809,9 @@
         <h1><span id="header-title">VIA</span></h1>
         <p id="subtitle">Loading routes…</p>
         <div class="land-pill" id="land-pill" style="margin-top:12px">
-          <button class="land-pill-btn active" id="land-btn-hike" onclick="setLand('hike')">🥾 Hiking</button>
-          <button class="land-pill-btn" id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
-          <button class="land-pill-btn" id="land-btn-uk-hike" onclick="setLand('uk-hike')">🌊 UK Coast</button>
+          <button class="land-pill-btn active" id="land-btn-hike"  onclick="setLand('hike')">🥾 Hiking</button>
+          <button class="land-pill-btn"        id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
+          <button class="land-pill-btn"        id="land-btn-uk"    onclick="setLand('uk')">🏴󠁧󠁢󠁿 UK</button>
         </div>
       </div>
       <div class="header-right">
@@ -1146,11 +1146,26 @@ const SWCP_WALK_IDS = [
 ];
 
 function smUrl(route, stageNr) {
-  if (route.land === 'uk-hike') {
-    const walkId = SWCP_WALK_IDS[stageNr - 1];
-    return walkId
-      ? `https://www.southwestcoastpath.org.uk/walksdb/${walkId}/`
-      : 'https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/';
+  if (route.land === 'uk') {
+    if (route.route_id === 1) {
+      // SWCP — direct walksdb links via static walk ID map
+      const walkId = SWCP_WALK_IDS[stageNr - 1];
+      return walkId
+        ? `https://www.southwestcoastpath.org.uk/walksdb/${walkId}/`
+        : 'https://www.southwestcoastpath.org.uk/walk-coast-path/trip-planning/SWCP-itinerary/';
+    }
+    if (route.route_id === 2) {
+      // WHW — construct slug from stage start/end names
+      const stage = route.stages?.find(s => s.stage_nr === stageNr);
+      if (stage) {
+        const slug = stage.start_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                   + '-to-'
+                   + stage.end_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        return `https://www.westhighlandway.org/the-route/${slug}/`;
+      }
+      return 'https://www.westhighlandway.org/the-route/';
+    }
+    return '#';
   }
   const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
@@ -1159,7 +1174,11 @@ function smUrl(route, stageNr) {
     ? `https://schweizmobil.ch/en/${activity}/route-${id}`
     : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
-function sourceLabel(land) { return land === 'uk-hike' ? 'SWCP' : 'SchweizMobil'; }
+const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW' };
+function sourceLabel(route) {
+  if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'Trail';
+  return 'SchweizMobil';
+}
 
 function updateSbbSlider() {
   const val = parseInt(document.getElementById('sbb-slider').value);
@@ -1275,9 +1294,9 @@ function normalizeDiff(d) {
 
 // Valid canonical difficulties per land — anything else is discarded
 const VALID_DIFFS = {
-  hike:      new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
-  cycle:     new Set(['easy', 'medium', 'difficult']),
-  'uk-hike': new Set(['easy', 'moderate', 'challenging']),
+  hike:  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
+  cycle: new Set(['easy', 'medium', 'difficult']),
+  uk:    new Set(['easy', 'moderate', 'challenging', 'strenuous']),
 };
 function canonDiff(d, land) {
   const n = normalizeDiff(d);
@@ -1369,10 +1388,11 @@ const DIFF_OPTIONS = {
     ['medium',    'Medium'],
     ['difficult', 'Difficult'],
   ],
-  'uk-hike': [
+  uk: [
     ['easy',        'Easy'],
     ['moderate',    'Moderate'],
     ['challenging', 'Challenging'],
+    ['strenuous',   'Strenuous'],
   ],
 };
 function updateDiffFilter(l) {
@@ -1386,12 +1406,12 @@ function setLand(l) {
   landFilter = l;
   visible = 20;
   document.body.setAttribute('data-land', l);
-  ['hike','cycle','uk-hike'].forEach(x =>
+  ['hike', 'cycle', 'uk'].forEach(x =>
     document.getElementById('land-btn-' + x).classList.toggle('active', x === l)
   );
-  const isUk = l === 'uk-hike';
-  document.getElementById('header-eyebrow').textContent = isUk ? 'UK Coast Path' : 'Swiss Trail Tracker';
-  document.getElementById('header-title').textContent   = isUk ? 'SWCP' : 'VIA';
+  const isUk = l === 'uk';
+  document.getElementById('header-eyebrow').textContent = isUk ? 'UK Trail Tracker'    : 'Swiss Trail Tracker';
+  document.getElementById('header-title').textContent   = isUk ? 'UK'                  : 'VIA';
   updateDiffFilter(l);
   updateSubtitle();
   updateStats();
@@ -1701,7 +1721,7 @@ function renderSurprise() {
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
     <div class="surprise-actions">
-      <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on ${sourceLabel(r.land)} ↗</a>
+      <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on ${sourceLabel(r)} ↗</a>
       <button class="surprise-btn" onclick="surpriseMe()">Try another</button>
       <button class="surprise-btn ${done ? 'surprise-btn-primary' : ''}" onclick="toggleStage('${key}')">${done ? '✓ Done — undo?' : 'Mark as done'}</button>
     </div>
@@ -2090,7 +2110,7 @@ function renderDashboard() {
       <div class="dash-next-up-actions">
         <button class="dash-next-up-btn dash-next-up-btn-primary" onclick="toggleStage('${key}')">✓ Mark as done</button>
         <a href="${smUrl(r, s.stage_nr)}" target="_blank" rel="noopener" style="text-decoration:none">
-          <button class="dash-next-up-btn dash-next-up-btn-secondary">↗ ${sourceLabel(r.land)}</button>
+          <button class="dash-next-up-btn dash-next-up-btn-secondary">↗ ${sourceLabel(r)}</button>
         </a>
       </div>
     </div>`;
@@ -2388,7 +2408,7 @@ function renderDashboard() {
     + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`
     + (seasonHtml ? `<div class="dash-two-col">${seasonHtml}<div class="dash-card"><div class="dash-card-eyebrow">Stages Done</div><div class="dash-month-num">${doneCount}</div><div class="dash-month-label">total stages completed</div><div class="dash-month-divider"><div><div class="dash-month-sub-val">${doneKm.toLocaleString()}</div><div class="dash-month-sub-label">km total</div></div><div><div class="dash-month-sub-val">${doneElev>=1000?(doneElev/1000).toFixed(1)+'k':doneElev}</div><div class="dash-month-sub-label">m ascent</div></div></div></div></div>` : '')
     + activityHtml
-    + (landFilter === 'uk-hike' ? '' : cantonMapHtml);
+    + (landFilter === 'uk' ? '' : cantonMapHtml);
 }
 
 function render() {

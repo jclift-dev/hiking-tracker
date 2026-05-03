@@ -51,6 +51,30 @@ The site is behind Cloudflare — `cloudscraper` handles the JS challenge automa
 
 **Workflow:** Run `--routes-only` to pick up newly added routes. Run `--sbb-only` overnight to avoid burning the daily API quota. Run `--import` to push updated data to Supabase.
 
+### West Highland Way
+
+```bash
+pip3 install requests beautifulsoup4
+python3 scraper_whw.py                # fetch all 8 stages
+python3 scraper_whw.py --refresh      # re-fetch everything
+python3 scraper_whw.py --limit 3      # smoke test: first N stages only
+python3 scraper.py --import           # push everything (Swiss + UK) to Supabase
+```
+
+The WHW scraper writes a single route entry (`route_id=1`, `land="uk-whw"`, `route_type="national"`, `name="West Highland Way"`) with 8 stages. It's resumable: re-running skips stages already in `hikes.json` (matched by an internal `_slug`). No travel-time enrichment — `sbb_times` is `{}` for all WHW stages.
+
+The site is standard WordPress with Cloudflare CDN (no JS challenge); plain `requests` works fine. Distances are parsed from the "X Miles (Y km)" format on each stage page. Elevation (`elev_up`/`elev_down`) is `null` — the site exposes no GeoJSON or GPX API. Difficulty is inferred from prose where standard keywords appear, and is `null` for stages where the terrain description is non-standard.
+
+**Before the first import**, add `'uk-whw'` to the `land` CHECK constraint in Supabase SQL editor:
+```sql
+ALTER TABLE routes DROP CONSTRAINT routes_land_check;
+ALTER TABLE routes ADD CONSTRAINT routes_land_check
+  CHECK (land IN ('hike','cycle','uk-hike','uk-whw'));
+ALTER TABLE stages DROP CONSTRAINT stages_land_check;
+ALTER TABLE stages ADD CONSTRAINT stages_land_check
+  CHECK (land IN ('hike','cycle','uk-hike','uk-whw'));
+```
+
 The scraper is resumable — re-running skips routes already in `hikes.json` and SBB lookups already populated for that origin. Safe to interrupt (Ctrl+C saves progress immediately) and restart.
 
 transport.opendata.ch enforces a **daily request quota**. When hit, the scraper detects the JSON error body, saves progress, and exits cleanly. Re-run the next day to continue. The quota resets at midnight Swiss time.
