@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A Swiss hiking tracker for a small group of users, with three components:
 
 1. **`scraper.py`** — fetches route and stage data from the SchweizMobil map API and enriches each stage with SBB travel times from multiple Swiss cities via transport.opendata.ch. Outputs `hikes.json` locally and can import to Supabase.
-2. **`scraper_swcp.py`** — fetches the 52 day-stages of the UK South West Coast Path from `southwestcoastpath.org.uk` and merges them into the same `hikes.json` with `land="uk-hike"`.
+2. **`scraper_swcp.py`** — fetches the 53 day-stages of the UK South West Coast Path from `southwestcoastpath.org.uk` and merges them into the same `hikes.json` with `land="uk-hike"`.
 3. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase magic link, loads route data from Supabase, and lets users track completed stages, filter/search routes, sort by travel time, and switch between hiking, cycling, and UK Coast Path modes.
 4. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via magic link (passwordless email).
 
@@ -30,14 +30,16 @@ python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SER
 ### UK South West Coast Path
 
 ```bash
-pip3 install beautifulsoup4
-python3 scraper_swcp.py            # fetch all 52 SWCP day-stages into hikes.json
+pip3 install cloudscraper beautifulsoup4
+python3 scraper_swcp.py            # fetch all 53 SWCP day-stages into hikes.json
 python3 scraper_swcp.py --refresh  # re-fetch stages already cached
 python3 scraper_swcp.py --limit 3  # smoke test: first N stages only
 python3 scraper.py --import        # push everything (Swiss + UK) to Supabase
 ```
 
-The SWCP scraper writes a single route entry (`route_id=1`, `land="uk-hike"`, `route_type="national"`, `name="South West Coast Path"`) with 52 stages. It's resumable: re-running skips walks already in `hikes.json` (matched by an internal `_walk_id`). It does no travel-time enrichment — `sbb_times` is `{}` for all UK stages, and the web app's station picker / sort-by-time degrade gracefully. Distances are converted miles → km on scrape so the schema stays consistent. Per-stage ascent/descent is left `null` for now.
+The SWCP scraper writes a single route entry (`route_id=1`, `land="uk-hike"`, `route_type="national"`, `name="South West Coast Path"`) with 53 stages (the itinerary has one non-sequential walk ID — 189 — between stages 5 and 6). It's resumable: re-running skips walks already in `hikes.json` (matched by an internal `_walk_id`). It does no travel-time enrichment — `sbb_times` is `{}` for all UK stages, and the web app's station picker / sort-by-time degrade gracefully. Distances are taken directly from the `(X km)` figure on each page (not converted from miles) so the schema stays consistent. Per-stage ascent/descent is left `null` for now.
+
+The site is behind Cloudflare — `cloudscraper` handles the JS challenge automatically. No cookies or tokens needed.
 
 **Workflow:** Run `--routes-only` to pick up newly added routes. Run `--sbb-only` overnight to avoid burning the daily API quota. Run `--import` to push updated data to Supabase.
 
@@ -91,9 +93,9 @@ transport.opendata.ch  ───────────────────
 
 ### Supabase schema
 
-**`routes`** — shared read-only route data. Primary key: `(id, land)` — both hiking and cycling have routes numbered 1–7, so the composite key is required.
+**`routes`** — shared read-only route data. Primary key: `(id, land)` — both hiking and cycling have routes numbered 1–7, so the composite key is required. The `land` column has a CHECK constraint: `land IN ('hike', 'cycle', 'uk-hike')`. Adding a new land value requires updating that constraint first via the Supabase SQL editor.
 
-**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb` to preserve the existing dict structure.
+**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb` to preserve the existing dict structure. The `land` column has the same CHECK constraint as `routes`.
 
 **`user_state`** — per-user completions/ratings/notes. Keyed by `(user_id, stage_key)` where `stage_key` is `"land_routeId_stageNr"` (e.g. `"hike_1_3"`).
 
@@ -109,7 +111,7 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 [{
   "route_id": 1,
   "route_type": "national" | "regional",
-  "land": "hike" | "cycle",
+  "land": "hike" | "cycle" | "uk-hike",
   "name": "Via Alpina",
   "description": "...",
   "start": "Vaduz (Gaflei, FL)",
@@ -137,7 +139,9 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 
 `sbb_times` values are `null` (scraper tried, no connection found) or an integer (minutes). `undefined`/missing means never looked up.
 
-`difficulty` values from the API are English text: `"hiking trail"`, `"mountain hiking trail"`, `"demanding mountain hiking trail"`, `"alpine hiking trail"`. `index.html` normalises these via `DIFF_CANON` and `canonDiff()` to clean T1–T4 labels.
+`difficulty` values from the Swiss API are English text: `"hiking trail"`, `"mountain hiking trail"`, `"demanding mountain hiking trail"`, `"alpine hiking trail"`. `index.html` normalises these via `DIFF_CANON` and `canonDiff()` to clean T1–T4 labels.
+
+For `land="uk-hike"` stages, difficulty is `"easy"`, `"moderate"`, or `"challenging"` — read from the primary-grade image filename on each walksdb page (e.g. `challenging-walk.png`). Walking time is not published by the SWCP site, so `duration_hrs` is `null` for all UK stages.
 
 ### Assets
 
