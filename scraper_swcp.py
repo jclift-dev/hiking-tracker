@@ -60,7 +60,7 @@ ITINERARY_URL = f"{BASE}/walk-coast-path/trip-planning/SWCP-itinerary/"
 DELAY         = 1.0   # seconds between SWCP requests — be polite
 
 ROUTE_ID   = 1
-LAND       = "uk-hike"
+LAND       = "uk"
 ROUTE_TYPE = "national"
 ROUTE_NAME = "South West Coast Path"
 ROUTE_DESC = (
