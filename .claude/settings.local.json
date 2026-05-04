@@ -59,7 +59,24 @@
       "Bash(kill 13583 13579 13676)",
       "mcp__Claude_Preview__preview_start",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(pkill -f \"scraper.py\")",
+      "Bash(echo \"Started PID $!\")",
+      "Bash(pkill -f \"scraper.py --sbb-all\")",
+      "Bash(echo \"PID: $!\")",
+      "Bash(ps:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:upload.wikimedia.org)",
+      "WebFetch(domain:api.github.com)",
+      "WebSearch",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(grep -n \"routeKey\\\\|route-\\\\${\" /Users/jamie/hiking-tracker/index.html)",
+      "Bash(tmux new-session:*)",
+      "Bash(tmux list-sessions:*)",
+      "Bash(brew install:*)",
+      "Bash(git pull:*)",
+      "Bash(tmux capture-pane:*)"
     ]
   }
 }
