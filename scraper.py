@@ -90,7 +90,7 @@ ALL_ORIGINS = [
     "Lugano",
 ]
 
-LANDS      = ["hike", "cycle"]
+LANDS      = ["ch-hike", "ch-cycle"]
 CATEGORIES = ["national", "regional", "local"]
 
 # SchweizMobil canton ID → abbreviation (discovered empirically via stage geography)
@@ -230,7 +230,7 @@ def extract_stage_detail(detail, land):
     """Pull time, difficulty, description, cantons, surface from a detail dict."""
     if not detail:
         return None, None, "", [], None
-    if land == "hike":
+    if land == "ch-hike":
         ht = detail.get("hikingTime")
         duration_hrs = round(ht, 2) if ht is not None else None
         difficulty = detail.get("gradeText") or detail.get("fitness")
@@ -707,7 +707,7 @@ def load_existing():
         for r in old:
             if not r.get("stages"):
                 continue  # skip stale/empty
-            land = r.get("land", "hike")  # default hike for pre-cycling data
+            land = r.get("land", "ch-hike")  # default ch-hike for pre-cycling data
             existing[(land, r["route_type"], r["route_id"])] = r
         stale = len(old) - len(existing)
         print(f"Loaded {len(existing)} routes from {OUTPUT}"
@@ -880,7 +880,7 @@ def main():
     if not args.sbb_only and not args.sbb_all:
         try:
             for land in LANDS:
-                label = "Hiking" if land == "hike" else "Cycling"
+                label = "Hiking" if land == "ch-hike" else "Cycling"
                 print(f"\n{'='*60}")
                 print(f"── {label} routes ──")
 

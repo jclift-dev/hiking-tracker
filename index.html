@@ -41,13 +41,13 @@
     --shadow:     0 2px 16px rgba(25,28,29,0.07), 0 1px 4px rgba(25,28,29,0.04);
     --shadow-lg:  0 12px 40px rgba(25,28,29,0.09), 0 2px 8px rgba(25,28,29,0.05);
   }
-  body[data-land="cycle"] {
+  body[data-land="ch-cycle"] {
     --primary:    #0d2b45;
     --primary-lt: #1a4a6e;
     --sec-container: #cce3f5;
   }
   @media (prefers-color-scheme: dark) {
-    body[data-land="cycle"] {
+    body[data-land="ch-cycle"] {
       --sec-container: #0a1e38;
     }
   }
@@ -756,7 +756,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body data-land="hike">
+<body data-land="ch-hike">
 <div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
   <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;font-family:'Manrope',sans-serif;letter-spacing:-0.03em">Via</div>
   <div id="auth-login" style="display:flex;flex-direction:column;gap:0.5rem;width:280px">
@@ -806,12 +806,20 @@
     <div class="header-inner">
       <div class="header-left">
         <div class="header-eyebrow" id="header-eyebrow">Swiss Trail Tracker</div>
-        <h1><span id="header-title">VIA</span></h1>
+        <h1><span id="header-title">Switzerland</span></h1>
         <p id="subtitle">Loading routes…</p>
-        <div class="land-pill" id="land-pill" style="margin-top:12px">
-          <button class="land-pill-btn active" id="land-btn-hike"  onclick="setLand('hike')">🥾 Hiking</button>
-          <button class="land-pill-btn"        id="land-btn-cycle" onclick="setLand('cycle')">🚴 Cycling</button>
-          <button class="land-pill-btn"        id="land-btn-uk"    onclick="setLand('uk')">🏴󠁧󠁢󠁿 UK</button>
+        <!-- Country row -->
+        <div id="country-pills" class="land-pill" style="margin-top:12px;flex-wrap:wrap">
+          <button class="land-pill-btn active" data-country="ch" onclick="setCountry('ch')">🇨🇭 Switzerland</button>
+          <button class="land-pill-btn" data-country="uk"  onclick="setCountry('uk')">🏴󠁧󠁢󠁿 UK</button>
+          <button class="land-pill-btn" data-country="fr"  onclick="setCountry('fr')">🇫🇷 France</button>
+          <button class="land-pill-btn" data-country="de"  onclick="setCountry('de')">🇩🇪 Germany</button>
+          <button class="land-pill-btn" data-country="it"  onclick="setCountry('it')">🇮🇹 Italy</button>
+        </div>
+        <!-- Activity row — hidden when country only has one activity -->
+        <div id="activity-pills" class="land-pill" style="margin-top:6px">
+          <button class="land-pill-btn active" data-activity="hike"  onclick="setActivity('hike')">🥾 Hiking</button>
+          <button class="land-pill-btn" data-activity="cycle" onclick="setActivity('cycle')">🚴 Cycling</button>
         </div>
       </div>
       <div class="header-right">
@@ -973,9 +981,10 @@ let ratings         = {};   // key: "land_routeId_stageNr" → 1–5
 let notes           = {};   // key: "land_routeId_stageNr" → string
 let wishlist        = {};   // key: "land_routeId_stageNr" → true
 let expanded        = {};   // key: "land_routeId" → bool
-let filter          = 'all';
-let landFilter      = 'hike';
-let viewMode        = 'routes';
+let filter           = 'all';
+let selectedCountry  = 'ch';   // replaces landFilter
+let selectedActivity = 'hike';
+let viewMode         = 'routes';
 let visible         = 20;
 let selectedStation = 'Basel SBB';
 let surpriseStage   = null;
@@ -1101,7 +1110,7 @@ async function loadData() {
       updateSubtitle();
       document.getElementById('stats').style.display = 'grid';
       populateCantons();
-      updateDiffFilter(landFilter);
+      updateDiffFilter(activeLand());
       populateStations();
       updateStats();
       render();
@@ -1136,6 +1145,22 @@ function hardReset() {
 function stageKey(land, routeId, stageNr) { return `${land}_${routeId}_${stageNr}`; }
 function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 
+// ---------------------------------------------------------------------------
+// Country / Activity model
+// ---------------------------------------------------------------------------
+const COUNTRIES = [
+  { id: 'ch', lands: ['ch-hike', 'ch-cycle'] },
+  { id: 'uk', lands: ['uk'] },
+  { id: 'fr', lands: ['fr-hike'] },
+  { id: 'de', lands: ['de-hike'] },
+  { id: 'it', lands: ['it-hike'] },
+];
+
+function activeLand() {
+  if (selectedCountry === 'uk') return 'uk';
+  return `${selectedCountry}-${selectedActivity}`;
+}
+
 // Walk IDs in itinerary order — stage_nr 1 = index 0. Note ID 189 at position 5
 // (stage 6: Braunton → Instow) breaks the otherwise-sequential 136–188 run.
 const SWCP_WALK_IDS = [
@@ -1165,18 +1190,27 @@ function smUrl(route, stageNr) {
       }
       return 'https://www.westhighlandway.org/the-route/';
     }
+    if (route.route_id === 3) {
+      // ODP — single route description page (no individual stage URLs)
+      return 'https://www.nationaltrail.co.uk/en_GB/trails/offas-dyke-path/route/';
+    }
     return '#';
   }
-  const activity = route.land === 'cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
+  if (route.land === 'fr-hike') return 'https://www.le-gr20.fr/en/pages/profile-stages/';
+  if (route.land === 'de-hike') return 'https://www.saechsische-schweiz.de/malerweg/';
+  if (route.land === 'it-hike') return 'https://altavia1dolomites.com/alta-via-1-stages/';
+  const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
   const single = route.stages.length === 1;
   return single
     ? `https://schweizmobil.ch/en/${activity}/route-${id}`
     : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
-const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW' };
+const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP' };
+const COUNTRY_SOURCE_LABELS = { 'fr-hike': 'le-gr20.fr', 'de-hike': 'saechsische-schweiz.de', 'it-hike': 'altavia1dolomites.com' };
 function sourceLabel(route) {
   if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'Trail';
+  if (COUNTRY_SOURCE_LABELS[route.land]) return COUNTRY_SOURCE_LABELS[route.land];
   return 'SchweizMobil';
 }
 
@@ -1294,9 +1328,15 @@ function normalizeDiff(d) {
 
 // Valid canonical difficulties per land — anything else is discarded
 const VALID_DIFFS = {
+  'ch-hike':  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
+  'ch-cycle': new Set(['easy', 'medium', 'difficult']),
+  uk:         new Set(['easy', 'moderate', 'challenging', 'strenuous']),
+  'fr-hike':  new Set(['easy', 'moderate', 'difficult']),
+  'de-hike':  new Set(['easy', 'moderate', 'difficult']),
+  'it-hike':  new Set(['easy', 'moderate', 'difficult']),
+  // Aliases for backward compatibility
   hike:  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
   cycle: new Set(['easy', 'medium', 'difficult']),
-  uk:    new Set(['easy', 'moderate', 'challenging', 'strenuous']),
 };
 function canonDiff(d, land) {
   const n = normalizeDiff(d);
@@ -1351,13 +1391,13 @@ function setStation(val) {
 }
 
 function updateSubtitle() {
-  const vis    = allRoutes.filter(r => r.land === landFilter);
+  const vis    = allRoutes.filter(r => r.land === activeLand());
   const stages = vis.reduce((s, r) => s + r.stages.length, 0);
   document.getElementById('subtitle').textContent = `${vis.length} routes · ${stages} stages`;
 }
 
 function updateStats() {
-  const visRoutes   = allRoutes.filter(r => r.land === landFilter);
+  const visRoutes   = allRoutes.filter(r => r.land === activeLand());
   const allFlat     = visRoutes.flatMap(r => r.stages.map(s => ({...s, _land: r.land, _routeId: r.route_id})));
   const totalStages = allFlat.length;
   const doneStages  = allFlat.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
@@ -1368,7 +1408,7 @@ function updateStats() {
   document.getElementById('stat-done').textContent = `${doneStages.length} / ${totalStages}`;
   document.getElementById('stat-done-sub').textContent = `${pct}% of stages`;
   document.getElementById('stat-km').textContent = Math.round(doneKm).toLocaleString();
-  document.getElementById('stat-km-label').textContent = landFilter === 'cycle' ? 'km cycled' : 'km walked';
+  document.getElementById('stat-km-label').textContent = selectedActivity === 'cycle' ? 'km cycled' : 'km walked';
   document.getElementById('stat-remaining').textContent = Math.round(totalKm - doneKm).toLocaleString();
 }
 
@@ -1377,13 +1417,13 @@ function updateStats() {
 // ---------------------------------------------------------------------------
 
 const DIFF_OPTIONS = {
-  hike: [
+  'ch-hike': [
     ['hiking trail',                    'T1 · Hiking trail'],
     ['mountain hiking trail',           'T2 · Mountain hiking'],
     ['demanding mountain hiking trail', 'T3 · Demanding mountain'],
     ['alpine hiking trail',             'T4 · Alpine'],
   ],
-  cycle: [
+  'ch-cycle': [
     ['easy',      'Easy'],
     ['medium',    'Medium'],
     ['difficult', 'Difficult'],
@@ -1394,27 +1434,63 @@ const DIFF_OPTIONS = {
     ['challenging', 'Challenging'],
     ['strenuous',   'Strenuous'],
   ],
+  'fr-hike': [
+    ['easy',      'Easy'],
+    ['moderate',  'Moderate'],
+    ['difficult', 'Difficult'],
+  ],
+  'de-hike': [
+    ['easy',      'Easy'],
+    ['moderate',  'Moderate'],
+    ['difficult', 'Difficult'],
+  ],
+  'it-hike': [
+    ['easy',      'Easy'],
+    ['moderate',  'Moderate'],
+    ['difficult', 'Difficult'],
+  ],
 };
 function updateDiffFilter(l) {
   const sel = document.getElementById('diff-filter');
   const cur = sel.value;
+  const opts = DIFF_OPTIONS[l] || [];
   sel.innerHTML = '<option value="">All difficulties</option>'
-    + DIFF_OPTIONS[l].map(([v, label]) => `<option value="${v}"${cur===v?' selected':''}>${label}</option>`).join('');
+    + opts.map(([v, label]) => `<option value="${v}"${cur===v?' selected':''}>${label}</option>`).join('');
 }
 
-function setLand(l) {
-  landFilter = l;
-  visible = 20;
-  document.body.setAttribute('data-land', l);
-  ['hike', 'cycle', 'uk'].forEach(x =>
-    document.getElementById('land-btn-' + x).classList.toggle('active', x === l)
-  );
-  const isUk = l === 'uk';
-  document.getElementById('header-eyebrow').textContent = isUk ? 'UK Trail Tracker'    : 'Swiss Trail Tracker';
-  document.getElementById('header-title').textContent   = isUk ? 'UK'                  : 'VIA';
-  updateDiffFilter(l);
+function setCountry(c) {
+  selectedCountry = c;
+  // Reset activity to 'hike' if new country doesn't have current activity
+  const country = COUNTRIES.find(x => x.id === c);
+  const hasCurrentActivity = country.lands.includes(activeLand());
+  if (!hasCurrentActivity) selectedActivity = 'hike';
+  // Show/hide activity row
+  const hasMultiple = country.lands.length > 1;
+  document.getElementById('activity-pills').style.display = hasMultiple ? '' : 'none';
+  // Update button active states
+  document.querySelectorAll('[data-country]').forEach(b => b.classList.toggle('active', b.dataset.country === c));
+  document.querySelectorAll('[data-activity]').forEach(b => b.classList.toggle('active', b.dataset.activity === selectedActivity));
+  // Update header
+  const labels = { ch: 'Swiss Trail Tracker', uk: 'UK Trail Tracker', fr: 'French Trail Tracker', de: 'German Trail Tracker', it: 'Italian Trail Tracker' };
+  const titles = { ch: 'Switzerland', uk: 'UK', fr: 'France', de: 'Germany', it: 'Italy' };
+  document.getElementById('header-eyebrow').textContent = labels[c] || 'Trail Tracker';
+  document.getElementById('header-title').textContent   = titles[c] || c.toUpperCase();
+  document.body.dataset.land = activeLand();
+  updateDiffFilter(activeLand());
   updateSubtitle();
   updateStats();
+  visible = 20;
+  render();
+}
+
+function setActivity(a) {
+  selectedActivity = a;
+  document.querySelectorAll('[data-activity]').forEach(b => b.classList.toggle('active', b.dataset.activity === a));
+  document.body.dataset.land = activeLand();
+  updateDiffFilter(activeLand());
+  updateSubtitle();
+  updateStats();
+  visible = 20;
   render();
 }
 
@@ -1497,7 +1573,7 @@ function filteredRoutes() {
   let routes = allRoutes.filter(r => {
     r.stages.forEach(s => { s._routeId = r.route_id; s._land = r.land; });
 
-    if (r.land !== landFilter) return false;
+    if (r.land !== activeLand()) return false;
     if (filter === 'national') return r.route_type === 'national';
     if (filter === 'regional') return r.route_type === 'regional';
     if (filter === 'local')    return r.route_type === 'local';
@@ -1568,7 +1644,7 @@ function filteredStages() {
 
   // Pre-compute next-up stage keys for in-progress routes
   const nextUpKeys = new Set();
-  allRoutes.filter(r => r.land === landFilter).forEach(r => {
+  allRoutes.filter(r => r.land === activeLand()).forEach(r => {
     const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
     if (!sorted.some(s => completed[stageKey(r.land, r.route_id, s.stage_nr)])) return;
     const next = sorted.find(s => !completed[stageKey(r.land, r.route_id, s.stage_nr)]);
@@ -1576,7 +1652,7 @@ function filteredStages() {
   });
 
   stages = stages.filter(s => {
-    if (s._land !== landFilter) return false;
+    if (s._land !== activeLand()) return false;
     const rt = s._route.route_type;
     if (filter === 'national') return rt === 'national';
     if (filter === 'regional') return rt === 'regional';
@@ -1620,10 +1696,16 @@ function filteredStages() {
 function diffClass(d, land) {
   const s = canonDiff(d, land);
   if (!s) return null;
-  if (land === 'cycle') {
+  if (land === 'cycle' || land === 'ch-cycle') {
     if (s === 'easy')      return 'diff-easy';
     if (s === 'medium')    return 'diff-medium';
     if (s === 'difficult') return 'diff-difficult';
+  }
+  // European hiking trails use easy/moderate/difficult → map to T1/T2/T3
+  if (land === 'fr-hike' || land === 'de-hike' || land === 'it-hike') {
+    if (s === 'easy')      return 'diff-t1';
+    if (s === 'moderate')  return 'diff-t2';
+    if (s === 'difficult') return 'diff-t3';
   }
   if (s === 'hiking trail')                    return 'diff-t1';
   if (s === 'mountain hiking trail')           return 'diff-t2';
@@ -1640,8 +1722,8 @@ const ALPINE_CANTONS = new Set(['VS', 'GR', 'UR', 'GL', 'OW', 'NW', 'TI', 'BE'])
 const NOW_MONTH = new Date().getMonth() + 1; // 1–12
 
 function seasonInfo(stage, land) {
-  if (land !== 'hike') return null;
-  const diff = canonDiff(stage.difficulty, 'hike');
+  if (land !== 'ch-hike') return null;
+  const diff = canonDiff(stage.difficulty, 'ch-hike');
   const inAlpine = (stage.cantons || []).some(c => ALPINE_CANTONS.has(c));
   if (diff === 'demanding alpine hiking trail' || diff === 'alpine hiking trail') {
     const warn = NOW_MONTH < 7 || NOW_MONTH > 9;
@@ -1664,7 +1746,7 @@ function seasonInfo(stage, land) {
 function surpriseMe() {
   const sbbMax = getSbbMax();
   const pool = allRoutes
-    .filter(r => r.land === landFilter)
+    .filter(r => r.land === activeLand())
     .flatMap(r => {
       const sorted = [...r.stages].sort((a, b) => a.stage_nr - b.stage_nr);
       const isSingle = r.stages.length === 1;
@@ -1706,7 +1788,7 @@ function renderSurprise() {
       <span style="font-size:22px">🎲</span>
       <div>
         <div class="surprise-label">Suggested for you</div>
-        <div class="surprise-route">${r.land === 'cycle' ? '🚴' : '🥾'} ${r.name}</div>
+        <div class="surprise-route">${r.land === 'ch-cycle' ? '🚴' : '🥾'} ${r.name}</div>
       </div>
       <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
     </div>
@@ -1901,7 +1983,7 @@ function renderRoute(route) {
   const pct = totalStages ? Math.round(doneCount / totalStages * 100) : 0;
   const rkey  = routeKey(route.land, route.route_id);
   const isOpen = !!expanded[rkey];
-  const isCycle = route.land === 'cycle';
+  const isCycle = route.land === 'ch-cycle';
   const numClass = [isCycle ? 'cycle' : '', route.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
   const routeCantons = [...new Set(route.stages.flatMap(s => s.cantons || []))];
   const icon = isCycle ? '🚴' : '🥾';
@@ -1939,7 +2021,7 @@ function renderFlatStage(stage) {
   const key  = stageKey(stage._land, stage._routeId, stage.stage_nr);
   const done = !!completed[key];
   const r    = stage._route;
-  const isCycle = r.land === 'cycle';
+  const isCycle = r.land === 'ch-cycle';
   const numLabel = r.route_type === 'national' ? `★ ${r.route_id}` : `${r.route_id}`;
   const distStr    = fmtKm(stage.dist_km);
   const hrsStr     = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
@@ -2017,7 +2099,7 @@ function relativeDate(chDate) {
 
 function renderDashboard() {
   const allFlat = allRoutes
-    .filter(r => r.land === landFilter)
+    .filter(r => r.land === activeLand())
     .flatMap(r => r.stages.map(s => ({ ...s, _route: r, _land: r.land, _routeId: r.route_id })));
   const doneFlat = allFlat.filter(s => completed[stageKey(s._land, s._routeId, s.stage_nr)]);
   const doneKm     = Math.round(doneFlat.reduce((n, s) => n + (s.dist_km || 0), 0));
@@ -2038,7 +2120,7 @@ function renderDashboard() {
 
   // In-progress routes for current land
   const inProgress = routesEnriched
-    .filter(r => r.land === landFilter && r._done > 0 && r._done < r._total)
+    .filter(r => r.land === activeLand() && r._done > 0 && r._done < r._total)
     .sort((a, b) => b._pct - a._pct);
 
   const heroRoute  = inProgress[0] || null;
@@ -2097,7 +2179,7 @@ function renderDashboard() {
     const diff = s.difficulty;
     return `
     <div class="dash-next-up">
-      <div class="dash-next-up-route">${r.land === 'cycle' ? '🚴' : '🥾'} ${r.name} · Stage ${s.stage_nr} of ${r._total}</div>
+      <div class="dash-next-up-route">${r.land === 'ch-cycle' ? '🚴' : '🥾'} ${r.name} · Stage ${s.stage_nr} of ${r._total}</div>
       <div class="dash-next-up-title">${s.start_name} → ${s.end_name}${s.via ? ` via ${s.via}` : ''}</div>
       <div class="dash-next-up-meta">
         ${s.dist_km ? `<span class="badge badge-gray">${fmtKm(s.dist_km)}</span>` : ''}
@@ -2212,7 +2294,7 @@ function renderDashboard() {
 
   // ── Almost There ──
   const almostRoutes = routesEnriched
-    .filter(r => r.land === landFilter && r._done > 0 && r._total - r._done <= 2 && r._done < r._total)
+    .filter(r => r.land === activeLand() && r._done > 0 && r._total - r._done <= 2 && r._done < r._total)
     .sort((a, b) => (a._total - a._done) - (b._total - b._done));
   const almostHtml = almostRoutes.length ? `
     <div class="dash-card">
@@ -2275,7 +2357,7 @@ function renderDashboard() {
     </div>`;
 
   // ── Hike of the Day ──
-  const allHikes = allRoutes.filter(r => r.land === 'hike');
+  const allHikes = allRoutes.filter(r => r.land === 'ch-hike');
   const todayIdx = Math.floor(Date.now() / 86400000) % (allHikes.length || 1);
   const hotdRoute = allHikes[todayIdx] || null;
   const hotdStage = hotdRoute ? hotdRoute.stages[Math.floor(hotdRoute.stages.length / 2)] : null;
@@ -2287,14 +2369,14 @@ function renderDashboard() {
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
         ${hotdStage?.dist_km ? `<span class="badge badge-gray">${fmtKm(hotdStage.dist_km)}</span>` : ''}
         ${hotdStage?.elev_up ? `<span class="badge badge-gray">↑ ${hotdStage.elev_up.toLocaleString()} m</span>` : ''}
-        ${hotdStage?.difficulty && diffClass(hotdStage.difficulty, 'hike') ? `<span class="badge ${diffClass(hotdStage.difficulty,'hike')}">${DIFF_LABELS[canonDiff(hotdStage.difficulty,'hike')]}</span>` : ''}
+        ${hotdStage?.difficulty && diffClass(hotdStage.difficulty, 'ch-hike') ? `<span class="badge ${diffClass(hotdStage.difficulty,'ch-hike')}">${DIFF_LABELS[canonDiff(hotdStage.difficulty,'ch-hike')]}</span>` : ''}
       </div>
       ${hotdRoute.description ? `<div class="dash-hotd-desc">${hotdRoute.description}</div>` : ''}
     </div>` : '';
 
   // ── Season Card ──
   const seasonRoutes = allRoutes
-    .filter(r => r.land === landFilter)
+    .filter(r => r.land === activeLand())
     .flatMap(r => r.stages.map(s => ({ s, r, info: seasonInfo(s, r.land) })))
     .filter(x => x.info)
     .slice(0, 5);
@@ -2322,7 +2404,7 @@ function renderDashboard() {
       <div class="dash-activity-title">Recent Activity</div>
       ${recentDone.length ? recentDone.map(s => `
         <div class="dash-activity-item">
-          <div class="dash-activity-icon">${s._land === 'cycle' ? '🚴' : '🥾'}</div>
+          <div class="dash-activity-icon">${s._land === 'ch-cycle' ? '🚴' : '🥾'}</div>
           <div class="dash-activity-body">
             <div class="dash-activity-name">${s.start_name} → ${s.end_name}</div>
             <div class="dash-activity-meta">${s._route.name}${s.dist_km ? ` · ${s.dist_km} km` : ''}</div>
@@ -2334,7 +2416,7 @@ function renderDashboard() {
   // ── Canton Map ──
   const hikedCantons   = new Set();
   const visitedCounts  = {};
-  allRoutes.filter(r => r.land === landFilter).forEach(r => r.stages.forEach(s => {
+  allRoutes.filter(r => r.land === activeLand()).forEach(r => r.stages.forEach(s => {
     if (!completed[stageKey(r.land, r.route_id, s.stage_nr)]) return;
     (s.cantons || []).forEach(c => {
       const lc = c.toLowerCase();
@@ -2386,14 +2468,14 @@ function renderDashboard() {
     <div class="dash-canton-map">
       <div class="dash-canton-map-header">
         <div>
-          <div class="dash-card-eyebrow">Where I've ${landFilter === 'cycle' ? 'Cycled' : 'Hiked'}</div>
+          <div class="dash-card-eyebrow">Where I've ${selectedActivity === 'cycle' ? 'Cycled' : 'Hiked'}</div>
           <div style="font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.02em">${hikedCount} of 26 cantons</div>
         </div>
         <div style="text-align:right;font-size:12px;color:var(--muted)">${hikedCount > 0 ? `${Math.round(hikedCount/26*100)}% of Switzerland` : 'Start exploring'}</div>
       </div>
       <svg viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg">${svgPaths}</svg>
       <div class="dash-canton-map-legend">
-        <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary)"></div> ${landFilter === 'cycle' ? 'Cycled' : 'Hiked'} here</div>
+        <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary)"></div> ${selectedActivity === 'cycle' ? 'Cycled' : 'Hiked'} here</div>
         <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary-lt);opacity:0.6"></div> Passing through</div>
         <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--surface-low);border:1px solid var(--border)"></div> Not yet</div>
       </div>
@@ -2408,7 +2490,7 @@ function renderDashboard() {
     + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`
     + (seasonHtml ? `<div class="dash-two-col">${seasonHtml}<div class="dash-card"><div class="dash-card-eyebrow">Stages Done</div><div class="dash-month-num">${doneCount}</div><div class="dash-month-label">total stages completed</div><div class="dash-month-divider"><div><div class="dash-month-sub-val">${doneKm.toLocaleString()}</div><div class="dash-month-sub-label">km total</div></div><div><div class="dash-month-sub-val">${doneElev>=1000?(doneElev/1000).toFixed(1)+'k':doneElev}</div><div class="dash-month-sub-label">m ascent</div></div></div></div></div>` : '')
     + activityHtml
-    + (landFilter === 'uk' ? '' : cantonMapHtml);
+    + (selectedCountry !== 'ch' ? '' : cantonMapHtml);
 }
 
 function render() {
