@@ -10208,7 +10208,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": null,
-            "end": 13
+            "end": null
           },
           "Biel/Bienne": {
             "start": null,
@@ -10276,7 +10276,7 @@
         "sbb_station_end": "Rosswald",
         "sbb_times": {
           "Basel SBB": {
-            "start": 13,
+            "start": null,
             "end": 179
           },
           "Biel/Bienne": {
@@ -30667,7 +30667,7 @@
         "sbb_station_end": null,
         "sbb_times": {
           "Basel SBB": {
-            "start": 13,
+            "start": null,
             "end": null
           },
           "Biel/Bienne": {
@@ -46115,7 +46115,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": null,
-            "end": 13
+            "end": null
           },
           "Biel/Bienne": {
             "start": 129,

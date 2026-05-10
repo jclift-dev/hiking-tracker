@@ -30,6 +30,7 @@ API:
 
 import json
 import os
+import re
 import time
 import sys
 import argparse
@@ -416,6 +417,15 @@ class SbbDailyLimitError(Exception):
     pass
 
 
+_FIRST_WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+")
+
+
+def _first_word(s):
+    """Lowercase first run of letters in s (Unicode-aware), or '' if none."""
+    m = _FIRST_WORD_RE.search(s or "")
+    return m.group(0).lower() if m else ""
+
+
 def sbb_canonical_station(name):
     """
     Query the SBB locations API to find the canonical station name for a place.
@@ -501,14 +511,27 @@ def sbb_travel_minutes(destination):
             arr = c["to"]["arrivalTimestamp"]
             if not (dep and arr):
                 return None
-            # Reject if matched to a Basel-area stop for a non-Basel destination
+            # Reject obvious fuzzy mismatches: SBB's connection API does
+            # prefix-style fuzzy matching on the destination, so a short query
+            # like "Binn" can resolve to a Basel-area stop "Binningen ...".
             matched = (c["to"]["station"] or {}).get("name", "")
             dest_lower = destination.lower()
             matched_lower = matched.lower()
             dest_mentions_basel = "basel" in dest_lower
+            dest_first = _first_word(destination)
+            matched_first = _first_word(matched)
+            # Fuzzy-prefix collision: matched first word extends dest first word
+            # (e.g. dest="Binn" → matched="Binningen Oberdorf"). Equal first
+            # words are fine — that's the normal "Binn" → "Binn, Dorf" case.
+            prefix_collision = (
+                dest_first
+                and matched_first
+                and matched_first != dest_first
+                and matched_first.startswith(dest_first)
+            )
             bad_match = (
                 (matched_lower.startswith("basel") and not dest_mentions_basel) or
-                (matched_lower.startswith("binningen") and not dest_lower.startswith("binning"))
+                prefix_collision
             )
             if bad_match:
                 print(f"    [skip] '{destination}' → '{matched}' — wrong station, discarding")
