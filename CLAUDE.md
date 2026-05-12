@@ -211,6 +211,8 @@ transport.opendata.ch  ───────────────────
 
 RLS policies ensure each user can only read/write their own rows. Routes and stages are public-read (no auth required to query). The scraper uses the `service_role` key (bypasses RLS) for imports.
 
+**`withTimeout(promise, ms)`** — all Supabase queries in `loadData()` and `loadUserState()` are wrapped with this helper (10 s timeout). Any new queries added to these functions should follow the same pattern; unwrapped queries will hang indefinitely if the network is unavailable after PC wake.
+
 ### hikes.json schema
 
 `hikes.json` is the local scraper output — same data that gets imported to Supabase. The web app reads from Supabase, not this file.
@@ -267,6 +269,8 @@ Each card shows `↑ Xm [icon] ↓ Xm`. Icons are referenced via `<img src="asse
 
 A 🛏 icon is shown next to a stage start or end name when `sbb_times[station].start === null` or `.end === null` — indicating no train connection (remote hut, pass, etc.).
 
+Canton badges (`.canton-badge`) are shown on Swiss stage cards. Flag images are loaded from `https://schweizmobil.ch/img/footer/{code.toLowerCase()}.svg` — an external URL with no SLA. The `onerror` handler hides the `<img>` if it fails, so badge text still shows. Only present on `ch-hike` / `ch-cycle` stages (`cantons` field is empty for non-Swiss routes).
+
 ### Web app state
 
 All user state is stored in Supabase and synced in real time:
@@ -274,7 +278,7 @@ All user state is stored in Supabase and synced in real time:
 - `user_state` table: `{ stage_key, completed_on, rating, note, wishlist, updated_at }` per user
 - `user_preferences` table: `{ selected_station, updated_at }` per user
 
-In-memory: `completed`, `ratings`, `notes`, `selectedStation` — same structure as before, loaded from Supabase on login and written back via `persistStage(key)` / `persistStation(val)` on every change.
+In-memory: `completed`, `ratings`, `notes`, `wishlist`, `selectedStation` — loaded from Supabase on login and written back via `persistStage(key)` / `persistStation(val)` on every change. `wishlist` is a ♡/♥ toggle on each stage (stored as a boolean in `user_state.wishlist`); wishlisted stages appear in the "Wishlist" filter tab.
 
 On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `hikes_notes`) is migrated to Supabase automatically and removed from localStorage.
 
@@ -284,6 +288,8 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 - Sign-ups disabled — users must be invited via **Supabase > Authentication > Users > Invite user**
 - Password reset emails use `resetPasswordForEmail` — `PROD_URL` / `APP_URL` constants in `index.html` set the redirect target (GitHub Pages URL in prod, `localhost` in dev)
 - Sessions persist for 1 week with auto-refresh; expiry shows "Your session has expired" message rather than silently redirecting
+- **Escape hatch**: `/?reset` clears `localStorage` + `sessionStorage` and reloads to a clean login screen. Linked in the login form as "Stuck? Clear session & reload".
+- **Sleep/wake recovery**: After a PC lock or sleep, the Supabase token auto-refresh can hang if the network isn't immediately up, blocking all queued DB queries indefinitely. `_recoverIfStuck()` listens on `visibilitychange` and `online` events — if `_booting` has been true for >20 s when the page becomes visible again, it forces a clean reload. Boot sequence guard flags: `_booting` (prevents concurrent boots), `_bootStartedAt` (tracks when boot started, for stale-boot detection), `_loggingOut` (blocks auth events during logout), `_inPasswordRecovery`.
 
 ### Route numbering
 
