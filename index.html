@@ -1014,24 +1014,29 @@ function toISODate(chDate) {
 }
 
 async function loadUserState() {
-  const { data: rows, error } = await sb.from('user_state')
-    .select('stage_key, completed_on, rating, note, wishlist')
-    .eq('user_id', currentUser.id);
-  if (error) console.error('loadUserState error:', error.message);
-  completed = {};
-  ratings   = {};
-  notes     = {};
-  wishlist  = {};
-  for (const row of (rows || [])) {
-    if (row.completed_on) completed[row.stage_key] = formatDateCH(row.completed_on);
-    if (row.rating)       ratings[row.stage_key]   = row.rating;
-    if (row.note)         notes[row.stage_key]      = row.note;
-    if (row.wishlist)     wishlist[row.stage_key]   = true;
-  }
-  const { data: prefs } = await sb.from('user_preferences')
-    .select('selected_station').maybeSingle();
-  if (prefs?.selected_station) {
-    selectedStation = prefs.selected_station;
+  try {
+    const { data: rows, error } = await withTimeout(
+      sb.from('user_state')
+        .select('stage_key, completed_on, rating, note, wishlist')
+        .eq('user_id', currentUser.id), 10000);
+    if (error) throw error;
+    completed = {};
+    ratings   = {};
+    notes     = {};
+    wishlist  = {};
+    for (const row of (rows || [])) {
+      if (row.completed_on) completed[row.stage_key] = formatDateCH(row.completed_on);
+      if (row.rating)       ratings[row.stage_key]   = row.rating;
+      if (row.note)         notes[row.stage_key]      = row.note;
+      if (row.wishlist)     wishlist[row.stage_key]   = true;
+    }
+    const { data: prefs } = await withTimeout(
+      sb.from('user_preferences').select('selected_station').maybeSingle(), 10000);
+    if (prefs?.selected_station) {
+      selectedStation = prefs.selected_station;
+    }
+  } catch(e) {
+    console.warn('loadUserState failed (non-fatal):', e.message);
   }
 }
 
@@ -1086,13 +1091,15 @@ async function loadData() {
       }
 
       // Fetch routes (well under 1000)
-      const { data: routes, error: routesErr } = await sb.from('routes').select('*').limit(1000);
+      const { data: routes, error: routesErr } = await withTimeout(
+        sb.from('routes').select('*').limit(1000), 10000);
       if (routesErr) throw new Error(routesErr.message);
 
       // Fetch stages in pages of 1000 (Supabase hard cap per request)
       let stages = [], from = 0;
       while (true) {
-        const { data: page, error: stagesErr } = await sb.from('stages').select('*').range(from, from + 999);
+        const { data: page, error: stagesErr } = await withTimeout(
+          sb.from('stages').select('*').range(from, from + 999), 10000);
         if (stagesErr) throw new Error(stagesErr.message);
         stages = stages.concat(page);
         if (page.length < 1000) break;
@@ -1129,6 +1136,16 @@ async function loadData() {
       if (attempt === MAX_RETRIES) showError(e.message);
     }
   }
+}
+
+// Rejects after `ms` if the promise hasn't resolved — prevents Supabase queries
+// from hanging indefinitely when the network is unavailable after PC wake/sleep.
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('Connection timed out — retrying…')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 function showError(msg) {
