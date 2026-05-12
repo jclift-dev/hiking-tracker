@@ -529,9 +529,23 @@ def sbb_travel_minutes(destination):
                 and matched_first != dest_first
                 and matched_first.startswith(dest_first)
             )
+            # Word-overlap guard: if no significant word (≥3 letters) from the
+            # destination appears in the matched station name, the API resolved
+            # to a completely unrelated stop (e.g. "Cap. M. Bar" → some
+            # Bernese station). In that case the arrival-stations fallback or
+            # the locations API will give a better answer.
+            _word_re = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]{3,}")
+            dest_words = {w.lower() for w in _word_re.findall(destination)}
+            matched_words = {w.lower() for w in _word_re.findall(matched)}
+            no_word_overlap = (
+                bool(dest_words)
+                and bool(matched_words)
+                and not dest_words & matched_words
+            )
             bad_match = (
                 (matched_lower.startswith("basel") and not dest_mentions_basel) or
-                prefix_collision
+                prefix_collision or
+                no_word_overlap
             )
             if bad_match:
                 print(f"    [skip] '{destination}' → '{matched}' — wrong station, discarding")
