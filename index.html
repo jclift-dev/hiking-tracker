@@ -1007,8 +1007,10 @@ function toISODate(chDate) {
 }
 
 async function loadUserState() {
-  const { data: rows } = await sb.from('user_state')
-    .select('stage_key, completed_on, rating, note');
+  const { data: rows, error } = await sb.from('user_state')
+    .select('stage_key, completed_on, rating, note, wishlist')
+    .eq('user_id', currentUser.id);
+  if (error) console.error('loadUserState error:', error.message);
   completed = {};
   ratings   = {};
   notes     = {};
@@ -1032,7 +1034,7 @@ function saveState() {
 
 async function persistStage(key) {
   if (!currentUser) return;
-  await sb.from('user_state').upsert({
+  const { error } = await sb.from('user_state').upsert({
     user_id:      currentUser.id,
     stage_key:    key,
     completed_on: toISODate(completed[key]) || null,
@@ -1041,6 +1043,7 @@ async function persistStage(key) {
     wishlist:     wishlist[key] || null,
     updated_at:   new Date().toISOString()
   }, { onConflict: 'user_id,stage_key' });
+  if (error) console.error('persistStage failed:', error.message);
 }
 
 async function persistStation(val) {
@@ -2664,21 +2667,30 @@ async function signIn() {
   const email    = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const errEl    = document.getElementById('auth-error');
+  const btn      = document.querySelector('#auth-login button');
   errEl.style.display = 'none';
   if (!email || !password) {
     errEl.textContent = 'Please enter your email and password.';
     errEl.style.display = 'block';
     return;
   }
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
   const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
   }
 }
 
 async function logout() {
-  try { await sb.auth.signOut(); } catch(e) {}
+  _loggingOut = true;
+  try {
+    await Promise.race([
+      sb.auth.signOut(),
+      new Promise(r => setTimeout(r, 5000))
+    ]);
+  } catch(e) {}
   window.location.reload();
 }
 
@@ -2738,6 +2750,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
   // Ignore token refreshes if already loaded — avoids wiping routes mid-session
   if (event === 'TOKEN_REFRESHED' && allRoutes.length > 0) return;
 
+  // Skip re-boot if the same user is already fully loaded (e.g., cross-tab SIGNED_IN broadcast)
+  if (allRoutes.length > 0 && user != null && currentUser?.id === user.id) return;
+
   // Password recovery — show set-password form, block any app boot until done
   if (event === 'PASSWORD_RECOVERY') {
     _inPasswordRecovery = true;
@@ -2749,16 +2764,25 @@ sb.auth.onAuthStateChange(async (event, session) => {
     return;
   }
 
-  // Block all events while logout is in progress
+  // Block all events while logout is in progress (logout() sets this before calling signOut)
   if (_loggingOut) return;
 
-  // Always handle sign-out, even during password recovery
+  // Handle sign-out: clear all in-memory state, show login form
   if (!user && !DEV_MODE) {
+    const sessionExpired = allRoutes.length > 0;
     _inPasswordRecovery = false;
     _booting = false;
+    allRoutes   = [];
+    currentUser = null;
+    completed = {}; ratings = {}; notes = {}; wishlist = {};
     document.getElementById('auth-screen').style.display = 'flex';
     document.querySelector('.app').style.display = 'none';
     showLoginForm();
+    if (sessionExpired) {
+      const errEl = document.getElementById('auth-error');
+      errEl.textContent = 'Your session has expired. Please sign in again.';
+      errEl.style.display = 'block';
+    }
     return;
   }
 

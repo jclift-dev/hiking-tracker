@@ -76,7 +76,17 @@
       "Bash(tmux list-sessions:*)",
       "Bash(brew install:*)",
       "Bash(git pull:*)",
-      "Bash(tmux capture-pane:*)"
+      "Bash(tmux capture-pane:*)",
+      "WebFetch(domain:www.nationaltrail.co.uk)",
+      "WebFetch(domain:www.le-gr20.fr)",
+      "WebFetch(domain:gr20-infos.com)",
+      "WebFetch(domain:www.autourdumontblanc.com)",
+      "WebFetch(domain:www.gr-infos.com)",
+      "WebFetch(domain:www.schwarzwaldportal.com)",
+      "WebFetch(domain:www.saechsische-schweiz.de)",
+      "WebFetch(domain:grfive.com)",
+      "WebFetch(domain:altavia1dolomites.com)",
+      "Bash(git stash *)"
     ]
   }
 }
