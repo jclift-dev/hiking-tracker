@@ -973,6 +973,13 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 
 // ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
 let allRoutes       = [];
@@ -1128,7 +1135,7 @@ function showError(msg) {
   document.getElementById('error-area').innerHTML = `
     <div class="error-box">
       <strong>Could not load route data</strong><br>
-      ${msg}<br><br>
+      ${escHtml(msg)}<br><br>
       <a href="#" onclick="loadData();return false;">Try again</a>
       &nbsp;·&nbsp;
       <a href="#" onclick="hardReset();return false;">Sign out &amp; reset</a>
@@ -1940,7 +1947,7 @@ function renderStages(route) {
           oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
           onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
           onblur="if(!this.value.trim())this.rows=1"
-        >${notes[key] || ''}</textarea>
+        >${escHtml(notes[key] || '')}</textarea>
       </div>
     </div>`;
 
@@ -2078,7 +2085,7 @@ function renderFlatStage(stage) {
         oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
         onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
         onblur="if(!this.value.trim())this.rows=1"
-      >${notes[key] || ''}</textarea>` : ''}
+      >${escHtml(notes[key] || '')}</textarea>` : ''}
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
       ${elevProfile(stage.elev_up, stage.elev_down)}
