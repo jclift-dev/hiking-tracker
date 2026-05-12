@@ -13,8 +13,10 @@ A hiking tracker for a small group of users, with three components:
 5. **`scraper_gr20.py`** — fetches the 16 stages of the GR20 (Corsica) from `le-gr20.fr`.
 6. **`scraper_av1.py`** — fetches the 11 stages of the Alta Via 1 (Dolomites) from `altavia1dolomites.com`.
 7. **`scraper_malerweg.py`** — fetches the 8 stages of the Malerweg (Saxon Switzerland) from `saechsische-schweiz.de`.
-8. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase magic link, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
-9. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via magic link (passwordless email).
+8. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
+9. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
+10. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
+11. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
 ## Land value naming convention
 
@@ -269,8 +271,8 @@ A 🛏 icon is shown next to a stage start or end name when `sbb_times[station].
 
 All user state is stored in Supabase and synced in real time:
 
-- `user_state` table: `{ stage_key, completed_on, rating, note }` per user
-- `user_preferences` table: `{ selected_station }` per user
+- `user_state` table: `{ stage_key, completed_on, rating, note, wishlist, updated_at }` per user
+- `user_preferences` table: `{ selected_station, updated_at }` per user
 
 In-memory: `completed`, `ratings`, `notes`, `selectedStation` — same structure as before, loaded from Supabase on login and written back via `persistStage(key)` / `persistStation(val)` on every change.
 
@@ -278,10 +280,10 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 
 ### Auth
 
-- Magic link (passwordless email) via Supabase Auth
+- Email + password via Supabase Auth (`signInWithPassword`)
 - Sign-ups disabled — users must be invited via **Supabase > Authentication > Users > Invite user**
-- Sessions persist for 1 week with auto-refresh (users rarely need to re-authenticate)
-- `PROD_URL` constant in `index.html` hardcodes the GitHub Pages URL for magic link redirects
+- Password reset emails use `resetPasswordForEmail` — `PROD_URL` / `APP_URL` constants in `index.html` set the redirect target (GitHub Pages URL in prod, `localhost` in dev)
+- Sessions persist for 1 week with auto-refresh; expiry shows "Your session has expired" message rather than silently redirecting
 
 ### Route numbering
 
@@ -298,6 +300,7 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 - Ctrl+C is handled gracefully at all stages — always saves before exiting.
 - Saves every 25 stages during SBB and arrival-station enrichment (not just at end).
 - Corrupted `hikes.json` (e.g. interrupted mid-write) is detected on startup, backed up to `hikes.json.bak`, and the scraper starts fresh.
+- **SBB fuzzy-prefix guard**: the transport.opendata.ch API does prefix-style fuzzy matching on destination names. The scraper rejects results where the matched station's first word *extends* the query's first word (e.g. query `"Binn"` → matched `"Binningen Oberdorf"` is rejected; `"Binn, Dorf"` is accepted). This prevents short village names from resolving to nearby city suburbs.
 
 ### Scraper cost per origin
 
