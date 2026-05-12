@@ -811,7 +811,7 @@
         <!-- Country row -->
         <div id="country-pills" class="land-pill" style="margin-top:12px;flex-wrap:wrap">
           <button class="land-pill-btn active" data-country="ch" onclick="setCountry('ch')">🇨🇭 Switzerland</button>
-          <button class="land-pill-btn" data-country="uk"  onclick="setCountry('uk')">🏴󠁧󠁢󠁿 UK</button>
+          <button class="land-pill-btn" data-country="uk"  onclick="setCountry('uk')">🇬🇧 UK</button>
           <button class="land-pill-btn" data-country="fr"  onclick="setCountry('fr')">🇫🇷 France</button>
           <button class="land-pill-btn" data-country="de"  onclick="setCountry('de')">🇩🇪 Germany</button>
           <button class="land-pill-btn" data-country="it"  onclick="setCountry('it')">🇮🇹 Italy</button>
@@ -2692,12 +2692,19 @@ async function signIn() {
 
 async function logout() {
   _loggingOut = true;
+  let signedOut = false;
   try {
     await Promise.race([
-      sb.auth.signOut(),
+      sb.auth.signOut().then(() => { signedOut = true; }),
       new Promise(r => setTimeout(r, 5000))
     ]);
   } catch(e) {}
+  if (!signedOut) {
+    // signOut timed out (network hung) — clear session from storage so the
+    // reload lands on the login screen instead of the same broken state.
+    localStorage.clear();
+    sessionStorage.clear();
+  }
   window.location.reload();
 }
 
@@ -2748,6 +2755,7 @@ if (new URLSearchParams(location.search).has('reset')) {
 }
 
 let _booting = false;
+let _bootStartedAt = 0;
 let _inPasswordRecovery = false;
 let _loggingOut = false;
 
@@ -2799,6 +2807,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   // Prevent concurrent boot sequences
   if (_booting) return;
   _booting = true;
+  _bootStartedAt = Date.now();
 
   try {
     currentUser = user;
@@ -2823,6 +2832,35 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
 document.getElementById('auth-password')
   ?.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+
+// Recovery from PC-wake / network-resume stuck-loading state.
+// After a lock/sleep, the Supabase token auto-refresh can hang indefinitely if
+// the network isn't immediately available. Every queued query hangs with it,
+// leaving _booting=true and "Loading routes…" stuck on screen.
+// When the page becomes visible again (or the network comes back), if the boot
+// has been stuck for >20 s we do a clean reload — network is likely up by then
+// and the reload will complete normally.
+async function _recoverIfStuck() {
+  if (allRoutes.length > 0 || _loggingOut || _inPasswordRecovery || !currentUser) return;
+  if (_booting) {
+    if (!_bootStartedAt || Date.now() - _bootStartedAt < 20000) return;
+    // Boot hung — reload to clear the stuck fetch queue.
+    window.location.reload();
+    return;
+  }
+  // Boot not running but routes missing (e.g. visible event before first auth fire) — retry.
+  _booting = true;
+  _bootStartedAt = Date.now();
+  try {
+    await loadUserState();
+    await loadData();
+  } finally {
+    _booting = false;
+  }
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) _recoverIfStuck(); });
+window.addEventListener('online', _recoverIfStuck);
 </script>
 </body>
 </html>
