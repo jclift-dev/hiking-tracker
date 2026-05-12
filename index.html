@@ -1825,10 +1825,10 @@ function renderSurprise() {
     <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${s.start_name || '?'} → ${s.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem">
       ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
-      ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
       ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
       ${diff && diffClass(s.difficulty, s._land) ? `<span class="badge ${diffClass(s.difficulty, s._land)}">${DIFF_LABELS[diff]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
+      ${(s.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(s.elev_up, s.elev_down)}
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
@@ -1918,11 +1918,11 @@ function renderStages(route) {
     // Badges
     const badges = `<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:5px">
       ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
-      ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
       ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
       ${aspStr   ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
       ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
+      ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(stage.elev_up, stage.elev_down)}
     </div>`;
 
@@ -2088,7 +2088,6 @@ function renderFlatStage(stage) {
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
         ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
-        ${stage.elev_up ? `<span class="badge badge-gray">↑ ${stage.elev_up.toLocaleString()} m</span>` : ''}
         ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
         ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
         ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
