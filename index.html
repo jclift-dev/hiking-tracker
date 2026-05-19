@@ -2898,13 +2898,15 @@ sb.auth.onAuthStateChange(async (event, session) => {
 document.getElementById('auth-password')
   ?.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
 
-// Recovery from PC-wake / network-resume stuck-loading state.
+// Recovery from PC-wake stuck-loading state.
 // After a lock/sleep, the Supabase token auto-refresh can hang indefinitely if
 // the network isn't immediately available. Every queued query hangs with it,
 // leaving _booting=true and "Loading routes…" stuck on screen.
-// When the page becomes visible again (or the network comes back), if the boot
-// has been stuck for >20 s we do a clean reload — network is likely up by then
-// and the reload will complete normally.
+// When the tab becomes visible again, if the boot has been stuck for >20 s we
+// do a clean reload — network is likely up by then and the reload completes normally.
+// Note: we do NOT hook the 'online' event. When network recovers mid-boot,
+// loadData()'s retry loop handles it. Firing a reload on 'online' caused a
+// double-load cycle (~20–40 s extra) on manual refresh after long inactivity.
 async function _recoverIfStuck() {
   if (allRoutes.length > 0 || _loggingOut || _inPasswordRecovery || !currentUser) return;
   if (_booting) {
@@ -2925,7 +2927,6 @@ async function _recoverIfStuck() {
 }
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) _recoverIfStuck(); });
-window.addEventListener('online', _recoverIfStuck);
 </script>
 </body>
 </html>
