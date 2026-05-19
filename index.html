@@ -1997,9 +1997,9 @@ function renderStages(route) {
     // ── Selected (user tapped a non-next stage) ──
     if (isSelected) return `<div class="tl-item">
       ${dot}
-      <div class="tl-card">
+      <div class="tl-card" onclick="selectStage('${key}')" style="cursor:pointer">
         <div style="display:flex;align-items:baseline;gap:6px">
-          <span class="stage-title" style="font-size:14px;font-weight:700;flex:1;cursor:pointer" onclick="selectStage('${key}')" title="Collapse">${title}</span>
+          <span class="stage-title" style="font-size:14px;font-weight:700;flex:1">${title}</span>
         </div>
         ${badges}
         ${transport}
@@ -2013,9 +2013,9 @@ function renderStages(route) {
     // ── Todo / Future ──
     return `<div class="tl-item${isFuture?' tl-item--future':''}">
       ${dot}
-      <div class="tl-body">
+      <div class="tl-body" onclick="selectStage('${key}')" style="cursor:pointer">
         <div style="display:flex;align-items:baseline;gap:6px">
-          <span class="stage-title" style="font-size:13px;flex:1;cursor:pointer" onclick="selectStage('${key}')" title="Expand">${title}</span>
+          <span class="stage-title" style="font-size:13px;flex:1">${title}</span>
         </div>
         ${badges}
         ${transport}
