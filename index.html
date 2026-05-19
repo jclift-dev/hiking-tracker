@@ -496,9 +496,12 @@
   .error-box code { font-family: monospace; font-size: 13px; background: rgba(192,57,43,0.1); padding: 2px 5px; border-radius: 4px; }
 
 
-  /* SchweizMobil link */
+  /* SchweizMobil link — compact form used on done stages */
   .sm-link { font-size:11px; color:var(--muted); text-decoration:none; opacity:0.6; flex-shrink:0; margin-left:2px; }
   .sm-link:hover { opacity:1; color:var(--green); }
+  /* Labelled button form used on active/todo stages */
+  .sm-stage-btn { display:inline-flex; align-items:center; padding:5px 14px; font-size:12px; font-family:'Manrope',sans-serif; border:1.5px solid var(--border); border-radius:99px; color:var(--muted); text-decoration:none; transition:all 0.15s; }
+  .sm-stage-btn:hover { border-color:var(--primary); color:var(--primary); }
 
   /* Next stage highlight */
   .stage-row.next-up { background: linear-gradient(90deg, rgba(29,158,117,0.06) 0%, transparent 100%); }
@@ -514,7 +517,7 @@
   .stage-stars .star { font-size:18px; cursor:pointer; color: var(--border); transition: color 0.08s; line-height:1; user-select:none; }
 
   /* Wishlist heart */
-  .stage-wish { width:22px; height:22px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--border); transition:color 0.12s; user-select:none; align-self:center; }
+  .stage-wish { width:28px; height:28px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px; color:var(--border); transition:color 0.12s; user-select:none; align-self:center; }
   .stage-wish:hover { color:#a29bfe; }
   .stage-wish.active { color:#6c5ce7; }
   .wish-route-btn { font-size:12px; padding:3px 10px; border-radius:99px; border:none; background:var(--gray-bg); cursor:pointer; color:var(--muted); transition:all 0.12s; white-space:nowrap; }
@@ -1948,8 +1951,9 @@ function renderStages(route) {
           onmouseover="starsHover('${key}',${n})" onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
       }).join('')}</div>` : '';
 
-    const wish = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')">${wished?'♥':'♡'}</div>`;
-    const sm   = `<a href="${smLink}" target="_blank" rel="noopener" class="sm-link" onclick="event.stopPropagation()">↗</a>`;
+    const wish  = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')">${wished?'♥':'♡'}</div>`;
+    const sm    = `<a href="${smLink}" target="_blank" rel="noopener" class="sm-link" onclick="event.stopPropagation()">↗</a>`;
+    const smBtn = smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">View on ${sourceLabel(route)} ↗</a>` : '';
 
     // ── Done: compact row ──
     if (done) return `<div class="tl-item">
@@ -1978,10 +1982,12 @@ function renderStages(route) {
         <div class="tl-next-eyebrow">NEXT UP</div>
         <div style="display:flex;align-items:baseline;gap:6px">
           <span class="stage-title" style="font-size:14px;font-weight:700;flex:1">${title}</span>
-          ${sm}${wish}
         </div>
         ${badges}
         ${transport}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
+          ${smBtn}${wish}
+        </div>
         <button class="tl-done-btn" onclick="toggleStage('${key}')">✓ Mark as done</button>
       </div>
     </div>`;
@@ -1992,10 +1998,12 @@ function renderStages(route) {
       <div class="tl-body">
         <div style="display:flex;align-items:baseline;gap:6px">
           <span class="stage-title" style="font-size:13px;flex:1">${title}</span>
-          ${sm}${wish}
         </div>
         ${badges}
         ${transport}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
+          ${smBtn}${wish}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -2083,9 +2091,7 @@ function renderFlatStage(stage) {
         <span class="route-num ${numClass}" style="font-size:10px;padding:2px 5px">${numLabel}</span>
         ${isCycle ? '🚴' : '🥾'} ${r.name}
       </div>
-      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}
-        <a href="${smLink}" target="_blank" rel="noopener" class="sm-link" title="View on SchweizMobil" onclick="event.stopPropagation()">↗</a>
-      </div>
+      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
         ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
         ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
@@ -2099,6 +2105,7 @@ function renderFlatStage(stage) {
         ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from ${selectedStation}</span>` : ''}
         ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
       </div>` : ''}
+      ${smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">View on ${sourceLabel(r)} ↗</a>` : ''}
       ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
       <textarea class="stage-note" rows="1" placeholder="Add a note…"
         oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
