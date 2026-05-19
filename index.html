@@ -427,7 +427,7 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.35; transform: scale(0.65); }
   }
-  .tl-item--future > .tl-body { opacity: 0.38; pointer-events: none; }
+  .tl-item--future > .tl-body { opacity: 0.38; }
   .tl-card {
     background: var(--surface); border-radius: var(--radius);
     padding: 0.875rem 1rem; box-shadow: var(--shadow);
@@ -991,6 +991,7 @@ let ratings         = {};   // key: "land_routeId_stageNr" → 1–5
 let notes           = {};   // key: "land_routeId_stageNr" → string
 let wishlist        = {};   // key: "land_routeId_stageNr" → true
 let expanded        = {};   // key: "land_routeId" → bool
+let selectedStageKey = null; // user-selected stage to expand in the timeline
 let filter           = 'all';
 let selectedCountry  = 'ch';   // replaces landFilter
 let selectedActivity = 'hike';
@@ -1894,9 +1895,10 @@ function renderStages(route) {
   const items = stages.map(stage => {
     stage._routeId = route.route_id; stage._land = route.land;
     const key     = stageKey(route.land, route.route_id, stage.stage_nr);
-    const done    = !!completed[key];
-    const isNext  = !done && anyDone && stage.stage_nr === nextNr;
-    const isFuture= !done && anyDone && !isNext;
+    const done       = !!completed[key];
+    const isNext     = !done && anyDone && stage.stage_nr === nextNr;
+    const isFuture   = !done && anyDone && !isNext;
+    const isSelected = !done && !isNext && selectedStageKey === key;
 
     const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
     const startTravel = fmtMins(sbbTimes.start);
@@ -1992,12 +1994,28 @@ function renderStages(route) {
       </div>
     </div>`;
 
+    // ── Selected (user tapped a non-next stage) ──
+    if (isSelected) return `<div class="tl-item">
+      ${dot}
+      <div class="tl-card">
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="stage-title" style="font-size:14px;font-weight:700;flex:1;cursor:pointer" onclick="selectStage('${key}')" title="Collapse">${title}</span>
+        </div>
+        ${badges}
+        ${transport}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
+          ${smBtn}${wish}
+        </div>
+        <button class="tl-done-btn" onclick="toggleStage('${key}')">✓ Mark as done</button>
+      </div>
+    </div>`;
+
     // ── Todo / Future ──
     return `<div class="tl-item${isFuture?' tl-item--future':''}">
       ${dot}
       <div class="tl-body">
         <div style="display:flex;align-items:baseline;gap:6px">
-          <span class="stage-title" style="font-size:13px;flex:1">${title}</span>
+          <span class="stage-title" style="font-size:13px;flex:1;cursor:pointer" onclick="selectStage('${key}')" title="Expand">${title}</span>
         </div>
         ${badges}
         ${transport}
@@ -2612,6 +2630,12 @@ function toggleRoute(rkey) {
   render();
 }
 
+function selectStage(key) {
+  event.stopPropagation();
+  selectedStageKey = selectedStageKey === key ? null : key;
+  render();
+}
+
 function toggleWishlist(key) {
   event.stopPropagation();
   if (wishlist[key]) delete wishlist[key];
@@ -2642,6 +2666,7 @@ function toggleStage(key) {
     persistStage(key);
   } else {
     completed[key] = new Date().toLocaleDateString('de-CH');
+    if (selectedStageKey === key) selectedStageKey = null;
     persistStage(key);
   }
   saveState();
