@@ -395,6 +395,41 @@ def build_route(route_nr, land):
                 "sbb_times":   {},
             })
 
+        # Gap-probe: the overview's `segments` list occasionally omits
+        # connector segments between route variants (e.g. ViaJacobi stages
+        # 24 and 31), yet those segments are still individually fetchable.
+        # Probe each missing segmentNumber in the observed range, plus any
+        # numbers up to the overview's stated total.
+        seen = {s["stage_nr"] for s in stages}
+        claimed = overview.get("stages") or 0
+        probe_max = max(max(seen, default=0), claimed)
+        for missing_nr in range(1, probe_max + 1):
+            if missing_nr in seen:
+                continue
+            detail = fetch_segment(route_nr, missing_nr, land)
+            time.sleep(DELAY)
+            if not detail or not detail.get("start"):
+                continue
+            duration_hrs, difficulty, description, cantons, km_asphalt = \
+                extract_stage_detail(detail, land)
+            print(f"    [gap-fill] segment {missing_nr}: "
+                  f"{detail.get('start', '?')} → {detail.get('end', '?')}")
+            stages.append({
+                "stage_nr":    missing_nr,
+                "start_name":  detail.get("start", ""),
+                "end_name":    detail.get("end", ""),
+                "via":         detail.get("via"),
+                "dist_km":     detail.get("length"),
+                "elev_up":     detail.get("ascent"),
+                "elev_down":   detail.get("descent"),
+                "duration_hrs": duration_hrs,
+                "km_asphalt":  km_asphalt,
+                "difficulty":  difficulty,
+                "description": description,
+                "cantons":     cantons,
+                "sbb_times":   {},
+            })
+
     stages.sort(key=lambda s: s["stage_nr"])
 
     return {
@@ -896,8 +931,25 @@ def main():
         '--import', dest='import_mode', action='store_true',
         help='Import hikes.json into Supabase (requires SUPABASE_URL and SUPABASE_SERVICE_KEY env vars)'
     )
+    parser.add_argument(
+        "--refresh-route", action="append", default=[], metavar="LAND:ID",
+        help="Re-scrape this route even if cached, preserving existing sbb_times. "
+             "Repeatable. Example: --refresh-route ch-hike:4"
+    )
     args = parser.parse_args()
     ORIGIN = args.origin
+
+    refresh_keys = set()
+    for spec in args.refresh_route:
+        if ":" not in spec:
+            print(f"Error: --refresh-route expects LAND:ID, got {spec!r}")
+            sys.exit(1)
+        land, _, rid = spec.partition(":")
+        try:
+            refresh_keys.add((land.strip(), int(rid)))
+        except ValueError:
+            print(f"Error: --refresh-route route id must be an integer, got {rid!r}")
+            sys.exit(1)
 
     if args.import_mode:
         routes = list(load_existing().values())
@@ -926,12 +978,30 @@ def main():
                     ids = fetch_route_ids(land, category)
                     for rid in ids:
                         key = (land, category, rid)
-                        if key in existing:
+                        force_refresh = (land, rid) in refresh_keys
+                        if key in existing and not force_refresh:
                             print(f"    Route {rid} already cached, skipping.")
                             routes.append(existing[key])
                             continue
+                        if force_refresh:
+                            print(f"    Route {rid} — forcing refresh.")
                         route = build_route(rid, land)
                         if route:
+                            # Preserve sbb_times and arrival_stations from any
+                            # matching cached stage so a refresh doesn't wipe
+                            # out hours of SBB work / arrival lookups.
+                            if key in existing:
+                                cached = {
+                                    s["stage_nr"]: s
+                                    for s in existing[key].get("stages", [])
+                                }
+                                for s in route["stages"]:
+                                    prior = cached.get(s["stage_nr"])
+                                    if not prior:
+                                        continue
+                                    s["sbb_times"] = prior.get("sbb_times", {})
+                                    if "arrival_stations" in prior:
+                                        s["arrival_stations"] = prior["arrival_stations"]
                             routes.append(route)
                             save(routes)
                         time.sleep(DELAY)
