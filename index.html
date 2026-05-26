@@ -1227,7 +1227,14 @@ function smUrl(route, stageNr) {
     }
     return '#';
   }
-  if (route.land === 'fr-hike') return 'https://www.le-gr20.fr/en/pages/profile-stages/';
+  if (route.land === 'fr-hike') {
+    const FR_HIKE_URLS = {
+      1: 'https://www.le-gr20.fr/en/pages/profile-stages/',
+      2: 'https://www.podiensis.com/les-etapes',
+      3: 'https://www.chamina-voyages.com/randonner/chemin-stevenson-gr70',
+    };
+    return FR_HIKE_URLS[route.route_id] || '#';
+  }
   if (route.land === 'de-hike') return 'https://www.saechsische-schweiz.de/malerweg/';
   if (route.land === 'it-hike') return 'https://altavia1dolomites.com/alta-via-1-stages/';
   const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
@@ -1238,9 +1245,11 @@ function smUrl(route, stageNr) {
     : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
 const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP' };
-const COUNTRY_SOURCE_LABELS = { 'fr-hike': 'le-gr20.fr', 'de-hike': 'saechsische-schweiz.de', 'it-hike': 'altavia1dolomites.com' };
+const COUNTRY_SOURCE_LABELS = { 'de-hike': 'saechsische-schweiz.de', 'it-hike': 'altavia1dolomites.com' };
+const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
 function sourceLabel(route) {
   if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'Trail';
+  if (route.land === 'fr-hike') return FR_HIKE_SOURCE_LABELS[route.route_id] || 'fr-hike';
   if (COUNTRY_SOURCE_LABELS[route.land]) return COUNTRY_SOURCE_LABELS[route.land];
   return 'SchweizMobil';
 }
