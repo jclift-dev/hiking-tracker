@@ -106,6 +106,37 @@ python3 scraper.py --import
 
 Source: `https://www.le-gr20.fr/en/pages/profile-stages/` — overview page with links to 16 individual stage pages. The scraper writes `route_id=1`, `land="fr-hike"`. Data per stage: `elev_up`, `elev_down`, `duration_hrs` (elevation/time format varies by page — colon optional). `dist_km` is null (not published per stage). Stages 9–10 (L'Onda→Vizzavona, Vizzavona→Capanelle) have no elevation data on the source pages. Resumable via internal `_url` field. Difficulty hardcoded to `"difficult"` (GR20 is uniformly demanding).
 
+### GR trails (France)
+
+```bash
+pip3 install requests beautifulsoup4
+python3 scraper_gr.py              # all trails (GR65, GR70, GR20 backfill)
+python3 scraper_gr.py --only gr65  # one trail only
+python3 scraper_gr.py --only gr70
+python3 scraper_gr.py --only gr20  # GR20 distance backfill only
+python3 scraper_gr.py --refresh-trail gr65  # re-fetch even if cached (repeatable)
+python3 scraper_gr.py --limit 3    # smoke test: first N stages only
+python3 scraper.py --import
+```
+
+Handles three French GR trails plus a distance backfill:
+
+| Slug  | Trail | route_id | land | Stages | Source |
+|-------|-------|----------|------|--------|--------|
+| `gr65` | GR65 Via Podiensis (Le Puy-en-Velay → St-Jean-Pied-de-Port) | 2 | `fr-hike` | 32 | podiensis.com |
+| `gr70` | GR70 Chemin de Stevenson (Le Puy-en-Velay → Alès) | 3 | `fr-hike` | 13 | chamina-voyages.com |
+| `gr20` | GR20 — distance backfill only (existing route_id=1) | 1 | `fr-hike` | 16 | thepostrace.com |
+
+**GR65** (podiensis.com): index table at `/les-etapes` gives stage_nr, start, end, distance; per-stage pages give duration, elev_up, elev_down, and difficulty. Resumable via internal `_url` field on each stage. Difficulty mapped from French ("Facile"→easy, "Moyenne"→moderate, "Difficile"→difficult).
+
+**GR70** (chamina-voyages.com): single-page table with all 13 stages — start/end parsed from "A > B" format, distance, D+, D−. No per-stage subpages; no duration data. Single fetch, no resume needed.
+
+**GR20 distance backfill**: thepostrace.com has a 15-stage table with per-stage distances (le-gr20.fr, the primary source, doesn't publish per-stage distances). Stages 1–10 align cleanly; stages 11–15 are approximate (thepostrace uses different intermediate waypoints in the southern section). Stage 16 (Bavella→Conca) has no match and remains `dist_km=null`.
+
+**To add a new GR trail**: add an entry to `GR_TRAILS` in `scraper_gr.py` with `slug`, `land`, `route_id`, `route_type`, `name`, `description`, `start`, `end`, `total_km`, then add a scrape function and dispatch it in `main()`. All French trails use `land="fr-hike"`. Cross-border or foreign trails (GR5 FR/CH, GR11 ES) need a Supabase CHECK constraint update first — see deferred comment block in the scraper.
+
+**Deferred trails** (cross-border, require Supabase schema change): GR5 Grande Traversée des Alpes (FR/CH), GR11 Pyrenean Traverse (ES). Listed in a comment block at the top of `scraper_gr.py`.
+
 ### Alta Via 1 (Dolomites, Italy)
 
 ```bash
