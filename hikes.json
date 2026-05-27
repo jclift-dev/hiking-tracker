@@ -804,7 +804,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 148,
-            "end": null
+            "end": 193
           },
           "Biel/Bienne": {
             "start": 124,
@@ -874,7 +874,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 130,
-            "start": null
+            "start": 193
           },
           "Biel/Bienne": {
             "start": null,
@@ -4980,7 +4980,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 114,
-            "end": null
+            "end": 151
           },
           "Biel/Bienne": {
             "start": 88,
@@ -5050,7 +5050,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 159,
-            "start": null
+            "start": 151
           },
           "Biel/Bienne": {
             "start": 121,
@@ -8246,7 +8246,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 61,
-            "end": null
+            "end": 59
           },
           "Biel/Bienne": {
             "start": 66,
@@ -8317,7 +8317,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 57,
-            "start": null
+            "start": 59
           },
           "Biel/Bienne": {
             "start": 67,
@@ -10142,7 +10142,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -10208,7 +10211,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": null,
-            "end": null
+            "end": 241
           },
           "Biel/Bienne": {
             "start": null,
@@ -10276,7 +10279,7 @@
         "sbb_station_end": "Rosswald",
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 241,
             "end": 179
           },
           "Biel/Bienne": {
@@ -11244,7 +11247,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -11450,7 +11456,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 259,
-            "end": null
+            "end": 273
           },
           "Biel/Bienne": {
             "start": 226,
@@ -12864,7 +12870,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 182,
-            "end": null
+            "end": 410
           },
           "Biel/Bienne": {
             "start": 201,
@@ -12934,7 +12940,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 177,
-            "start": null
+            "start": 410
           },
           "Biel/Bienne": {
             "start": 429,
@@ -15832,7 +15838,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 149,
-            "end": null
+            "end": 183
           },
           "Biel/Bienne": {
             "start": 167,
@@ -15902,7 +15908,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 132,
-            "start": null
+            "start": 183
           },
           "Biel/Bienne": {
             "start": null,
@@ -18355,7 +18361,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 252,
-            "end": null
+            "end": 231
           },
           "Biel/Bienne": {
             "start": 163,
@@ -20406,7 +20412,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 68,
-            "end": null
+            "end": 106
           },
           "Biel/Bienne": {
             "start": 43,
@@ -20476,7 +20482,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 83,
-            "start": null
+            "start": 106
           },
           "Biel/Bienne": {
             "start": 90,
@@ -20896,7 +20902,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 174,
-            "end": null
+            "end": 218
           },
           "Biel/Bienne": {
             "start": 150,
@@ -20966,7 +20972,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 184,
-            "start": null
+            "start": 218
           },
           "Biel/Bienne": {
             "start": null,
@@ -22347,7 +22353,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 84,
-            "end": null
+            "end": 311
           },
           "Biel/Bienne": {
             "start": 37,
@@ -22417,7 +22423,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 222,
-            "start": null
+            "start": 311
           },
           "Biel/Bienne": {
             "start": null,
@@ -23909,7 +23915,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 311
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -23975,7 +23984,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 311,
+            "end": 264
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 283
@@ -24045,7 +24057,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 227,
-            "start": null
+            "start": 242
           },
           "Biel/Bienne": {
             "start": 261,
@@ -24115,7 +24127,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 227,
-            "end": null
+            "end": 447
           },
           "Biel/Bienne": {
             "start": 249,
@@ -24184,7 +24196,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 201,
-            "start": null
+            "start": 447
           },
           "Biel/Bienne": {
             "start": 466,
@@ -25197,7 +25209,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 352,
-            "end": null
+            "end": 206
           },
           "Biel/Bienne": {
             "start": 358,
@@ -25264,7 +25276,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 158,
-            "start": null
+            "start": 206
           },
           "Biel/Bienne": {
             "start": 174,
@@ -25553,7 +25565,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 410
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 429
@@ -25619,7 +25634,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 410,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": 429,
             "end": null
@@ -26488,7 +26506,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 193,
-            "end": null
+            "end": 206
           },
           "Biel/Bienne": {
             "start": 212,
@@ -26555,7 +26573,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 206,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -26983,7 +27004,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 300,
-            "end": null
+            "end": 505
           },
           "Biel/Bienne": {
             "start": 319,
@@ -27053,7 +27074,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 262,
-            "start": null
+            "start": 262
           },
           "Biel/Bienne": {
             "start": 308,
@@ -27427,7 +27448,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 177,
-            "end": null
+            "end": 410
           },
           "Biel/Bienne": {
             "start": 196,
@@ -27498,7 +27519,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 182,
-            "start": null
+            "start": 410
           },
           "Biel/Bienne": {
             "start": 429,
@@ -27708,7 +27729,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 138,
-            "end": null
+            "end": 193
           },
           "Biel/Bienne": {
             "start": 152,
@@ -27779,7 +27800,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 149,
-            "start": null
+            "start": 193
           },
           "Biel/Bienne": {
             "start": 212,
@@ -27850,7 +27871,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 149,
-            "end": null
+            "end": 183
           },
           "Biel/Bienne": {
             "start": 167,
@@ -27920,7 +27941,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 132,
-            "start": null
+            "start": 183
           },
           "Biel/Bienne": {
             "start": null,
@@ -28280,7 +28301,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 130,
-            "end": null
+            "end": 168
           },
           "Biel/Bienne": {
             "start": 106,
@@ -28351,7 +28372,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 180,
-            "start": null
+            "start": 168
           },
           "Biel/Bienne": {
             "start": null,
@@ -30667,7 +30688,7 @@
         "sbb_station_end": null,
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 241,
             "end": null
           },
           "Biel/Bienne": {
@@ -30733,7 +30754,10 @@
         "cantons": [],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -30795,7 +30819,10 @@
         "cantons": [],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -30857,7 +30884,10 @@
         "cantons": [],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -31130,7 +31160,10 @@
         ],
         "sbb_station_end": "Bedretto",
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 195
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 214
@@ -31197,7 +31230,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 195,
+            "end": 185
+          },
           "Biel/Bienne": {
             "start": 214,
             "end": 204
@@ -31267,7 +31303,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 182,
-            "start": null
+            "start": 185
           },
           "Biel/Bienne": {
             "start": 204,
@@ -34510,7 +34546,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 259,
-            "end": null
+            "end": 273
           },
           "Biel/Bienne": {
             "start": 226,
@@ -34884,7 +34920,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 398
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 413
@@ -34950,7 +34989,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 190,
-            "start": null
+            "start": 398
           },
           "Biel/Bienne": {
             "start": 413,
@@ -35170,7 +35209,10 @@
         ],
         "sbb_station_end": null,
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -36467,7 +36509,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 127,
-            "end": null
+            "end": 151
           },
           "Biel/Bienne": {
             "start": 105,
@@ -36537,7 +36579,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 159,
-            "start": null
+            "start": 151
           },
           "Biel/Bienne": {
             "start": 121,
@@ -40874,7 +40916,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 253,
-            "end": null
+            "end": 134
           },
           "Biel/Bienne": {
             "start": 417,
@@ -41624,7 +41666,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 173,
-            "end": null
+            "end": 205
           },
           "Biel/Bienne": {
             "start": 96,
@@ -41695,7 +41737,7 @@
         "sbb_times": {
           "Basel SBB": {
             "end": 162,
-            "start": null
+            "start": 205
           },
           "Biel/Bienne": {
             "start": 113,
@@ -42719,7 +42761,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 173,
+            "end": 250
+          },
           "Biel/Bienne": {
             "start": 97,
             "end": 139
@@ -42798,7 +42843,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 239,
+            "end": 239
+          },
           "Biel/Bienne": {
             "start": 161,
             "end": 161
@@ -42876,7 +42924,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 202,
+            "end": 250
+          },
           "Biel/Bienne": {
             "start": 126,
             "end": 139
@@ -42955,7 +43006,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 234,
+            "end": 195
+          },
           "Biel/Bienne": {
             "start": 158,
             "end": 119
@@ -43034,7 +43088,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 218,
+            "end": 214
+          },
           "Biel/Bienne": {
             "start": 144,
             "end": 141
@@ -43113,7 +43170,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 171,
+            "end": 135
+          },
           "Biel/Bienne": {
             "start": 78,
             "end": 59
@@ -43192,7 +43252,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 224,
+            "end": 224
+          },
           "Biel/Bienne": {
             "start": 184,
             "end": 184
@@ -43270,7 +43333,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 170,
+            "end": 158
+          },
           "Biel/Bienne": {
             "start": 94,
             "end": 82
@@ -43350,7 +43416,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 199,
             "end": 169
           },
           "Biel/Bienne": {
@@ -43431,7 +43497,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 211,
+            "end": 220
+          },
           "Biel/Bienne": {
             "start": 135,
             "end": 145
@@ -43511,7 +43580,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 178,
             "end": 210
           },
           "Biel/Bienne": {
@@ -43591,7 +43660,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 256,
+            "end": 256
+          },
           "Biel/Bienne": {
             "start": 180,
             "end": 180
@@ -43669,7 +43741,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -43747,7 +43822,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 168,
+            "end": 168
+          },
           "Biel/Bienne": {
             "start": 92,
             "end": 92
@@ -43825,7 +43903,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 177,
+            "end": 177
+          },
           "Biel/Bienne": {
             "start": 101,
             "end": 101
@@ -43903,7 +43984,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 228,
+            "end": 228
+          },
           "Biel/Bienne": {
             "start": 151,
             "end": 151
@@ -43981,7 +44065,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 195,
+            "end": 195
+          },
           "Biel/Bienne": {
             "start": 147,
             "end": 147
@@ -44059,7 +44146,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 203,
+            "end": 184
+          },
           "Biel/Bienne": {
             "start": 127,
             "end": 108
@@ -44138,7 +44228,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 128,
+            "end": 128
+          },
           "Biel/Bienne": {
             "start": 52,
             "end": 52
@@ -44216,7 +44309,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 195,
+            "end": 201
+          },
           "Biel/Bienne": {
             "start": 147,
             "end": 126
@@ -44296,7 +44392,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 202,
             "end": 229
           },
           "Biel/Bienne": {
@@ -44377,7 +44473,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 204,
+            "end": 186
+          },
           "Biel/Bienne": {
             "start": 148,
             "end": 110
@@ -44456,7 +44555,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 190,
+            "end": 190
+          },
           "Biel/Bienne": {
             "start": 114,
             "end": 114
@@ -44534,7 +44636,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 168,
+            "end": 168
+          },
           "Biel/Bienne": {
             "start": 92,
             "end": 92
@@ -44612,7 +44717,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 161,
+            "end": 210
+          },
           "Biel/Bienne": {
             "start": 85,
             "end": 135
@@ -44690,7 +44798,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 156,
+            "end": 156
+          },
           "Biel/Bienne": {
             "start": 82,
             "end": 82
@@ -44768,7 +44879,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 160,
+            "end": 160
+          },
           "Biel/Bienne": {
             "start": 84,
             "end": 84
@@ -44846,7 +44960,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 215,
+            "end": 215
+          },
           "Biel/Bienne": {
             "start": 159,
             "end": 159
@@ -44925,7 +45042,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 232,
             "end": 218
           },
           "Biel/Bienne": {
@@ -45006,7 +45123,10 @@
           "GE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 205,
+            "end": 383
+          },
           "Biel/Bienne": {
             "start": 128,
             "end": 331
@@ -45084,7 +45204,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 219,
+            "end": 204
+          },
           "Biel/Bienne": {
             "start": 287,
             "end": 165
@@ -45163,7 +45286,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 250,
+            "end": 250
+          },
           "Biel/Bienne": {
             "start": 215,
             "end": 194
@@ -45243,7 +45369,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 332,
             "end": 193
           },
           "Biel/Bienne": {
@@ -45323,7 +45449,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 430,
+            "end": 153
+          },
           "Biel/Bienne": {
             "start": 445,
             "end": 119
@@ -45402,7 +45531,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -45480,7 +45612,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 202,
+            "end": 207
+          },
           "Biel/Bienne": {
             "start": 170,
             "end": 176
@@ -45559,7 +45694,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 221,
+            "end": 212
+          },
           "Biel/Bienne": {
             "start": 195,
             "end": 46
@@ -45639,7 +45777,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 186,
             "end": 178
           },
           "Biel/Bienne": {
@@ -45719,7 +45857,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 366,
+            "end": 218
+          },
           "Biel/Bienne": {
             "start": 202,
             "end": 183
@@ -45798,7 +45939,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 186,
+            "end": 178
+          },
           "Biel/Bienne": {
             "start": 160,
             "end": 144
@@ -45877,7 +46021,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 175,
+            "end": 94
+          },
           "Biel/Bienne": {
             "start": 126,
             "end": 115
@@ -45956,7 +46103,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 484,
+            "end": 361
+          },
           "Biel/Bienne": {
             "start": 422,
             "end": 335
@@ -46035,7 +46185,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 385,
+            "end": 385
+          },
           "Biel/Bienne": {
             "start": 354,
             "end": 354
@@ -46114,8 +46267,8 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
-            "end": null
+            "start": 161,
+            "end": 241
           },
           "Biel/Bienne": {
             "start": 129,
@@ -46195,7 +46348,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 184,
+            "end": 184
+          },
           "Biel/Bienne": {
             "start": 152,
             "end": 152
@@ -46273,7 +46429,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 237,
+            "end": 249
+          },
           "Biel/Bienne": {
             "start": 175,
             "end": 187
@@ -46352,7 +46511,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 183,
+            "end": 183
+          },
           "Biel/Bienne": {
             "start": 155,
             "end": 155
@@ -46430,7 +46592,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -46508,7 +46673,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 341,
+            "end": 341
+          },
           "Biel/Bienne": {
             "start": 265,
             "end": 265
@@ -46586,7 +46754,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 193,
+            "end": 175
+          },
           "Biel/Bienne": {
             "start": 182,
             "end": 148
@@ -46665,7 +46836,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 226
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 200
@@ -46745,7 +46919,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 240,
             "end": 204
           },
           "Biel/Bienne": {
@@ -46825,7 +46999,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 231,
+            "end": 235
+          },
           "Biel/Bienne": {
             "start": 166,
             "end": 173
@@ -46904,7 +47081,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 235,
+            "end": 241
+          },
           "Biel/Bienne": {
             "start": 199,
             "end": 207
@@ -46983,7 +47163,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": 175,
             "end": 175
@@ -47061,7 +47244,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 255,
+            "end": 263
+          },
           "Biel/Bienne": {
             "start": 179,
             "end": 187
@@ -47140,7 +47326,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 260,
+            "end": 235
+          },
           "Biel/Bienne": {
             "start": 214,
             "end": 179
@@ -47219,7 +47408,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 340,
+            "end": 340
+          },
           "Biel/Bienne": {
             "start": 310,
             "end": 310
@@ -47297,7 +47489,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -47375,7 +47570,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 265,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": 269,
             "end": 244
@@ -47454,7 +47652,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 206,
+            "end": 208
+          },
           "Biel/Bienne": {
             "start": 172,
             "end": 168
@@ -47533,7 +47734,10 @@
           "VS"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 248,
+            "end": 248
+          },
           "Biel/Bienne": {
             "start": 172,
             "end": 172
@@ -47830,7 +48034,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 295,
+            "end": 295
+          },
           "Biel/Bienne": {
             "start": 293,
             "end": 293
@@ -47909,7 +48116,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 205,
+            "end": 192
+          },
           "Biel/Bienne": {
             "start": 179,
             "end": 150
@@ -47989,7 +48199,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 137,
             "end": 132
           },
           "Biel/Bienne": {
@@ -48069,7 +48279,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 209,
+            "end": 209
+          },
           "Biel/Bienne": {
             "start": 157,
             "end": 157
@@ -48147,7 +48360,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 163,
+            "end": 151
+          },
           "Biel/Bienne": {
             "start": 211,
             "end": 121
@@ -48226,7 +48442,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 120,
+            "end": 120
+          },
           "Biel/Bienne": {
             "start": 52,
             "end": 52
@@ -48305,7 +48524,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 94,
             "end": 88
           },
           "Biel/Bienne": {
@@ -48385,7 +48604,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 203,
+            "end": 202
+          },
           "Biel/Bienne": {
             "start": 172,
             "end": 171
@@ -48464,7 +48686,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 119,
+            "end": 119
+          },
           "Biel/Bienne": {
             "start": 83,
             "end": 83
@@ -48542,7 +48767,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 349,
+            "end": 349
+          },
           "Biel/Bienne": {
             "start": 347,
             "end": 347
@@ -48621,7 +48849,10 @@
           "VD"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 177,
+            "end": 177
+          },
           "Biel/Bienne": {
             "start": 166,
             "end": 166
@@ -48699,7 +48930,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 151,
+            "end": 151
+          },
           "Biel/Bienne": {
             "start": 121,
             "end": 121
@@ -48777,7 +49011,10 @@
           "FR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 114,
+            "end": 114
+          },
           "Biel/Bienne": {
             "start": 84,
             "end": 84
@@ -48857,7 +49094,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 121,
             "end": 153
           },
           "Biel/Bienne": {
@@ -48937,7 +49174,10 @@
           "NE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 137,
+            "end": 165
+          },
           "Biel/Bienne": {
             "start": 58,
             "end": 140
@@ -49016,7 +49256,10 @@
           "NE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 174,
+            "end": 135
+          },
           "Biel/Bienne": {
             "start": 99,
             "end": 59
@@ -49095,7 +49338,10 @@
           "NE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 121,
+            "end": 120
+          },
           "Biel/Bienne": {
             "start": 45,
             "end": 41
@@ -49174,7 +49420,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 160,
+            "end": 187
+          },
           "Biel/Bienne": {
             "start": 121,
             "end": 150
@@ -49252,7 +49501,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 368,
+            "end": 107
+          },
           "Biel/Bienne": {
             "start": 330,
             "end": 75
@@ -49331,7 +49583,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": 263,
             "end": 263
@@ -49410,7 +49665,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 304,
+            "end": 304
+          },
           "Biel/Bienne": {
             "start": 252,
             "end": 252
@@ -49488,7 +49746,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 215,
+            "end": 215
+          },
           "Biel/Bienne": {
             "start": 151,
             "end": 151
@@ -49566,7 +49827,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 242,
+            "end": 212
+          },
           "Biel/Bienne": {
             "start": 210,
             "end": 210
@@ -49645,7 +49909,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 134,
+            "end": 27
+          },
           "Biel/Bienne": {
             "start": 102,
             "end": 96
@@ -49724,7 +49991,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 122,
+            "end": 158
+          },
           "Biel/Bienne": {
             "start": 88,
             "end": 129
@@ -49803,7 +50073,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 122,
+            "end": 122
+          },
           "Biel/Bienne": {
             "start": 88,
             "end": 129
@@ -49882,7 +50155,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 212,
+            "end": 212
+          },
           "Biel/Bienne": {
             "start": 218,
             "end": 218
@@ -49960,7 +50236,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 158,
+            "end": 158
+          },
           "Biel/Bienne": {
             "start": 129,
             "end": 129
@@ -50038,7 +50317,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 168,
+            "end": 144
+          },
           "Biel/Bienne": {
             "start": 138,
             "end": 109
@@ -50117,7 +50399,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 139,
+            "end": 139
+          },
           "Biel/Bienne": {
             "start": 103,
             "end": 103
@@ -50196,7 +50481,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 184,
             "end": 152
           },
           "Biel/Bienne": {
@@ -50277,7 +50562,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 171,
+            "end": 92
+          },
           "Biel/Bienne": {
             "start": 161,
             "end": 113
@@ -50357,7 +50645,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 359,
             "end": 351
           },
           "Biel/Bienne": {
@@ -50437,7 +50725,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 154,
+            "end": 220
+          },
           "Biel/Bienne": {
             "start": 248,
             "end": 160
@@ -50516,7 +50807,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 201,
+            "end": 196
+          },
           "Biel/Bienne": {
             "start": 171,
             "end": 166
@@ -50595,7 +50889,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 199,
+            "end": 238
+          },
           "Biel/Bienne": {
             "start": 171,
             "end": 163
@@ -50743,7 +51040,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 134,
-            "end": null
+            "end": 149
           },
           "Biel/Bienne": {
             "start": 119,
@@ -50824,7 +51121,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 199,
+            "end": 199
+          },
           "Biel/Bienne": {
             "start": 169,
             "end": 169
@@ -50899,7 +51199,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 510
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 480
@@ -50973,7 +51276,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 218,
+            "end": 201
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 216
@@ -51048,7 +51354,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 150,
+            "end": 198
+          },
           "Biel/Bienne": {
             "start": 120,
             "end": 166
@@ -51123,7 +51432,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 83,
+            "end": 101
+          },
           "Biel/Bienne": {
             "start": 51,
             "end": 69
@@ -51342,7 +51654,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 186,
             "end": 119
           },
           "Biel/Bienne": {
@@ -51419,7 +51731,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -51493,7 +51808,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 121,
+            "end": 118
+          },
           "Biel/Bienne": {
             "start": 43,
             "end": 40
@@ -51568,7 +51886,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 66,
+            "end": 66
+          },
           "Biel/Bienne": {
             "start": 49,
             "end": 49
@@ -51642,7 +51963,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 84,
+            "end": 81
+          },
           "Biel/Bienne": {
             "start": 37,
             "end": 34
@@ -51718,7 +52042,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 168,
             "end": 114
           },
           "Biel/Bienne": {
@@ -51795,7 +52119,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 220,
+            "end": 103
+          },
           "Biel/Bienne": {
             "start": 172,
             "end": 25
@@ -51870,7 +52197,10 @@
           "BE"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 118,
+            "end": 121
+          },
           "Biel/Bienne": {
             "start": 40,
             "end": 43
@@ -51945,7 +52275,10 @@
           "JU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 51,
+            "end": 71
+          },
           "Biel/Bienne": {
             "start": 54,
             "end": 62
@@ -52021,7 +52354,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 65,
             "end": 97
           },
           "Biel/Bienne": {
@@ -52098,7 +52431,10 @@
           "JU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 62,
+            "end": 62
+          },
           "Biel/Bienne": {
             "start": 72,
             "end": 72
@@ -52172,7 +52508,10 @@
           "JU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 104,
+            "end": 104
+          },
           "Biel/Bienne": {
             "start": 87,
             "end": 87
@@ -52246,7 +52585,10 @@
           "JU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 115,
+            "end": 115
+          },
           "Biel/Bienne": {
             "start": 64,
             "end": 64
@@ -52320,7 +52662,10 @@
           "JU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 133,
+            "end": 115
+          },
           "Biel/Bienne": {
             "start": 55,
             "end": 64
@@ -52397,7 +52742,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 61,
             "end": 114
           },
           "Biel/Bienne": {
@@ -52474,7 +52819,10 @@
           "BL"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 17,
+            "end": 54
+          },
           "Biel/Bienne": {
             "start": 79,
             "end": 112
@@ -52550,7 +52898,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 62,
+            "end": 62
+          },
           "Biel/Bienne": {
             "start": 120,
             "end": 120
@@ -52624,7 +52975,10 @@
           "BL"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 38,
+            "end": 43
+          },
           "Biel/Bienne": {
             "start": 66,
             "end": 102
@@ -52700,7 +53054,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 57,
+            "end": 57
+          },
           "Biel/Bienne": {
             "start": 58,
             "end": 58
@@ -52839,7 +53196,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 79,
-            "end": null
+            "end": 58
           },
           "Biel/Bienne": {
             "start": 46,
@@ -52917,7 +53274,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 87,
             "end": 79
           },
           "Biel/Bienne": {
@@ -52995,7 +53352,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 55,
             "end": 33
           },
           "Biel/Bienne": {
@@ -53072,7 +53429,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 84,
+            "end": 226
+          },
           "Biel/Bienne": {
             "start": 67,
             "end": 10
@@ -53147,7 +53507,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 100,
+            "end": 100
+          },
           "Biel/Bienne": {
             "start": 39,
             "end": 39
@@ -53221,7 +53584,10 @@
           "LU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 106,
+            "end": 75
+          },
           "Biel/Bienne": {
             "start": 127,
             "end": 96
@@ -53296,7 +53662,10 @@
           "LU"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 130,
+            "end": 134
+          },
           "Biel/Bienne": {
             "start": 138,
             "end": 142
@@ -53372,7 +53741,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 115,
+            "end": 115
+          },
           "Biel/Bienne": {
             "start": 109,
             "end": 109
@@ -53447,7 +53819,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 137,
             "end": 86
           },
           "Biel/Bienne": {
@@ -53526,7 +53898,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 139,
             "end": 136
           },
           "Biel/Bienne": {
@@ -53603,7 +53975,10 @@
           "NW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 125,
+            "end": 135
+          },
           "Biel/Bienne": {
             "start": 133,
             "end": 246
@@ -53680,7 +54055,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 149,
             "end": 86
           },
           "Biel/Bienne": {
@@ -53822,7 +54197,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 86,
-            "end": null
+            "end": 103
           },
           "Biel/Bienne": {
             "start": 105,
@@ -53900,7 +54275,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 102,
+            "end": 119
+          },
           "Biel/Bienne": {
             "start": 99,
             "end": 125
@@ -53976,7 +54354,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 176,
+            "end": 177
+          },
           "Biel/Bienne": {
             "start": 239,
             "end": 236
@@ -54053,7 +54434,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 165
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 174
@@ -54128,7 +54512,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 177,
+            "end": 139
+          },
           "Biel/Bienne": {
             "start": 168,
             "end": 141
@@ -54203,7 +54590,10 @@
           "OW"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -54277,7 +54667,10 @@
           "UR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 141,
+            "end": 245
+          },
           "Biel/Bienne": {
             "start": 160,
             "end": 264
@@ -54351,7 +54744,10 @@
           "UR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -54425,7 +54821,10 @@
           "UR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 182,
+            "end": 173
+          },
           "Biel/Bienne": {
             "start": 287,
             "end": 192
@@ -54500,7 +54899,10 @@
           "SH"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 101,
+            "end": 101
+          },
           "Biel/Bienne": {
             "start": 21,
             "end": 21
@@ -54574,7 +54976,10 @@
           "UR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": 141
+          },
           "Biel/Bienne": {
             "start": null,
             "end": 160
@@ -54715,7 +55120,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 428,
-            "end": null
+            "end": 137
           },
           "Biel/Bienne": {
             "start": 233,
@@ -54792,7 +55197,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 247,
+            "end": 234
+          },
           "Biel/Bienne": {
             "start": 249,
             "end": 268
@@ -54867,7 +55275,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 207,
+            "end": 207
+          },
           "Biel/Bienne": {
             "start": 226,
             "end": 226
@@ -54941,7 +55352,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 294,
+            "end": 308
+          },
           "Biel/Bienne": {
             "start": 262,
             "end": 276
@@ -55016,7 +55430,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 252,
+            "end": 252
+          },
           "Biel/Bienne": {
             "start": 260,
             "end": 260
@@ -55090,7 +55507,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 196,
+            "end": 196
+          },
           "Biel/Bienne": {
             "start": 216,
             "end": 216
@@ -55164,7 +55584,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 183,
+            "end": 183
+          },
           "Biel/Bienne": {
             "start": 232,
             "end": 232
@@ -55238,7 +55661,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 179,
+            "end": 179
+          },
           "Biel/Bienne": {
             "start": 198,
             "end": 198
@@ -55313,7 +55739,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 238,
             "end": 218
           },
           "Biel/Bienne": {
@@ -55389,7 +55815,10 @@
           "TI"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 245,
+            "end": 218
+          },
           "Biel/Bienne": {
             "start": 280,
             "end": 237
@@ -56777,7 +57206,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -57287,7 +57719,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -57348,7 +57783,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -57639,7 +58077,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 323,
+            "end": 323
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -58137,7 +58578,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 296,
+            "end": 254
+          },
           "Biel/Bienne": {
             "start": 316,
             "end": 291
@@ -59745,7 +60189,10 @@
           "GR"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -61215,7 +61662,10 @@
           "GL"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 382,
+            "end": 382
+          },
           "Biel/Bienne": {
             "start": 213,
             "end": 213
@@ -61749,7 +62199,10 @@
           "SZ"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 307,
+            "end": 307
+          },
           "Biel/Bienne": {
             "start": null,
             "end": null
@@ -62993,7 +63446,7 @@
         "sbb_times": {
           "Basel SBB": {
             "start": 172,
-            "end": null
+            "end": 194
           },
           "Biel/Bienne": {
             "start": 252,
@@ -67250,7 +67703,7 @@
         ],
         "sbb_times": {
           "Basel SBB": {
-            "start": null,
+            "start": 155,
             "end": 128
           },
           "Biel/Bienne": {
@@ -80751,7 +81204,10 @@
           "SO"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": 13,
+            "end": 13
+          },
           "Biel/Bienne": {
             "start": 77,
             "end": 77
@@ -85649,7 +86105,10 @@
           "BL"
         ],
         "sbb_times": {
-          "Basel SBB": {},
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          },
           "Biel/Bienne": {
             "start": 67,
             "end": 67
@@ -85948,7 +86407,12 @@
         "description": "The West Highland Way starts from Milngavie town centre where you can stock up on last minute supplies and get your bearings before heading off towards Mugdock Country Park on the first leg of your West Highland Way adventure.\n\nMilngavie has a direct train link to Glasgow city centre and you can also return here from Fort William at the end of the journey. Take a look at the section on getting to & from the route.\n\nThe journey from Milngavie to Drymen is a good warm up for the rest of the route. It is a relatively flat introduction to the diverse landscapes you will encounter during the coming 96 miles. Some smaller lochs and rivers accompany you along the Way as views open up to reveal the highland landscape beyond Drymen.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_slug": "milngavie-to-drymen"
       },
       {
@@ -85964,7 +86428,12 @@
         "description": "On leaving Drymen, you rejoin the West Highland Way as it veers away from the A811 and towards Conic Hill.  The view from Conic Hill is world class, and your first taste of the epic landscapes you will experience on the West Highland Way.\n\nBelow you, stretching across the world famous Loch Lomond, are a chain of islands that mark the highland boundary fault, the literal threshold between the lowlands and the highlands of Scotland.\n\nAfter tearing yourself away from the views of Loch Lomond you descend into the tiny village of Balmaha where you can enjoy a hearty meal and refreshments, or learn about the area in the National Park Visitor Centre .",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_slug": "drymen-to-rowardennan"
       },
       {
@@ -85980,7 +86449,12 @@
         "description": "This section takes in the northern, more remote section of Loch Lomond where the waters plunge to a depth of 620 feet. ** Please note: The terrain is challenging, particularly north of Inversnaid, but the sense of wildness and soaring mountains are worth the extra care and attention needed. Also, during and immediately after heavy rainfall, some burn crossings in this section may be impassable. Consider waiting until flash flooding has subsided before continuing and keep an eye on the weather.\n\nA highlight of this section is the spectacular waterfall at Inversnaid. West Highland Way walkers can get up close as the route takes a footbridge over the waterfall as it cascades down into Loch Lomond.\n\nThe loch narrows towards its northern tip meaning that West Highland Way walkers can easily take advantage of accommodation and services on both sides of the loch. From Inversnaid there are regular waterbus services to Tarbet and Inveruglas on the western shore (look out for the iconic viewpoint that sits atop the rocks of Inveruglas). For those with  accommodation at Ardlui, further north, raise the marker buoy at the pier just south of Ardleish. This will signal that you are waiting for the ferry.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_slug": "rowardennan-to-inverarnan"
       },
       {
@@ -85996,7 +86470,12 @@
         "description": "Having immersed yourself in the surrounds of Loch Lomond, you will now enter a different landscape.  One of soaring mountains and gentle glen walking.\n\nFollowing the River Falloch you will catch glimpses of the cascades of the Falls of Falloch before reaching the halfway point, Crianlarich. Although the Way skirts past the village, there is a spur path that takes you into Crianlarich for refreshments, services or accommodation.\n\nOnwards the surrounding hills shepherd you towards Tyndrum initially following the River Fillan across the valley floor. At Kirkton Farm you’ll come across the ruins of St Fillan’s Priory and a graveyard, before you join the River Cononish into Tyndrum.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_slug": "inverarnan-to-tyndrum"
       },
       {
@@ -86012,7 +86491,12 @@
         "description": "Before setting off from Tyndrum it is worth remembering that this is the last chance to stock up on any necessities – there are no more shops until Kinlochleven, 28 miles further up the Way!\n\nThis section of the route offers some up close and personal views of the surrounding mountains. Soon after leaving Tyndrum you will skirt the steep sides of Beinn Odhar and the pyramid of Beinn Dorain sits ahead, a companion all the way across the floor of the glen until you reach Bridge of Orchy.\n\nThe railway will peel off to the right and you’ll see another viaduct showcasing the engineering skills of the West Highland Railway Line.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_slug": "tyndrum-to-inveroran"
       },
       {
@@ -86028,7 +86512,12 @@
         "description": "From Forest Lodge, the path slowly rises up onto the edges of Rannoch Moor. This is a wild and remote section of the West Highland Way and one of the last great wildernesses of Europe. On a good day this area offers relatively straightforward walking but if the weather isn’t favourable, ensure you are wrapped up from the elements as it may be tough going across exposed ground.\n\nBa Bridge is halfway across the moor and an obvious rest point to take in the views. It can be bleak and beautiful at the same time depending on the conditions! A short distance after this on your left, the ruins of Ba cottage may offer some slight shelter or a lovely spot for lunch.\n\nThe undulating old military road eventually brings your march past the Glencoe Ski Centre, Black Rock Cottage and within view of one of Scotland’s most photographed mountains, Buachaille Etive Mor.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 122
+          }
+        },
         "_slug": "inveroran-to-kingshouse"
       },
       {
@@ -86044,7 +86533,12 @@
         "description": "Leaving from Kingshouse brings you face to face with the imposing sight of Buachaille Etive Mor, one of Scotland’s most famous Munros.\n\nThe mountain’s name aptly translates to The Great Herdsman of Etive, sitting at the entrance to Glen Etive on the left and the scene of the James Bond film Skyfall, with the historic Glen Coe on the right; the scene of the massacre of Clan MacDonald in 1692.\n\nYou’ll make your way towards Altnafeadh close to the foot (and starting point!) of Buachaille Etive Mor, before turning sharply right for the Devil’s Staircase. This zig-zag climb will take you up to the highest point of the West Highland Way at 550m and marked by a cairn, with breathtaking views back to ‘The Buachaille’ and northwards towards the Mamores mountain range.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 122,
+            "end": null
+          }
+        },
         "_slug": "kingshouse-to-kinlochleven"
       },
       {
@@ -86060,7 +86554,12 @@
         "description": "This last section begins with a steep climb out of Kinlochleven, eventually relenting and giving you superb views down Loch Leven and back to Kinlochleven.\n\nAhead of you is Lairigmor (the great pass) which provides easy walking between steep and grand mountains. The path follows the glen as it bends to the north, reaching woodland before heading towards Glen Nevis.\n\nThe Way continues through forestry plantations while Britain’s highest mountain Ben Nevis comes into view. There is plenty opportunity to climb this from the valley floor should you wish! Before the last section and descent to Fort William, you could also make a small detour and visit the remains of Dun Deardail, an Iron Age fort located in Glen Nevis.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 158
+          }
+        },
         "_slug": "kinlochleven-to-fort-william"
       }
     ]
@@ -86096,6 +86595,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 136
@@ -86119,6 +86622,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86146,6 +86653,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 335
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 330
           }
         },
         "_walk_id": 138
@@ -86170,6 +86681,10 @@
           },
           "Biel/Bienne": {
             "start": 335,
+            "end": null
+          },
+          "Basel SBB": {
+            "start": 330,
             "end": null
           }
         },
@@ -86196,6 +86711,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 91
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 106
           }
         },
         "_walk_id": 140
@@ -86221,6 +86740,10 @@
           "Biel/Bienne": {
             "start": 91,
             "end": null
+          },
+          "Basel SBB": {
+            "start": 106,
+            "end": null
           }
         },
         "_walk_id": 189
@@ -86244,6 +86767,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86271,6 +86798,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 143
@@ -86294,6 +86825,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86321,6 +86856,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 68
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 99
           }
         },
         "_walk_id": 145
@@ -86345,6 +86884,10 @@
           },
           "Biel/Bienne": {
             "start": 68,
+            "end": null
+          },
+          "Basel SBB": {
+            "start": 99,
             "end": null
           }
         },
@@ -86371,6 +86914,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 72
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 102
           }
         },
         "_walk_id": 147
@@ -86396,6 +86943,10 @@
           "Biel/Bienne": {
             "start": 72,
             "end": 365
+          },
+          "Basel SBB": {
+            "start": 102,
+            "end": 250
           }
         },
         "_walk_id": 148
@@ -86421,6 +86972,10 @@
           "Biel/Bienne": {
             "start": 365,
             "end": null
+          },
+          "Basel SBB": {
+            "start": 250,
+            "end": null
           }
         },
         "_walk_id": 149
@@ -86444,6 +86999,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86471,6 +87030,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 151
@@ -86494,6 +87057,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86521,6 +87088,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 153
@@ -86546,6 +87117,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 127
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 103
           }
         },
         "_walk_id": 154
@@ -86571,6 +87146,10 @@
           "Biel/Bienne": {
             "start": 127,
             "end": 361
+          },
+          "Basel SBB": {
+            "start": 103,
+            "end": 213
           }
         },
         "_walk_id": 155
@@ -86596,6 +87175,10 @@
           "Biel/Bienne": {
             "start": 361,
             "end": 87
+          },
+          "Basel SBB": {
+            "start": 213,
+            "end": 59
           }
         },
         "_walk_id": 156
@@ -86621,6 +87204,10 @@
           "Biel/Bienne": {
             "start": 87,
             "end": null
+          },
+          "Basel SBB": {
+            "start": 59,
+            "end": null
           }
         },
         "_walk_id": 157
@@ -86644,6 +87231,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86671,6 +87262,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 159
@@ -86694,6 +87289,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86721,6 +87320,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 161
@@ -86744,6 +87347,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86771,6 +87378,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 163
@@ -86794,6 +87405,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86821,6 +87436,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 116
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 195
           }
         },
         "_walk_id": 165
@@ -86845,6 +87464,10 @@
           },
           "Biel/Bienne": {
             "start": 116,
+            "end": null
+          },
+          "Basel SBB": {
+            "start": 195,
             "end": null
           }
         },
@@ -86871,6 +87494,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": 87
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": 67
           }
         },
         "_walk_id": 167
@@ -86896,6 +87523,10 @@
           "Biel/Bienne": {
             "start": 87,
             "end": null
+          },
+          "Basel SBB": {
+            "start": 67,
+            "end": null
           }
         },
         "_walk_id": 168
@@ -86919,6 +87550,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86946,6 +87581,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 170
@@ -86969,6 +87608,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -86996,6 +87639,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 172
@@ -87019,6 +87666,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87046,6 +87697,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 174
@@ -87069,6 +87724,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87096,6 +87755,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 176
@@ -87119,6 +87782,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87146,6 +87813,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 178
@@ -87169,6 +87840,10 @@
             "end": null
           },
           "Biel/Bienne": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87196,6 +87871,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 180
@@ -87221,6 +87900,10 @@
           "Biel/Bienne": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 181
@@ -87240,6 +87923,10 @@
         "arrival_stations": [],
         "sbb_times": {
           "Chur": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87263,6 +87950,10 @@
           "Chur": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 183
@@ -87282,6 +87973,10 @@
         "arrival_stations": [],
         "sbb_times": {
           "Chur": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87305,6 +88000,10 @@
           "Chur": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 185
@@ -87324,6 +88023,10 @@
         "arrival_stations": [],
         "sbb_times": {
           "Chur": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87347,6 +88050,10 @@
           "Chur": {
             "start": null,
             "end": null
+          },
+          "Basel SBB": {
+            "start": null,
+            "end": null
           }
         },
         "_walk_id": 187
@@ -87366,6 +88073,10 @@
         "arrival_stations": [],
         "sbb_times": {
           "Chur": {
+            "start": null,
+            "end": null
+          },
+          "Basel SBB": {
             "start": null,
             "end": null
           }
@@ -87397,7 +88108,12 @@
         "description": "Offa’s Dyke Path starts in England overlooking the Severn estuary which is designated as a Maritime Natural Area. The estuary has the second highest tidal range in the world caused by the five rivers that feed the estuary and its funnel shape. The Dyke itself is first met at the very start of the Trail, close to Sedbury Cliff. The Trail passes to the east of Chepstow with views of Chepstow Castle, the oldest surviving post Roman fortification in Britain. From here the Trail continues its journey north on the eastern side of the River Wye high on the tree lined escarpment with a number of classic viewpoints, one of the most iconic being the view of Tintern Abbey from Devil’s Pulpit. The Trail makes its first of many journeys across the border into Wales at Redbrook and continues on to the viewpoint at The Kymin, with its 17 th century banqueting hall and naval temple. This section of the Trail finishes in Monmouth, a Welsh border town situated at the confluence of the Rivers Wye, Monnow and Trothy and perhaps best known as the birthplace of Henry V. One of the town’s best known landmarks is the 13 th century Monnow Bridge, the only remaining Medieval fortified bridge in Great Britain, which the Trail passes under.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 2,
@@ -87412,7 +88128,12 @@
         "description": "This section crosses the gently undulating and very peaceful farmland of Monmouthshire. Leaving behind the River Wye you are now joined by its tributaries, the rivers Monnow and Trothy. This area is mainly sheep country but on route you will also pass through orchards, now mainly supplying apples to the cider industry. The Dyke itself is nowhere to found along this section of the Trail but the area has a rich medieval history with ruined castles and abbey sites. The Trail passes right alongside White Castle, well worth a visit if you have an hour to spare, a Norman castle originally probably built by William Fitz Osbern and then greatly improved in the 13 th century by Hubert de Burgh. White Castle is one of 3 castles in the area, the others being Grosmont and Skenfrith, all three linked by the 16 mile Three Castles Walk.\n\nThe Trail also passes through the site of Abbey Grace Dieu. Founded in 1248 it was the last Cistercian house in Wales, nothing remains now except for a few grassy undulations. The route passes through the small villages of Llanfihangel Ystum Llywern, Llantilio Crosseny, White Castle and Llangattock Lingoed, all with churches that are well worth a brief visit. On the approach to Pandy there are great views of the Black Mountains including Hatterrall Ridge over which the next part of the Trail passes and Skirrid, sometimes known as Holy Mountain.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 77
+          }
+        }
       },
       {
         "stage_nr": 3,
@@ -87427,7 +88148,12 @@
         "description": "A steady climb from Pandy brings you to the first dramatic upland section of the Trail in the Black Mountains and the highest point of the route at 2300 ft (700m). This section straddling the national border on the Hatterrall Ridge lies within the Brecon Beacons National Park. Once the summit has been reached the Trail follows a well-defined and improved ridge walk for about 11 miles to Hay Bluff, with stunning views to either side. You have the Vale of Ewyas to one side and the Olchon Valley to the other with distant views of the Skirrid, Sugar Loaf and much more from different points along the ridge. Many walkers break the journey across the ridge with an overnight stay at either Llanthony Priory with its 11 th century Augustinian Priory or, on the other side of the ridge, Longtown with its 12 th century Norman motte-and-bailey fortification. The whole of this upland section is designated as a Site of Special Scientific Interest with various management regimes in place to improve its condition. The final descent brings you into Hay on Wye, famed for its numerous bookshops, the town also has the ruins of two Norman castles.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 77,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 4,
@@ -87442,7 +88168,12 @@
         "description": "This section starts off alongside the Wye, last seen at Monmouth, before passing through the rolling territory of the Powys – Herefordshire border. This area is well known for the diaries written by the Victorian country curate Francis Kilvert who wrote about life in the rural parishes with his observations on country life. The Trail passes through the small village of Newchurch – the church here is always open and welcomes walkers and you can help yourself to a cup of tea for a small donation. The Royal Oak in Gladestry also welcomes walkers and is well worth a stop before the final walk into Kington.  As a finale to the stage the Trail rises to over 400 metres on Hergest Ridge with dramatic 360 degree views. On a clear day Pen y Fan can be seen to the south, the Malverns to the east and the hills of Shropshire to the north. The summit of Hergest Ridge has an old racecourse which is exactly a mile around. This area was also the inspiration for Arthur Conan Doyle’s Hound of the Baskervilles and Mike Oldfield’s second album Hergest Ridge. The day finishes in the border market town of Kington, a very important livestock town being on the drovers route.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 367,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 5,
@@ -87457,7 +88188,12 @@
         "description": "As well as superb views from the remote hills this stage is notable for long stretches of well preserved Dyke before the Trail enters its ‘spiritual home’ – Knighton (Tref-y-Clawdd, meaning the town on the dyke in Welsh).\n\nOn leaving Kington the Trail passes over Bradnor Hill and its golf course, the highest in England. Soon after, on Rushock Hill, the Trail meets up with Offa’s Dyke again, which it parted company with 56 miles ago after leaving Lower Redbrook in the Wye Valley. From this point to Chirk Castle the Trail and Offa’s Dyke keep each other company for most of the journey. The Trail soon passes over the border again from Herefordshire into Powys, the county with the longest section of the route.\n\nOn route to Knighton the Trail passes through the Woodland Trust owned site of Granner Wood, which through careful management is being restored to broadleaf woodland. The Trail soon drops down to the River Lugg at Dolley Old Bridge with its many meanders. It is well worth stopping on the bridge to watch dippers and a glimpse of kingfishers if you are lucky. The next climb brings you up to Furrow and Hawthorn Hill. From here there are stunning views westwards into Radnorshire. One of Owain Glyndwr’s famous battle sites can also be seen from here where he fought the English at the Battle of Pilleth, with the square clump of trees that mark the burial site of the soldiers. The final descent brings you down into Knighton and almost the half way point on your journey and the home of the Offa’s Dyke Centre.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 6,
@@ -87472,7 +88208,12 @@
         "description": "This ‘switchback’ section is generally reckoned to be the toughest on the Trail as it rises and falls through the Shropshire Hills Area of Outstanding Natural Beauty. However the views and sense of tranquility make the effort well worthwhile. This section also has some of the best preserved sections of Offa’s Dyke that can be found on Llanfair Hill at the point where the Jack Mytton Way crosses the Trail.\n\nJust above Newcastle on Clun you are at the true midpoint of the Trail, with its midway marker, a good photo opportunity for all walkers. At Hergan where there is what seems a natural break in the Dyke, the Shropshire Way joins the Trail. This route will be met on a number of occasions over the coming days as you head north. Another trail to cross paths with Offa’s Dyke Path on this section is Wild Edric’s Way, named after a Saxon nobleman who led a number of guerrilla wars against the Normans in the middle marches.\n\nThere are very few villages on this section but a number of hidden gems await the walker, one of these is Churchtown – at the foot of a narrow valley you find the church but there’s definitely no sign of a town.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 7,
@@ -87487,7 +88228,12 @@
         "description": "There is ample opportunity to see the Dyke itself as it is followed across fairly flat but very pleasant terrain for most of this section. The Dyke and Trail here are also still on the true national boundary – as you cross to and fro over the border there are a number of occasions where you can have one foot in England and one in Wales.\n\nIf you have time it is well worth the detour into Montgomery which is about three quarters of a mile through Lymore Park. Montgomery is an ideal for stop with various refreshments available and great views from the ruined castle above the town. Bunners, the hardware shop in the town is a gem and truly does have a bit of everything.\n\nTowards the end of the section the route climbs up to the earthworks of Beacon Hill fort, the site now owned by Clywd Powys Archaeological Trust. A picnic table has been installed by the Trust on the southern boundary which gives fabulous views to the east, south and west. The section finishes on a descent to Buttington Bridge where you meet the River Severn, from where it is a short walk into Welshpool.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 8,
@@ -87502,7 +88248,12 @@
         "description": "This is a transitional stage between the hills and almost flat throughout. The Trail follows stretches of the Montgomeryshire Canal and the River Severn before reaching the town of Llanymynech where the Wales – England border is the main street!\n\nThe main landmark viewed over the River Severn from the Trail is that of the Breidden Hills, with Rodney’s Pillar on its summit. The monument was built by the gentlemen of Montgomeryshire who supplied the oak wood from the area and shipped them down the River Severn to Bristol where Admiral Rodney’s naval fleet was built. Parts of this section are prone to flooding during very wet periods so checking for Environment Agency flood warnings is advisable.\n\nThe Trail joins the Montgomery Canal for a number of stretches. The canal was originally used to transport lime to improve the farmland of the Severn Valley. While in Llanymynech, a visit to the heritage area with its Hoffman Kiln, the best preserved of its kind, is well worth it.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 9,
@@ -87517,7 +88268,12 @@
         "description": "After the flattest section the Trail, it returns to rising and falling via Llanymynech Hill, Moelydd, Candy Woods and Oswestry Old Racecourse. There are some good stretches of the Dyke itself and industrial archaeologists will be interested by the mining areas around Nantmawr. The first ascent of the day brings you to the Llanymynech Quarry, now disused but previously a busy limestone quarry supplying the Hoffman Kiln. Sections of the quarry are now under the management of the Shropshire Wildlife Trust and the Montgomeryshire Wildlife Trust as local nature reserves. Both Trusts are now using sheep to graze the quarry’s grasslands which is increasing the botanical diversity and helping to provide better habitats for various butterflies.\n\nThe summit of Moelydd is one of the surprises of the day – the 360 degree views are stunning and a toposcope helps you identify the many hills you see.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 10,
@@ -87532,7 +88288,12 @@
         "description": "This varied section includes the last stretch of the Dyke followed before it and the Trail part ways for good on the edge of the Llangollen Canal. This area is now part of the Clywdian Range and Dee Valley AONB which the Trail will be in for the rest of its journey to Prestatyn Hillside. After Chirk Castle (which can be reached via a permissive route in the summer only) the Trail crosses the historic Pontcysyllte Aqueduct via an alternative / permissive route. The 127 feet aqueduct built by Thomas Telford in 1805 is now listed as a World Heritage Site and is the largest aqueduct in Britain. After leaving the village of Trevor the Trail traverses the spectacular Eglwyseg Crags near Llangollen as it passes by Dinas Bran on its way to the well named ‘World’s End’. The route then passes over the moorland before descending through Llandegla Forest. This area of moorland and forest holds the largest population of Black Grouse in Wales and the rectangular mown areas are cut annually for the males to show off to the females, known as ‘lekking’.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 11,
@@ -87547,7 +88308,12 @@
         "description": "From Llandegla the Trail continues its journey through the Clywdian Range and for much of the time you are following the heather clad ridge that is so prominent in this area. The Trail passes over or beside a string of iron / bronze age hillforts on its journey including Foel Fenlli, Moel Arthur and Penycloddiau. The key landmark on this section of the Trail is Jubilee Tower on the top of Moel Famau. The tower was built to celebrate the 50 th year of the reign of George 3 rd in 1810. This section affords magnificent views westwards across the Vale of Clwyd to Snowdonia and eastwards to the English border and beyond.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 12,
@@ -87562,7 +88328,12 @@
         "description": "The most northerly section of the Trail is still in the Clwydian Range. Although the hills are smaller now the views and tranquillity are undiminished until finally the Trail descends into Prestatyn and after a stroll up the high street, journey’s end by the sea.\n\nOne of the distinguishing features of this part of the Trail is the series of stone stiles to the north of Marian Cwm which are not found on any other parts of the trail.\n\nAs you proceed northwards the glimpses of the sea open up into full view with the ever growing off shore wind farm of Prestatyn and Rhyll filling the horizon. Fabulous views of Snowdonia and the North Wales coast are seen from Prestatyn Hillside before you descend into the town and onwards to the end of the Trail at Prestatyn beach.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       }
     ]
   },
@@ -87589,7 +88360,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 2,
@@ -87604,7 +88380,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 3,
@@ -87619,7 +88400,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 4,
@@ -87634,7 +88420,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 5,
@@ -87649,7 +88440,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 6,
@@ -87664,7 +88460,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 7,
@@ -87679,7 +88480,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 8,
@@ -87694,7 +88500,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 9,
@@ -87709,7 +88520,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 10,
@@ -87724,7 +88540,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 11,
@@ -87739,7 +88560,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       }
     ]
   },
@@ -87766,7 +88592,12 @@
         "description": "Calenzana is a large village situated near to Calvi, it is the departure point for the GR20 north.\n\nThe adventure starts with the Mediterranean at close proximity. The old mule track sets off on a gentle climb. You make your way slowly up to Bocca di U ravalente 616m. You cross through Sambuccu forest and will come to a promontory called Arghjova.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/between-calenzana-and-ortu-di-u-piobbu.html"
       },
       {
@@ -87782,7 +88613,12 @@
         "description": "If you have not already filled up your water bottle, a spring is situated close to the refuge, as you set out. Today, is particularly varied  incorporating  a mix of terrain. You have to cross an open area of shingle like terrain before entering a cirque area.  You cross into it at 1950m at Bocca di Pisciaghja and will progress around a semi circular route to arrive at a col opposite. You leave the cirque and head downhill steeply to arrive at your night stop Carrozzu .\n\nDo not undertake a walk without having a map with you.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/ortu-di-u-piobbu-to-carrozzu.html"
       },
       {
@@ -87798,7 +88634,12 @@
         "description": "Carozzu refuge , is where one of the scenes in the famous French film ‘Les Randonneurs’ was filmed. Shortly after you set out, you come to a swing bridge. This is a great spot for a swim. Once across, you head up river all the way to a small lake, called Muvrella. A steep narrow corridor comes out at Bocca Di Stagnu . You stay on the high ground until you see below the car park and buildings that comprise Ascu Stagnu .\n\nA steep descent that will take you a couple of hours leads to a forest track, where there is a row of unusual ski chalets bordering just above the ski station, your night stop.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 220
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/carrozzu-to-haut-asco.html"
       },
       {
@@ -87814,7 +88655,12 @@
         "description": "Since 2016 this Monte Cinto ridge  walk  replaces the famous cirque of solitude, which closed following a tragic accident in 2015.  The replacement walk is long and technical and takes you across the highest point of the GR which is 2607m.  Depending on the harshness of the winter, this point can stay snowed in through  June.  From the highpoint ‘ Point des Eboulis 2607m’ it is possible to branch off and do the Monte Cinto, which is the highest summit on the island 2706m.\n\nIf you are too early in the season, if the weather is bad, or you are simply not feeling up to it, you should check at your accommodation to see if the bus service is running. You can get a transfer to your next destination.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 220,
+            "end": 189
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/haut-asco-to-vallone.html"
       },
       {
@@ -87830,7 +88676,12 @@
         "description": "From Vallone, the trail flanks around through the pine trees until you cross a stream, the Rav de Foggiale. This is where the fun really starts! The ascension to the col above is a relentless pull uphill. There are a couple of short sections where you need to put your hands. There is no shade and it is hard work. Once at the Col de Foggiale you bear right, no more than about 500m away is  the refuge. This is the highest one on the trail, situated at 2000m the balcony is a great place to enjoy a drink and the view of the Golu valley below.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 189,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/vallone-to-castel-di-vergio.html"
       },
       {
@@ -87846,7 +88697,12 @@
         "description": "This is a long day but you can add in a night stop at Castel di Vergio if you want to break it up and take advantage of the many services on offer here.\n\nFrom Ciottulu you follow a ridge in a southerly direction. On a clear day the views are breathtaking, you can see the outline of the indented western coastline. You drop down off the ridge into the base of the valley and follow the river Golu downstream. Shortly after Radule shepherd’s cabin you veer off into the woods for a final two kilometers. The trail meets a road and the Castel di Vergio hotel, gite and camping is situated close by.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/castel-di-vergio-to-manganu.html"
       },
       {
@@ -87862,7 +88718,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/manganu-to-petra-piana.html"
       },
       {
@@ -87878,7 +88739,12 @@
         "description": "Advice and precautions: 2 possible routes for this stage, by the ridges or by the valley. The first is not recommended in case of wind, but also at the start of the season because you will be faced with snow-covered corridors.\n\nShort description of the stage: going down into an alder forest, you can stop at the sheepfolds of Ghjalgu to taste local cheese. Along the Manganellu, you will find another sheepfold which offers cheeses and cold meats, the sheepfold of Tolla. After crossing the footbridge, you begin the ascent in a beech forest to reach the refuge of Onda.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 191
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/from-petra-piana-to-onda.html"
       },
       {
@@ -87894,7 +88760,12 @@
         "description": "You re-trace your steps back up to the ridge and follow it all the way up to the Muratello breche , a lovely viewpoint. Here, you topple over to the Vizzavona side of the mountain. As you walk down, you will meet up with the path that comes off the Monte d’Oro summit.  Continue down following the Agnone river towards the famous Cascade des Anglais . If you are heading for accommodation at the col you can branch off towards the old fort marked ‘Anc Fort Rne’ on your maps.  If not, continue all the way down towards the railway station. At the bridge, there is a snack bar open in season.\n\nPoint of interest : Beautiful scenery that changes all the time.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 191,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/l-onda-to-vizzavona.html"
       },
       {
@@ -87910,7 +88781,12 @@
         "description": "From Vizzavona you make your way up to Bocca Palmente , the trail is well graded and zig zags  upwards through the woods, it is easy underfoot. Once across this high col the trail drops down before leveling out and staying on an easy undulating path for some time. You will pass two well kept shepherds’ cabins, Alzeta and Scarpaceghje, a last pull up through the Sambucco woods will bring you out just above the ski station.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/vizzavona-to-capanelle.html"
       },
       {
@@ -87926,7 +88802,12 @@
         "description": "From Capanelle , it will take about 30mins to arrive at the bergeries de Traggette. The walk to Col de Verde is relatively simple, you are on the lower flanks of the Monte Renoso, after 4 hours you will come to the D69 road and an accommodation called the Col de Verde gite where you can fill up with water and have some refreshment. This is a comfortable accommodation with a good restaurant.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 463
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/capanelle-to-col-de-verde.html"
       },
       {
@@ -87942,7 +88823,12 @@
         "description": "Today, is  difficult and exposed but  a truly magnificent, long ridge walk. From the refuge, it will take 2h00 to get up to the ridge line. You will skirt around the base of the Punta Cappella summit 2041m. For the next two hours you are on the ridge, it alternates between the East and West side. You will make your way to the Col de Laporo . This is a liason point with the ‘Mare a Mare’ path that gives access to Cozzano village or Catastaghju, if you need to come of the trail and drop down.\n\nAfter Punta Mozza you will be back up on the ridge and take in a series of summits, you chop and change to and from the different sides of the ridge and have to go around Monte Formicola before enjoying the last section of the ridge. Usciolu refuge is about 60m below the ridge line.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 463,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/col-de-verde-to-usciolu.html"
       },
       {
@@ -87958,7 +88844,12 @@
         "description": "This stage is relatively new, the trail used to  follow a ridge walk up to the Alcudine Summit . However, it now incorporates the lovely lush and unusual Cuscionu plateau .\n\nFrom the refuge you make your way back up onto the ridge. There is a long and scenic section that comes out at  Bocca de l’Agnone,which is the junction point with the old and new GR. The new path heads in a South Westerly direction onto the plateau. There are several bergeries dotted about the plateau that have been transformed into accommodations, notably Bassetta, Matalza and Croce .",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 158
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/usciolu-to-crocce.html"
       },
       {
@@ -87974,7 +88865,12 @@
         "description": "This stage is also relatively new. From Berg de Croce you soon gain height and pull up to Bocca di Chiralba (1743) Continue heading up to a ridge called the ‘Crete de Paiana Longa.’",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 158,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/crocce-to-asinau.html"
       },
       {
@@ -87990,7 +88886,12 @@
         "description": "From the refuge, drop down into the valley, cross the river and follow the path that runs parallel to the river. You will come to an intersection where there is normally a signpost. You can turn left and head uphill to do the ‘variante alpine.’  If you continue straight on, you will flank the mountain, going all around it’s base to the Col de Bavalla. In bad weather this must be the option you choose.\n\nAlternatively, you can turn left at the intersection and take what is known as the ‘Alpine Variant’ This high level route is more exposed and technical, there is a short section that involves using a chain over a steep slab of rock. It is scrambly and a lot harder than the trail that contours the mountain around the bottom. It comes out at Bavella.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/asinau-to-bavella.html"
       },
       {
@@ -88006,7 +88907,12 @@
         "description": "From Bavella, the road drops down from the col to the lower gite where there is a good spring. You head off through the pine trees and make your way  up to the col, called Foce Finosa. A  scenic trail will lead you to the small refuge of Paliri . It is well forested but with some steep and rugged bits. From Paliri onwards, it gets a lot more open and a lot hotter as you get to the lower slopes. This is the last stage and it’s mostly downhill all the way!\n\nChanging vegetation as you come out of the mountains. Granite rock gives way to sandy paths, the maquis is higher, lusher and greener  in these lower zones. You will pass by the Capeddu ruines and Bocca d’Usciolu , finishing up at 252m in the sleepy village of Conca .",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 187
+          }
+        },
         "_url": "https://www.le-gr20.fr/en/pages/profile-stages/bavella-to-conca.html"
       }
     ]
@@ -88034,7 +88940,12 @@
         "description": "A fairytale valley, a bombastic monument, a ruined mill – right at its outset the Malerweg trail shows its romantic side.\n\nContinuing on the Alte Lohmstrasse Road and then along the forest edge, the trail reaches the memorial stone marking  the crossing point of 51° N and 14°O coordinates. Querweg, Brückwaldweg and Schleifgrund are the names of the paths leading down again into a shady cool ravine, this time to Uttewalder Grund Gorge with its legendary rock gate. This is where the famous Romanticist painter Caspar David Friedrich spent an entire day in solitude. Cliff walls line the rest of the path to Wehlen Town where the remains of one of the oldest forts of the region can be discovered. In the town, a neatly arranged botanical garden and a small museum of local history can be visited as well as the church.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_stage_n": 1
       },
       {
@@ -88050,7 +88961,12 @@
         "description": "A touch of Bella Italia is floating about in Stadt Wehlen’s market square. The second trail stage starts here in a relaxed way.\n\nThe Malerweg Trail then follows the so-called “Fremdenweg” (“Strangers’ Trail”) up to the famous Bastei Rock. From there you descend along Basteiweg (Bastei Path) over several steps down to Kurort Rathen. A detour to this small town itself is recommendable for a visit to one of the numerous restaurants.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 268
+          }
+        },
         "_stage_n": 2
       },
       {
@@ -88066,7 +88982,12 @@
         "description": "The “Balcony of Saxon Switzerland“ with its famous panoramic view, an idyllic mountain village and a picturesque valley are the highlights of the Malerweg trail’s 3rd stage.\n\nThe third stage of the Malerweg Trail stretches over 14 kilometres and is marked by two considerable altitude changes.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 268,
+            "end": 110
+          }
+        },
         "_stage_n": 3
       },
       {
@@ -88082,7 +89003,12 @@
         "description": "A spectacular view, an artificial waterfall and the largest rock gate in Saxon Switzerland awaits hikers on the fourth stage of the Malerweg.\n\nFor the 4th Malerweg Trail stage, seven hours and fifteen minutes should be scheduled not including detours and breaks.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_stage_n": 4
       },
       {
@@ -88098,7 +89024,12 @@
         "description": "Here you will learn about the rich local heritage of historic mills, climb the second-highest mountain of Saxon Switzerland and experience Germany’s first eco-village.\n\nThe fifth Malerweg Trail stage is 13.6.km long. There are no catering facilities on the route.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_stage_n": 5
       },
       {
@@ -88114,7 +89045,12 @@
         "description": "Setting off into the realm of the table mountains: This is the motto of the 6th Malerweg Trail stage. Not just one, but two of these unusual elevations have to be covered during the hike of this section.\n\nThe sixth stage of the Malerweg Trail stretches over 17.3 kilometres along the left side of the Elbe River.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_stage_n": 6
       },
       {
@@ -88130,7 +89066,12 @@
         "description": "A rugged table mountain’s wild and romantic rocky scenery and Germany’s most beautiful mountain fortress are the highlights of the Malerweg Trail’s seventh stage.\n\nThe hike along the 7th Malerweg Trail stage is 16.6 km long without detours.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_stage_n": 7
       },
       {
@@ -88146,7 +89087,12 @@
         "description": "Stage 8 is once again a treat for hiking enthusiasts! The paths are not too challenging, the views are fantastic, the studio of a famous Impressionist artist waits for your visit and the final destination is a historic old town with romantic alleys and nooks.\n\nThe 8th stage of the Malerweg Trail is 13.8 kilometres long and a pleasant finish of the complete Malerweg Trail hiking tour.",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 203
+          }
+        },
         "_stage_n": 8
       }
     ]
@@ -88174,7 +89120,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 536,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-1-Le-Puy-en-Velay-Saint-Privat-d-Allier"
       },
       {
@@ -88190,7 +89141,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-2-Saint-Privat-d-Allier-Saugues"
       },
       {
@@ -88206,7 +89162,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 228
+          }
+        },
         "_url": "https://www.podiensis.com/etape-3-Saugues-Le-Sauvage"
       },
       {
@@ -88222,7 +89183,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 228,
+            "end": 631
+          }
+        },
         "_url": "https://www.podiensis.com/etape-4-Le-Sauvage-Aumont-Aubrac"
       },
       {
@@ -88238,7 +89204,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 631,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-5-Aumont-Aubrac-Nasbinals"
       },
       {
@@ -88254,7 +89225,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-6-Nasbinals-Saint-Chély-d-Aubrac"
       },
       {
@@ -88270,7 +89246,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-7-Saint-Chély-d-Aubrac-Espalion"
       },
       {
@@ -88286,7 +89267,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-8-Espalion-Estaing"
       },
       {
@@ -88302,7 +89288,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-9-Estaing-Golinhac"
       },
       {
@@ -88318,7 +89309,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 169
+          }
+        },
         "_url": "https://www.podiensis.com/etape-10-Golinhac-Conques"
       },
       {
@@ -88334,7 +89330,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 169,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-11-Conques-Livinhac-le-Haut"
       },
       {
@@ -88350,7 +89351,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 1120
+          }
+        },
         "_url": "https://www.podiensis.com/etape-12-Livinhac-le-Haut-Figeac"
       },
       {
@@ -88366,7 +89372,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 1120,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-13-Figeac-Cajarc"
       },
       {
@@ -88382,7 +89393,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-14-Cajarc-Limogne-en-Quercy"
       },
       {
@@ -88398,7 +89414,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 147
+          }
+        },
         "_url": "https://www.podiensis.com/etape-15-Limogne-en-Quercy-Mas-de-Vers"
       },
       {
@@ -88414,7 +89435,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 147,
+            "end": 95
+          }
+        },
         "_url": "https://www.podiensis.com/etape-16-Mas-de-Vers-Cahors"
       },
       {
@@ -88430,7 +89456,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 95,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-17-Cahors-Montcuq-en-Quercy-Blanc"
       },
       {
@@ -88446,7 +89477,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-18-Montcuq-en-Quercy-Blanc-Lauzerte"
       },
       {
@@ -88462,7 +89498,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-19-Lauzerte-Moissac"
       },
       {
@@ -88478,7 +89519,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-20-Moissac-Auvillar"
       },
       {
@@ -88494,7 +89540,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 23
+          }
+        },
         "_url": "https://www.podiensis.com/etape-21-Auvillar-Lectoure"
       },
       {
@@ -88510,7 +89561,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 23,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-22-Lectoure-La-Romieu"
       },
       {
@@ -88526,7 +89582,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 261
+          }
+        },
         "_url": "https://www.podiensis.com/etape-23-La-Romieu-Condom"
       },
       {
@@ -88542,7 +89603,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 261,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-24-Condom-Eauze"
       },
       {
@@ -88558,7 +89624,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-25-Eauze-Nogaro"
       },
       {
@@ -88574,7 +89645,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-26-Nogaro-Aire-sur-l-Adour"
       },
       {
@@ -88590,7 +89666,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-27-Aire-sur-l-Adour-Arzacq-Arraziguet"
       },
       {
@@ -88606,7 +89687,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-28-Arzacq-Arraziguet-Arthez-de-Béarn"
       },
       {
@@ -88622,7 +89708,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-29-Arthez-de-Béarn-Navarrenx"
       },
       {
@@ -88638,7 +89729,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 205
+          }
+        },
         "_url": "https://www.podiensis.com/etape-30-Navarrenx-Aroue"
       },
       {
@@ -88654,7 +89750,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 205,
+            "end": null
+          }
+        },
         "_url": "https://www.podiensis.com/etape-31-Aroue-Ostabat-Asme"
       },
       {
@@ -88670,7 +89771,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {},
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 197
+          }
+        },
         "_url": "https://www.podiensis.com/etape-32-Ostabat-Asme-St-Jean-Pied-de-Port"
       }
     ]
@@ -88698,7 +89804,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 536,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 2,
@@ -88713,7 +89824,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 3,
@@ -88728,7 +89844,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 1141
+          }
+        }
       },
       {
         "stage_nr": 4,
@@ -88743,7 +89864,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 1141,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 5,
@@ -88758,7 +89884,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 6,
@@ -88773,7 +89904,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 7,
@@ -88788,7 +89924,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 8,
@@ -88803,7 +89944,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 338
+          }
+        }
       },
       {
         "stage_nr": 9,
@@ -88818,7 +89964,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 338,
+            "end": 246
+          }
+        }
       },
       {
         "stage_nr": 10,
@@ -88833,7 +89984,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 246,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 11,
@@ -88848,7 +90004,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": null
+          }
+        }
       },
       {
         "stage_nr": 12,
@@ -88863,7 +90024,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": null,
+            "end": 147
+          }
+        }
       },
       {
         "stage_nr": 13,
@@ -88878,7 +90044,12 @@
         "description": "",
         "cantons": [],
         "arrival_stations": [],
-        "sbb_times": {}
+        "sbb_times": {
+          "Basel SBB": {
+            "start": 147,
+            "end": 787
+          }
+        }
       }
     ]
   }
