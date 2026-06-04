@@ -13,10 +13,11 @@ A hiking tracker for a small group of users, with three components:
 5. **`scraper_gr20.py`** — fetches the 16 stages of the GR20 (Corsica) from `le-gr20.fr`.
 6. **`scraper_av1.py`** — fetches the 11 stages of the Alta Via 1 (Dolomites) from `altavia1dolomites.com`.
 7. **`scraper_malerweg.py`** — fetches the 8 stages of the Malerweg (Saxon Switzerland) from `saechsische-schweiz.de`.
-8. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
-9. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
-10. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
-11. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
+8. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, and Spain. Data is © OpenStreetMap contributors, ODbL 1.0.
+9. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
+10. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
+11. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
+12. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
 ## Land value naming convention
 
@@ -30,6 +31,7 @@ The `land` field combines country code and activity: `{country}-{activity}` (e.g
 | `fr-hike`  | France      | Hiking   | GR20 (Corsica)       |
 | `it-hike`  | Italy       | Hiking   | Alta Via 1           |
 | `de-hike`  | Germany     | Hiking   | Malerweg             |
+| `es-hike`  | Spain       | Hiking   | GR11, Camino Primitivo, GR221 |
 
 ## Running the scraper
 
@@ -166,6 +168,61 @@ transport.opendata.ch enforces a **daily request quota**. When hit, the scraper 
 
 Progress is also saved every 25 stages during both SBB enrichment and arrival-station enrichment.
 
+### OSM trails (via Waymarked Trails)
+
+```bash
+pip3 install requests
+python3 scraper_osm.py                          # full run (all trails in catalog)
+python3 scraper_osm.py --limit 2               # smoke test: first 2 trails only
+python3 scraper_osm.py --only 4080347          # one trail by OSM relation ID
+python3 scraper_osm.py --refresh-trail 4080347 # re-fetch a specific trail (repeatable)
+python3 scraper_osm.py --skip-elevation        # skip OpenTopoData calls (faster)
+python3 scraper.py --import
+```
+
+Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` — the Waymarked Trails API exposes one-level subroutes as day stages. Trail data is © OpenStreetMap contributors, ODbL 1.0 (attribution link in `index.html` footer).
+
+**Trail catalog** (defined in `TRAILS` list in `scraper_osm.py`):
+
+| OSM ID    | `land`    | route_id | Trail                          |
+|-----------|-----------|----------|-------------------------------|
+| 4080347   | `uk`      | 4        | Pennine Way                   |
+| 8386002   | `fr-hike` | 4        | Haute Randonnée Pyrénéenne    |
+| 62900     | `de-hike` | 2        | Westweg                       |
+| 61185     | `de-hike` | 3        | Goldsteig-Südroute             |
+| 3300718   | `de-hike` | 4        | Goldsteig-Nordroute            |
+| 19995501  | `de-hike` | 5        | Heidschnuckenweg               |
+| 8865914   | `es-hike` | 1        | Senda Pirenaica (GR11)         |
+| 19298101  | `es-hike` | 2        | Camino Primitivo               |
+| 16358020  | `es-hike` | 3        | GR 221 Ruta de Pedra en Sec    |
+
+**Resumable:** re-running skips fully-cached trails (matched by `_osm_id` on each stage). `--refresh-trail <id>` re-fetches even if cached.
+
+**Elevation:** OpenTopoData SRTM30m, 1000 req/day quota (~1 call per stage). Detects quota exhaustion and saves progress. Stage variants (OSM names containing "Variante") and micro-stages (< 1 km by parent-reported length) are filtered automatically.
+
+**Adding a new trail:** look up the OSM relation ID on `hiking.waymarkedtrails.org`, check it has subroutes at one level (`/api/v1/details/relation/{id}` → `.route.main[].route_type == "route"`), add to `TRAILS` in `scraper_osm.py`, and add the new `smUrl` / `sourceLabel` entries in `index.html` if needed.
+
+**Deferred** (no viable day-stage subroutes at one level): GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~300 km), Rennsteig, Cleveland Way, Alta Via 2, GR54, Camino del Norte (5×~180 km).
+
+**Future candidates** (not yet probed — check OSM relation before adding):
+
+| Trail | Country | Notes |
+|---|---|---|
+| South Downs Way | `uk` | 100 km, Sussex |
+| Offa's Dyke (OSM) | `uk` | Already have ODP from nationaltrail.co.uk; skip unless replacing |
+| GR10 Pyrenean Traverse | `fr-hike` | French side of the Pyrenees; no clean parent relation identified yet |
+| Tour du Mont Blanc | `fr-hike` / `it-hike` | Circular; may not have day-stage subroutes |
+| Via Francigena | `it-hike` | Canterbury → Rome; check if Italian section has subroutes |
+| Lycian Way | (new `tr-hike`) | Turkey; needs new land value |
+| Camino Portugués | `es-hike` | Likely has subroutes; worth checking |
+| Camino Francés | `es-hike` | Most popular Camino; parent relation not yet identified |
+| E1 / E4 / E8 (European paths) | varies | Long multi-country paths; likely too coarse |
+| Rothaarsteig | `de-hike` | Sauerland ridge trail; check for subroutes |
+| Rheinsteig | `de-hike` | Rhine gorge trail; check for subroutes |
+| Rennsteig | `de-hike` | Currently deferred (flat relation — 0 subroutes) |
+
+To check a candidate: `curl "https://hiking.waymarkedtrails.org/api/v1/details/relation/{id}" | python3 -m json.tool | grep -E '"route_type"|"length"'` — look for 10–40 children each 5–40 km.
+
 ### Supabase credentials
 
 Stored in `.env` (gitignored — never commit this):
@@ -184,10 +241,10 @@ The `routes` and `stages` tables have a CHECK constraint on the `land` column. A
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike'));
 ```
 
 **One-time migration (Swiss land rename):** In 2026-05 the Swiss land values were renamed from `hike`/`cycle` to `ch-hike`/`ch-cycle`. The Supabase migration SQL is:
