@@ -13,7 +13,7 @@ A hiking tracker for a small group of users, with three components:
 5. **`scraper_gr20.py`** — fetches the 16 stages of the GR20 (Corsica) from `le-gr20.fr`.
 6. **`scraper_av1.py`** — fetches the 11 stages of the Alta Via 1 (Dolomites) from `altavia1dolomites.com`.
 7. **`scraper_malerweg.py`** — fetches the 8 stages of the Malerweg (Saxon Switzerland) from `saechsische-schweiz.de`.
-8. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, and Spain. Data is © OpenStreetMap contributors, ODbL 1.0.
+8. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, and Ireland. Data is © OpenStreetMap contributors, ODbL 1.0.
 9. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
 10. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
 11. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
@@ -27,11 +27,12 @@ The `land` field combines country code and activity: `{country}-{activity}` (e.g
 |------------|-------------|----------|----------------------|
 | `ch-hike`  | Switzerland | Hiking   | SchweizMobil hiking  |
 | `ch-cycle` | Switzerland | Cycling  | SchweizMobil cycling |
-| `uk`       | UK          | Hiking   | SWCP, WHW, ODP       |
-| `fr-hike`  | France      | Hiking   | GR20 (Corsica)       |
+| `uk`       | UK          | Hiking   | SWCP, WHW, ODP, Pennine Way, South Downs Way, Cotswold Way, Hadrian's Wall, Pembrokeshire, Cape Wrath |
+| `fr-hike`  | France      | Hiking   | GR20 (Corsica), GR65, GR70, HRP |
 | `it-hike`  | Italy       | Hiking   | Alta Via 1           |
-| `de-hike`  | Germany     | Hiking   | Malerweg             |
+| `de-hike`  | Germany     | Hiking   | Malerweg, Westweg, Goldsteig (N+S), Heidschnuckenweg |
 | `es-hike`  | Spain       | Hiking   | GR11, Camino Primitivo, GR221 |
+| `ie-hike`  | Ireland     | Hiking   | Wicklow Way, Kerry Way, Dingle Way, Causeway Coast, Beara Way, Western Way |
 
 ## Running the scraper
 
@@ -187,6 +188,11 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | OSM ID    | `land`    | route_id | Trail                          |
 |-----------|-----------|----------|-------------------------------|
 | 4080347   | `uk`      | 4        | Pennine Way                   |
+| 77976     | `uk`      | 5        | South Downs Way (single stage) |
+| 65239     | `uk`      | 6        | Cotswold Way (single stage)    |
+| 38791     | `uk`      | 7        | Hadrian's Wall Path (single stage) |
+| 77964     | `uk`      | 8        | Pembrokeshire Coast Path (single stage) |
+| 9327615   | `uk`      | 9        | Cape Wrath Trail (single stage) |
 | 8386002   | `fr-hike` | 4        | Haute Randonnée Pyrénéenne    |
 | 62900     | `de-hike` | 2        | Westweg                       |
 | 61185     | `de-hike` | 3        | Goldsteig-Südroute             |
@@ -195,6 +201,12 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | 8865914   | `es-hike` | 1        | Senda Pirenaica (GR11)         |
 | 19298101  | `es-hike` | 2        | Camino Primitivo               |
 | 16358020  | `es-hike` | 3        | GR 221 Ruta de Pedra en Sec    |
+| 2740      | `ie-hike` | 1        | Wicklow Way (single stage)     |
+| 183744    | `ie-hike` | 2        | The Kerry Way (single stage)   |
+| 21664     | `ie-hike` | 3        | The Dingle Way (single stage)  |
+| 1085994   | `ie-hike` | 4        | Causeway Coast Way (single stage) |
+| 2989585   | `ie-hike` | 5        | Beara Way (single stage)       |
+| 14702338  | `ie-hike` | 6        | Western Way (single stage)     |
 
 **Resumable:** re-running skips fully-cached trails (matched by `_osm_id` on each stage). `--refresh-trail <id>` re-fetches even if cached.
 
@@ -208,7 +220,6 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 
 | Trail | Country | Notes |
 |---|---|---|
-| South Downs Way | `uk` | 100 km, Sussex |
 | Offa's Dyke (OSM) | `uk` | Already have ODP from nationaltrail.co.uk; skip unless replacing |
 | GR10 Pyrenean Traverse | `fr-hike` | French side of the Pyrenees; no clean parent relation identified yet |
 | Tour du Mont Blanc | `fr-hike` / `it-hike` | Circular; may not have day-stage subroutes |
@@ -241,10 +252,10 @@ The `routes` and `stages` tables have a CHECK constraint on the `land` column. A
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike'));
 ```
 
 **One-time migration (Swiss land rename):** In 2026-05 the Swiss land values were renamed from `hike`/`cycle` to `ch-hike`/`ch-cycle`. The Supabase migration SQL is:

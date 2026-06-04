@@ -79,8 +79,14 @@ except ImportError:
 #   es-hike: 1+  (new land value — add to Supabase CHECK before --import)
 
 TRAILS = [
-    # UK
+    # UK — day-stage subroutes available
     (4080347,  "uk",      4, "national", "Pennine Way"),
+    # UK — flat in OSM; imported as single stage
+    (77976,    "uk",      5, "national", "South Downs Way"),
+    (65239,    "uk",      6, "national", "Cotswold Way"),
+    (38791,    "uk",      7, "national", "Hadrian's Wall Path"),
+    (77964,    "uk",      8, "national", "Pembrokeshire Coast Path"),
+    (9327615,  "uk",      9, "national", "Cape Wrath Trail"),
 
     # France
     (8386002,  "fr-hike", 4, "national", "Haute Randonnée Pyrénéenne"),
@@ -91,22 +97,28 @@ TRAILS = [
     (3300718,  "de-hike", 4, "national", "Goldsteig-Nordroute"),
     (19995501, "de-hike", 5, "national", "Heidschnuckenweg"),
 
-    # Spain (es-hike — new land; update Supabase CHECK constraint before --import)
+    # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
     (19298101, "es-hike", 2, "national", "Camino Primitivo"),
     (16358020, "es-hike", 3, "national", "GR 221 Ruta de Pedra en Sec"),
+
+    # Ireland (ie-hike — new land; update Supabase CHECK constraint before --import)
+    (2740,     "ie-hike", 1, "national", "Wicklow Way"),
+    (183744,   "ie-hike", 2, "national", "The Kerry Way"),
+    (21664,    "ie-hike", 3, "national", "The Dingle Way"),
+    (1085994,  "ie-hike", 4, "national", "Causeway Coast Way"),
+    (2989585,  "ie-hike", 5, "national", "Beara Way"),
+    (14702338, "ie-hike", 6, "national", "Western Way"),
 ]
 
-# Deferred — no viable day-stage subroutes at one level of descent:
-#   GR34 Chemin des Douaniers    (7790332)   — 23 sections × ~90 km (too coarse)
-#   GR5  Grande Traversée Alpes  (18308154)  — 15 sections × ~300 km (too coarse)
-#   Rennsteig                    (398874)    — 0 subroutes (flat relation)
-#   Cleveland Way                (4091304)   — 0 subroutes (flat relation)
-#   Alta Via 2                   (404914)    — 0 subroutes (flat relation)
-#   GR54 Tour de l'Oisans        (2909096)   — 0 subroutes (flat relation)
-#   Camino del Norte             (19001007)  — 5 sections × ~180 km (too coarse)
+# Deferred — level-2 descent still too coarse, no viable day stages:
+#   GR34 Chemin des Douaniers    (7790332)   — 2 sections × ~1000 km
+#   GR5  Grande Traversée Alpes  (18308154)  — 1 section × 293 km
+#   Camino del Norte             (19001007)  — 1 section × 69 km (level-2 shows no stages)
 #   GR10 Pyrenean Traverse       (France)    — no clean parent relation identified
-#   Camino Francés Spain                     — parent relation not identified
+#   Camino Francés               (2163573)   — flat, 1 child × 163 km
+#   Alta Via 2                   (404914)    — 0 subroutes (flat)
+#   GR54 Tour de l'Oisans        (2909096)   — flat
 
 # ---------------------------------------------------------------------------
 # Config
@@ -115,6 +127,7 @@ TRAILS = [
 API_BASE       = "https://hiking.waymarkedtrails.org/api/v1/details/relation"
 API_DELAY      = 1.8   # seconds between Waymarked Trails requests
 USER_AGENT     = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
+STAGE_MAX_KM   = 40    # route children longer than this trigger level-2 descent
 
 OPENTOPODATA   = "https://api.opentopodata.org/v1/srtm30m"
 ELEV_DELAY     = 1.5   # OpenTopoData rate limit: ≤1 req/sec; 1.5 s is safe
@@ -408,41 +421,65 @@ def build_stage(child_data, stage_nr, skip_elevation=False):
 def process_trail(osm_id, land, route_id, route_type, display_name,
                   refresh=False, skip_elevation=False):
     """
-    Fetch a trail's parent relation, iterate its subroute children, and
-    return (route_dict, deferred_reason).
+    Fetch a trail's parent relation and return (route_dict, deferred_reason).
 
-    deferred_reason is None on success, or a string explaining why the trail
-    was skipped (no subroutes, quota exhausted, etc.).
+    Stage resolution strategy (Option D):
+    1. Collect direct route-type children; filter micro-stages (< 1 km).
+    2. For children longer than STAGE_MAX_KM, attempt level-2 descent —
+       replace the coarse child with its own subroutes if they exist.
+    3. If no route-type children survive, fall back to a single-stage import
+       using the parent's total distance and geometry (flat relations like
+       most UK National Trails, Irish Way routes, etc.).
     """
     print(f"\n  Fetching parent relation {osm_id}: {display_name} ...")
     parent = fetch_relation(osm_id, display_name)
     if not parent:
         return None, "parent relation fetch failed"
 
+    # Collect direct route-type children; filter micro-stages
     children = [
         c for c in parent.get("route", {}).get("main", [])
         if c.get("route_type") == "route"
     ]
-    if not children:
-        return None, f"no subroute children at one level of descent (flat relation)"
-
-    # Pre-filter micro-stages (< 1 km) using the parent-reported length
     children = [c for c in children if not (c.get("length") and c.get("length") < 1000)]
-    if not children:
-        return None, "no subroute children after filtering micro-stages"
 
-    print(f"  → {len(children)} candidate stages")
+    # Level-2 descent: for coarse children attempt to use their subroutes
+    if children:
+        expanded = []
+        for c in children:
+            if (c.get("length") or 0) > STAGE_MAX_KM * 1000:
+                cid = c.get("id")
+                ckm = (c.get("length", 0)) / 1000
+                print(f"  ↳ child {cid} is {ckm:.0f} km — trying level-2...", end=" ", flush=True)
+                sub = fetch_relation(cid)
+                if sub:
+                    grandchildren = [
+                        gc for gc in sub.get("route", {}).get("main", [])
+                        if gc.get("route_type") == "route"
+                        and not (gc.get("length") and gc.get("length") < 1000)
+                    ]
+                    if grandchildren:
+                        print(f"{len(grandchildren)} stages found")
+                        expanded.extend(grandchildren)
+                        continue
+                    print("no day stages, keeping as section")
+                expanded.append(c)
+            else:
+                expanded.append(c)
+        children = expanded
 
-    # Build the route skeleton
+    single_stage = not children
+    if single_stage:
+        print(f"  → no subroute children — importing as single stage")
+    else:
+        print(f"  → {len(children)} candidate stages")
+
+    # Build route skeleton
     tags = parent.get("tags", {})
     total_m = parent.get("official_length") or parent.get("route", {}).get("length") or 0
-
-    # Try to get start/end from parent tags or first/last child names
-    # (will be overwritten after children are fetched)
     route_start = (tags.get("from") or "").strip()
     route_end   = (tags.get("to")   or "").strip()
-
-    route_desc = ""
+    route_desc  = ""
     for key in ("description", "description:en"):
         val = (tags.get(key) or "").strip()
         if len(val) > 30:
@@ -461,61 +498,94 @@ def process_trail(osm_id, land, route_id, route_type, display_name,
         "stages":      [],
     }
 
-    stages = []
+    stages    = []
     quota_hit = False
-    stage_nr = 0
 
-    for child_ref in children:
-        child_id = child_ref.get("id")
-        if not child_id:
-            print(f"  child has no id — skipping")
-            continue
+    if single_stage:
+        # Build one stage from the parent's geometry and metadata
+        route_node = parent.get("route", {})
+        length_m   = parent.get("official_length") or route_node.get("length")
+        dist_km    = round(length_m / 1000, 1) if length_m else None
+        start_name, end_name = parse_start_end(parent)
 
-        print(f"  fetching child {child_id}...", end=" ", flush=True)
-        child_data = fetch_relation(child_id)
-        if not child_data:
-            print("fetch failed, skipping")
-            continue
+        elev_up = elev_down = None
+        if not skip_elevation:
+            pts = sample_wgs84(route_node)
+            if pts:
+                result_up, result_down = fetch_elevation(pts)
+                if result_up == "QUOTA_EXHAUSTED":
+                    quota_hit = True
+                else:
+                    elev_up, elev_down = result_up, result_down
 
-        child_name = child_data.get("name", "")
+        elev_str = f"↑{elev_up}m ↓{elev_down}m" if elev_up is not None else "no elev"
+        print(f"  [  1] {start_name} → {end_name} ({dist_km} km, {elev_str})")
 
-        # Skip route variants — "Variante" standalone or as suffix (e.g. "Höhenvariante")
-        if re.search(r'variante', child_name, re.I):
-            print(f"skip (route variant: {child_name[:60]})")
-            continue
+        stages = [{
+            "stage_nr":         1,
+            "start_name":       start_name,
+            "end_name":         end_name,
+            "via":              None,
+            "dist_km":          dist_km,
+            "elev_up":          elev_up,
+            "elev_down":        elev_down,
+            "duration_hrs":     None,
+            "difficulty":       parse_difficulty(parent),
+            "description":      parse_description(parent),
+            "cantons":          [],
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_osm_id":          osm_id,   # parent ID as resume key
+        }]
 
-        stage_nr += 1
-        stage, hit = build_stage(child_data, stage_nr, skip_elevation=skip_elevation)
-        if hit:
-            quota_hit = True
+    else:
+        stage_nr = 0
 
-        stages.append(stage)
-        elev_str = (
-            f"↑{stage['elev_up']}m ↓{stage['elev_down']}m"
-            if stage.get("elev_up") is not None else "no elev"
-        )
-        print(
-            f"[{stage_nr:3d}] {stage['start_name']} → {stage['end_name']} "
-            f"({stage['dist_km']} km, {elev_str})"
-        )
+        for child_ref in children:
+            child_id = child_ref.get("id")
+            if not child_id:
+                continue
 
-        if quota_hit:
-            print("   OpenTopoData quota exhausted — stopping elevation calls.")
-            # Continue collecting other stage metadata but skip elevation henceforth
-            skip_elevation = True
-            quota_hit = False
+            print(f"  fetching child {child_id}...", end=" ", flush=True)
+            child_data = fetch_relation(child_id)
+            if not child_data:
+                print("fetch failed, skipping")
+                continue
+
+            child_name = child_data.get("name", "")
+
+            # Skip route variants — "Variante" standalone or as suffix (e.g. "Höhenvariante")
+            if re.search(r'variante', child_name, re.I):
+                print(f"skip (route variant: {child_name[:60]})")
+                continue
+
+            stage_nr += 1
+            stage, hit = build_stage(child_data, stage_nr, skip_elevation=skip_elevation)
+            if hit:
+                quota_hit = True
+
+            stages.append(stage)
+            elev_str = (
+                f"↑{stage['elev_up']}m ↓{stage['elev_down']}m"
+                if stage.get("elev_up") is not None else "no elev"
+            )
+            print(
+                f"[{stage_nr:3d}] {stage['start_name']} → {stage['end_name']} "
+                f"({stage['dist_km']} km, {elev_str})"
+            )
+
+            if quota_hit:
+                print("   OpenTopoData quota exhausted — stopping elevation calls.")
+                skip_elevation = True
+                quota_hit = False
 
     if not stages:
         return None, "all child fetches failed"
 
     route["stages"] = stages
-
-    # Derive start/end from first/last stage
     if stages:
         route["start"] = stages[0]["start_name"] or route_start
         route["end"]   = stages[-1]["end_name"]  or route_end
-
-    # Sum dist_km for total_km if not available from API
     if not route["total_km"]:
         total = sum(s["dist_km"] for s in stages if s.get("dist_km"))
         route["total_km"] = round(total, 1) or None

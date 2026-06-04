@@ -92736,5 +92736,441 @@
         "_osm_id": 10289403
       }
     ]
+  },
+  {
+    "route_id": 5,
+    "route_type": "national",
+    "land": "uk",
+    "name": "South Downs Way",
+    "description": "",
+    "start": "Winchester",
+    "end": "Eastbourne",
+    "total_km": 160.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Winchester",
+        "end_name": "Eastbourne",
+        "via": null,
+        "dist_km": 160.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "This is the national trail walking route, and differs from the cycling route in places",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 77976
+      }
+    ]
+  },
+  {
+    "route_id": 1,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "Wicklow Way",
+    "description": "",
+    "start": "Wicklow Way",
+    "end": "Wicklow Way",
+    "total_km": 129.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Wicklow Way",
+        "end_name": "Wicklow Way",
+        "via": null,
+        "dist_km": 129.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 2740
+      }
+    ]
+  },
+  {
+    "route_id": 6,
+    "route_type": "national",
+    "land": "uk",
+    "name": "Cotswold Way",
+    "description": "",
+    "start": "Chipping Campden",
+    "end": "Bath",
+    "total_km": 164.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Chipping Campden",
+        "end_name": "Bath",
+        "via": null,
+        "dist_km": 164.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 65239
+      }
+    ]
+  },
+  {
+    "route_id": 7,
+    "route_type": "national",
+    "land": "uk",
+    "name": "Hadrian's Wall Path",
+    "description": "",
+    "start": "Hadrian's Wall Path",
+    "end": "Hadrian's Wall Path",
+    "total_km": 134.5,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Hadrian's Wall Path",
+        "end_name": "Hadrian's Wall Path",
+        "via": null,
+        "dist_km": 134.5,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 38791
+      }
+    ]
+  },
+  {
+    "route_id": 8,
+    "route_type": "national",
+    "land": "uk",
+    "name": "Pembrokeshire Coast Path",
+    "description": "",
+    "start": "Pembrokeshire Coast Path main route",
+    "end": "Pembrokeshire Coast Path main route",
+    "total_km": 300.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Pembrokeshire Coast Path main route",
+        "end_name": "Pembrokeshire Coast Path main route",
+        "via": null,
+        "dist_km": 285.5,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 20279882
+      }
+    ]
+  },
+  {
+    "route_id": 9,
+    "route_type": "national",
+    "land": "uk",
+    "name": "Cape Wrath Trail",
+    "description": "",
+    "start": "Cape Wrath Trail (Fort William",
+    "end": "Cape Wrath)",
+    "total_km": 529.5,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Cape Wrath Trail (Fort William",
+        "end_name": "Glenfinnan → Morvich)",
+        "via": null,
+        "dist_km": 113.6,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 6334405
+      },
+      {
+        "stage_nr": 2,
+        "start_name": "Cape Wrath Trail (Fort William",
+        "end_name": "Invergarry → Morvich)",
+        "via": null,
+        "dist_km": 100.4,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9327614
+      },
+      {
+        "stage_nr": 3,
+        "start_name": "Cape Wrath Trail (Morvich",
+        "end_name": "Bendronaig)",
+        "via": null,
+        "dist_km": 25.4,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9331377
+      },
+      {
+        "stage_nr": 4,
+        "start_name": "Cape Wrath Trail (Bendronaig",
+        "end_name": "Craig → Kinlochewe)",
+        "via": null,
+        "dist_km": 33.1,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9331755
+      },
+      {
+        "stage_nr": 5,
+        "start_name": "Cape Wrath Trail (Bendronaig",
+        "end_name": "Strathcarron → Kinlochewe)",
+        "via": null,
+        "dist_km": 38.3,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9331992
+      },
+      {
+        "stage_nr": 6,
+        "start_name": "Cape Wrath Trail (Ullapool",
+        "end_name": "Loch an Daimh)",
+        "via": null,
+        "dist_km": 19.5,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9332711
+      },
+      {
+        "stage_nr": 7,
+        "start_name": "Cape Wrath Trail (Kinlochewe",
+        "end_name": "Inchnadamph)",
+        "via": null,
+        "dist_km": 113.1,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9332336
+      },
+      {
+        "stage_nr": 8,
+        "start_name": "Cape Wrath Trail (Inchnadamph",
+        "end_name": "Cape Wrath)",
+        "via": null,
+        "dist_km": 86.1,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 9333761
+      }
+    ]
+  },
+  {
+    "route_id": 2,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "The Kerry Way",
+    "description": "",
+    "start": "The Kerry Way",
+    "end": "The Kerry Way",
+    "total_km": 214.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "The Kerry Way",
+        "end_name": "The Kerry Way",
+        "via": null,
+        "dist_km": 214.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 183744
+      }
+    ]
+  },
+  {
+    "route_id": 3,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "The Dingle Way",
+    "description": "",
+    "start": "The Dingle Way",
+    "end": "The Dingle Way",
+    "total_km": 179.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "The Dingle Way",
+        "end_name": "The Dingle Way",
+        "via": null,
+        "dist_km": 179.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 21664
+      }
+    ]
+  },
+  {
+    "route_id": 4,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "Causeway Coast Way",
+    "description": "",
+    "start": "Causeway Coast Way",
+    "end": "Causeway Coast Way",
+    "total_km": 53.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Causeway Coast Way",
+        "end_name": "Causeway Coast Way",
+        "via": null,
+        "dist_km": 53.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 1085994
+      }
+    ]
+  },
+  {
+    "route_id": 5,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "Beara Way",
+    "description": "",
+    "start": "Beara Way",
+    "end": "Beara Way",
+    "total_km": 206.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Beara Way",
+        "end_name": "Beara Way",
+        "via": null,
+        "dist_km": 206.0,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 2989585
+      }
+    ]
+  },
+  {
+    "route_id": 6,
+    "route_type": "national",
+    "land": "ie-hike",
+    "name": "Western Way",
+    "description": "",
+    "start": "Western Way",
+    "end": "Mayo",
+    "total_km": 179.0,
+    "stages": [
+      {
+        "stage_nr": 1,
+        "start_name": "Western Way",
+        "end_name": "Galway",
+        "via": null,
+        "dist_km": 59.3,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 1828432
+      },
+      {
+        "stage_nr": 2,
+        "start_name": "Western Way",
+        "end_name": "Mayo",
+        "via": null,
+        "dist_km": 182.2,
+        "elev_up": null,
+        "elev_down": null,
+        "duration_hrs": null,
+        "difficulty": null,
+        "description": "",
+        "cantons": [],
+        "arrival_stations": [],
+        "sbb_times": {},
+        "_osm_id": 2974867
+      }
+    ]
   }
 ]

@@ -819,6 +819,7 @@
           <button class="land-pill-btn" data-country="de"  onclick="setCountry('de')">🇩🇪 Germany</button>
           <button class="land-pill-btn" data-country="it"  onclick="setCountry('it')">🇮🇹 Italy</button>
           <button class="land-pill-btn" data-country="es"  onclick="setCountry('es')">🇪🇸 Spain</button>
+          <button class="land-pill-btn" data-country="ie"  onclick="setCountry('ie')">🇮🇪 Ireland</button>
         </div>
         <!-- Activity row — hidden when country only has one activity -->
         <div id="activity-pills" class="land-pill" style="margin-top:6px">
@@ -1187,6 +1188,7 @@ const COUNTRIES = [
   { id: 'de', lands: ['de-hike'] },
   { id: 'it', lands: ['it-hike'] },
   { id: 'es', lands: ['es-hike'] },
+  { id: 'ie', lands: ['ie-hike'] },
 ];
 
 function activeLand() {
@@ -1227,7 +1229,16 @@ function smUrl(route, stageNr) {
       // ODP — single route description page (no individual stage URLs)
       return 'https://www.nationaltrail.co.uk/en_GB/trails/offas-dyke-path/route/';
     }
-    return '#';
+    // OSM-sourced UK trails — Waymarked Trails route page
+    const UK_OSM_URLS = {
+      4: 'https://hiking.waymarkedtrails.org/#route?id=4080347',
+      5: 'https://hiking.waymarkedtrails.org/#route?id=77976',
+      6: 'https://hiking.waymarkedtrails.org/#route?id=65239',
+      7: 'https://hiking.waymarkedtrails.org/#route?id=38791',
+      8: 'https://hiking.waymarkedtrails.org/#route?id=77964',
+      9: 'https://hiking.waymarkedtrails.org/#route?id=9327615',
+    };
+    return UK_OSM_URLS[route.route_id] || '#';
   }
   if (route.land === 'fr-hike') {
     const FR_HIKE_URLS = {
@@ -1256,6 +1267,17 @@ function smUrl(route, stageNr) {
     };
     return ES_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
+  if (route.land === 'ie-hike') {
+    const IE_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=2740',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=183744',
+      3: 'https://hiking.waymarkedtrails.org/#route?id=21664',
+      4: 'https://hiking.waymarkedtrails.org/#route?id=1085994',
+      5: 'https://hiking.waymarkedtrails.org/#route?id=2989585',
+      6: 'https://hiking.waymarkedtrails.org/#route?id=14702338',
+    };
+    return IE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
+  }
   const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
   const single = route.stages.length === 1;
@@ -1269,12 +1291,18 @@ const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina
 const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de' };
 const ES_HIKE_SOURCE_LABELS = {};
 function sourceLabel(route) {
-  if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'Trail';
+  if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'fr-hike') return FR_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'de-hike') return DE_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'es-hike') return ES_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
+  if (route.land === 'ie-hike') return 'waymarkedtrails.org';
   if (COUNTRY_SOURCE_LABELS[route.land]) return COUNTRY_SOURCE_LABELS[route.land];
   return 'SchweizMobil';
+}
+
+function waymarkedStageUrl(stage) {
+  if (!stage.osm_id) return null;
+  return `https://hiking.waymarkedtrails.org/#route?id=${stage.osm_id}`;
 }
 
 function updateSbbSlider() {
@@ -1398,6 +1426,7 @@ const VALID_DIFFS = {
   'de-hike':  new Set(['easy', 'moderate', 'difficult']),
   'it-hike':  new Set(['easy', 'moderate', 'difficult']),
   'es-hike':  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail']),
+  'ie-hike':  new Set(),
   // Aliases for backward compatibility
   hike:  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
   cycle: new Set(['easy', 'medium', 'difficult']),
@@ -1541,8 +1570,8 @@ function setCountry(c) {
   document.querySelectorAll('[data-country]').forEach(b => b.classList.toggle('active', b.dataset.country === c));
   document.querySelectorAll('[data-activity]').forEach(b => b.classList.toggle('active', b.dataset.activity === selectedActivity));
   // Update header
-  const labels = { ch: 'Swiss Trail Tracker', uk: 'UK Trail Tracker', fr: 'French Trail Tracker', de: 'German Trail Tracker', it: 'Italian Trail Tracker', es: 'Spanish Trail Tracker' };
-  const titles = { ch: 'Switzerland', uk: 'UK', fr: 'France', de: 'Germany', it: 'Italy', es: 'Spain' };
+  const labels = { ch: 'Swiss Trail Tracker', uk: 'UK Trail Tracker', fr: 'French Trail Tracker', de: 'German Trail Tracker', it: 'Italian Trail Tracker', es: 'Spanish Trail Tracker', ie: 'Irish Trail Tracker' };
+  const titles = { ch: 'Switzerland', uk: 'UK', fr: 'France', de: 'Germany', it: 'Italy', es: 'Spain', ie: 'Ireland' };
   document.getElementById('header-eyebrow').textContent = labels[c] || 'Trail Tracker';
   document.getElementById('header-title').textContent   = titles[c] || c.toUpperCase();
   document.body.dataset.land = activeLand();
@@ -1877,6 +1906,7 @@ function renderSurprise() {
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
     <div class="surprise-actions">
       <a href="${smLink}" target="_blank" rel="noopener" class="surprise-btn surprise-btn-primary">View on ${sourceLabel(r)} ↗</a>
+      ${(() => { const wUrl = waymarkedStageUrl(s); return (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="surprise-btn">Stage map ↗</a>` : ''; })()}
       <button class="surprise-btn" onclick="surpriseMe()">Try another</button>
       <button class="surprise-btn ${done ? 'surprise-btn-primary' : ''}" onclick="toggleStage('${key}')">${done ? '✓ Done — undo?' : 'Mark as done'}</button>
     </div>
@@ -1995,6 +2025,8 @@ function renderStages(route) {
     const wish  = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')">${wished?'♥':'♡'}</div>`;
     const sm    = `<a href="${smLink}" target="_blank" rel="noopener" class="sm-link" onclick="event.stopPropagation()">↗</a>`;
     const smBtn = smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">View on ${sourceLabel(route)} ↗</a>` : '';
+    const wUrl  = waymarkedStageUrl(stage);
+    const wBtn  = (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">Stage on waymarkedtrails.org ↗</a>` : '';
 
     // ── Done: compact row ──
     if (done) return `<div class="tl-item">
@@ -2027,7 +2059,7 @@ function renderStages(route) {
         ${badges}
         ${transport}
         <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
-          ${smBtn}${wish}
+          ${smBtn}${wBtn}${wish}
         </div>
         <button class="tl-done-btn" onclick="toggleStage('${key}')">✓ Mark as done</button>
       </div>
@@ -2043,7 +2075,7 @@ function renderStages(route) {
         ${badges}
         ${transport}
         <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
-          ${smBtn}${wish}
+          ${smBtn}${wBtn}${wish}
         </div>
         <button class="tl-done-btn" onclick="toggleStage('${key}')">✓ Mark as done</button>
       </div>
@@ -2059,7 +2091,7 @@ function renderStages(route) {
         ${badges}
         ${transport}
         <div style="display:flex;align-items:center;gap:8px;margin-top:0.6rem;flex-wrap:wrap">
-          ${smBtn}${wish}
+          ${smBtn}${wBtn}${wish}
         </div>
       </div>
     </div>`;
@@ -2163,6 +2195,7 @@ function renderFlatStage(stage) {
         ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
       </div>` : ''}
       ${smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">View on ${sourceLabel(r)} ↗</a>` : ''}
+      ${(() => { const wUrl = waymarkedStageUrl(stage); return (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">Stage on waymarkedtrails.org ↗</a>` : ''; })()}
       ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
       <textarea class="stage-note" rows="1" placeholder="Add a note…"
         oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
@@ -2287,6 +2320,7 @@ function renderDashboard() {
         <a href="${smUrl(r, s.stage_nr)}" target="_blank" rel="noopener" style="text-decoration:none">
           <button class="dash-next-up-btn dash-next-up-btn-secondary">↗ ${sourceLabel(r)}</button>
         </a>
+        ${(() => { const smL = smUrl(r, s.stage_nr); const wUrl = waymarkedStageUrl(s); return (wUrl && wUrl !== smL) ? `<a href="${wUrl}" target="_blank" rel="noopener" style="text-decoration:none"><button class="dash-next-up-btn dash-next-up-btn-secondary">↗ Stage map</button></a>` : ''; })()}
       </div>
     </div>`;
   })();
