@@ -204,6 +204,25 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 
 **Deferred** (no viable day-stage subroutes at one level): GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~300 km), Rennsteig, Cleveland Way, Alta Via 2, GR54, Camino del Norte (5×~180 km).
 
+**Future candidates** (not yet probed — check OSM relation before adding):
+
+| Trail | Country | Notes |
+|---|---|---|
+| South Downs Way | `uk` | 100 km, Sussex |
+| Offa's Dyke (OSM) | `uk` | Already have ODP from nationaltrail.co.uk; skip unless replacing |
+| GR10 Pyrenean Traverse | `fr-hike` | French side of the Pyrenees; no clean parent relation identified yet |
+| Tour du Mont Blanc | `fr-hike` / `it-hike` | Circular; may not have day-stage subroutes |
+| Via Francigena | `it-hike` | Canterbury → Rome; check if Italian section has subroutes |
+| Lycian Way | (new `tr-hike`) | Turkey; needs new land value |
+| Camino Portugués | `es-hike` | Likely has subroutes; worth checking |
+| Camino Francés | `es-hike` | Most popular Camino; parent relation not yet identified |
+| E1 / E4 / E8 (European paths) | varies | Long multi-country paths; likely too coarse |
+| Rothaarsteig | `de-hike` | Sauerland ridge trail; check for subroutes |
+| Rheinsteig | `de-hike` | Rhine gorge trail; check for subroutes |
+| Rennsteig | `de-hike` | Currently deferred (flat relation — 0 subroutes) |
+
+To check a candidate: `curl "https://hiking.waymarkedtrails.org/api/v1/details/relation/{id}" | python3 -m json.tool | grep -E '"route_type"|"length"'` — look for 10–40 children each 5–40 km.
+
 ### Supabase credentials
 
 Stored in `.env` (gitignored — never commit this):
