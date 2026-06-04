@@ -86,7 +86,24 @@
       "WebFetch(domain:www.saechsische-schweiz.de)",
       "WebFetch(domain:grfive.com)",
       "WebFetch(domain:altavia1dolomites.com)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(grep -E \"\\\\\\\\\\\\$\\\\{\\(stage|route|r|s\\)\\\\.\")",
+      "WebFetch(domain:simplemaps.com)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:martinjc.github.io)",
+      "Read(//Users/jamie/.claude/skills/**)",
+      "Read(//Users/jamie/.claude/**)",
+      "Bash(git -C /Users/jamie/hiking-tracker status)",
+      "Bash(git -C /Users/jamie/hiking-tracker diff --stat)",
+      "Bash(git -C /Users/jamie/hiking-tracker add index.html)",
+      "Bash(git -C /Users/jamie/hiking-tracker diff --staged)",
+      "Bash(git *)",
+      "Bash(lsof -ti:8000)",
+      "Bash(xargs kill -9)",
+      "Bash(python3 -m http.server 8000)",
+      "Bash(gh pr *)",
+      "WebFetch(domain:hiking.waymarkedtrails.org)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
