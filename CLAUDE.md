@@ -4,41 +4,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-A hiking tracker for a small group of users, with three components:
+A hiking tracker for a small group of users, with components:
 
 1. **`scraper.py`** — fetches route and stage data from the SchweizMobil map API and enriches each stage with SBB travel times from multiple Swiss cities via transport.opendata.ch. Outputs `hikes.json` locally and can import to Supabase.
-2. **`scraper_swcp.py`** — fetches the 53 day-stages of the UK South West Coast Path from `southwestcoastpath.org.uk`.
+2. **`scraper_swcp.py`** — fetches the 53 day-stages of the UK South West Coast Path from `southwestcoastpath.org.uk` with elevation via OpenTopoData.
 3. **`scraper_whw.py`** — fetches the 8 stages of the West Highland Way from `walkshighlands.co.uk`.
 4. **`scraper_odd.py`** — fetches the 12 stages of Offa's Dyke Path from `nationaltrail.co.uk`.
 5. **`scraper_gr20.py`** — fetches the 16 stages of the GR20 (Corsica) from `le-gr20.fr`.
 6. **`scraper_av1.py`** — fetches the 11 stages of the Alta Via 1 (Dolomites) from `altavia1dolomites.com`.
 7. **`scraper_malerweg.py`** — fetches the 8 stages of the Malerweg (Saxon Switzerland) from `saechsische-schweiz.de`.
-8. **`scraper_nationaltrail.py`** — fetches day-stage data for UK National Trails from `nationaltrail.co.uk`. Covers South Downs Way (route_id=5), Cotswold Way (6), Hadrian's Wall Path (7), and Pembrokeshire Coast Path (8). All `land="uk"`.
-9. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, and Ireland. Data is © OpenStreetMap contributors, ODbL 1.0.
-10. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
-10. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
-11. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
-12. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
+8. **`scraper_nationaltrail.py`** — fetches day-stage data for UK National Trails from `nationaltrail.co.uk`. Covers South Downs Way (route_id=5), Cotswold Way (6), Hadrian's Wall Path (7), and Pembrokeshire Coast Path (8). All `land="uk"`. Includes GPX-based elevation splitting.
+9. **`scraper_gr.py`** — fetches French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages) from podiensis.com and chamina-voyages.com. Also backfills GR20 distances from thepostrace.com.
+10. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, and Ireland. Data is © OpenStreetMap contributors, ODbL 1.0.
+11. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
+12. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
+13. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
+14. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
 ## Land value naming convention
 
 The `land` field combines country code and activity: `{country}-{activity}` (e.g. `ch-hike`, `fr-hike`). Exception: UK trails all share `land="uk"` regardless of sub-trail.
 
-| `land`     | Country     | Activity | Routes               |
-|------------|-------------|----------|----------------------|
-| `ch-hike`  | Switzerland | Hiking   | SchweizMobil hiking  |
-| `ch-cycle` | Switzerland | Cycling  | SchweizMobil cycling |
-| `uk`       | UK          | Hiking   | SWCP, WHW, ODP, Pennine Way, South Downs Way, Cotswold Way, Hadrian's Wall, Pembrokeshire, Cape Wrath |
-| `fr-hike`  | France      | Hiking   | GR20 (Corsica), GR65, GR70, HRP |
-| `it-hike`  | Italy       | Hiking   | Alta Via 1           |
-| `de-hike`  | Germany     | Hiking   | Malerweg, Westweg, Goldsteig (N+S), Heidschnuckenweg |
-| `es-hike`  | Spain       | Hiking   | GR11, Camino Primitivo, GR221 |
-| `ie-hike`  | Ireland     | Hiking   | Wicklow Way, Kerry Way, Dingle Way, Causeway Coast, Beara Way, Western Way |
+| `land`     | Country     | Activity | Routes |
+|------------|-------------|----------|--------|
+| `ch-hike`  | Switzerland | Hiking   | SchweizMobil national/regional hiking routes (1-7, 10-99) |
+| `ch-cycle` | Switzerland | Cycling  | SchweizMobil national/regional cycling routes (1-7, 10-99) |
+| `uk`       | UK          | Hiking   | SWCP (53 stages), WHW (8), ODP (12), South Downs Way (9), Cotswold Way (15), Hadrian's Wall Path (6), Pembrokeshire Coast Path (15), Cape Wrath (1), Pennine Way (OSM fallback) |
+| `fr-hike`  | France      | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (1), GR11 (OSM), Camino Primitivo (OSM), GR221 (OSM) |
+| `it-hike`  | Italy       | Hiking   | Alta Via 1 (11 stages, Dolomites) |
+| `de-hike`  | Germany     | Hiking   | Malerweg (8), Westweg (OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM) |
+| `es-hike`  | Spain       | Hiking   | GR11 Senda Pirenaica (OSM), Camino Primitivo (OSM), GR221 Ruta de Pedra en Sec (OSM) |
+| `ie-hike`  | Ireland     | Hiking   | Wicklow Way (OSM), Kerry Way (OSM), Dingle Way (OSM), Causeway Coast Way (OSM), Beara Way (OSM), Western Way (OSM) |
 
 ## Running the scraper
 
+### Prerequisites
+
 ```bash
+# Install all dependencies (recommended)
+pip3 install -r requirements.txt
+
+# Or install individually as needed:
 pip3 install requests
+```
+
+### Basic Usage
+
+```bash
 python3 scraper.py                        # default origin: Basel SBB
 python3 scraper.py --origin "Zürich HB"  # add times from any SBB station
 
@@ -436,19 +448,17 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 
 All routes are cached after the first `--routes-only` run. Each subsequent `--sbb-only` pass makes ~1–2 SBB API calls per stage (start + end, with reuse when names repeat), so roughly 600–1200 requests per origin. With the daily quota this typically takes 1–2 nights per origin.
 
-### Planned SBB origins
+### SBB Travel Time Completion Status
 
 Use `python3 scraper.py --sbb-all` to process all origins in sequence (run in `tmux` so it survives laptop sleep). It skips complete origins and processes incomplete ones shortest-first.
 
-Complete: Zürich HB, Lausanne, St. Gallen, Interlaken Ost, Biel/Bienne, Lugano
+**Complete (1179 Swiss stages each):**
+Basel SBB, Bern, Biel/Bienne, Chur, Genève, Interlaken Ost, Lausanne, Lugano, Luzern, St. Gallen, Zürich HB
 
-In progress (as of 2026-04-28):
-- Basel SBB — 714/1179
-- Genève — 782/1179
-- Bern — 1007/1179
-- Luzern — 0/1179
-- Chur — 236/1179
-- Thun — 0/1179
+**Incomplete:**
+- Thun — 701/1179 stages (as of 2026-06-04)
+
+> **Note:** Basel SBB shows 1332 stages due to counting methodology; all 11 planned Swiss origins plus Thun are effectively complete for the 1179 Swiss hiking/cycling stages. Thun is the only origin with remaining work.
 
 ### Dev servers
 
