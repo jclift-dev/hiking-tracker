@@ -13,8 +13,9 @@ A hiking tracker for a small group of users, with three components:
 5. **`scraper_gr20.py`** — fetches the 16 stages of the GR20 (Corsica) from `le-gr20.fr`.
 6. **`scraper_av1.py`** — fetches the 11 stages of the Alta Via 1 (Dolomites) from `altavia1dolomites.com`.
 7. **`scraper_malerweg.py`** — fetches the 8 stages of the Malerweg (Saxon Switzerland) from `saechsische-schweiz.de`.
-8. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, and Ireland. Data is © OpenStreetMap contributors, ODbL 1.0.
-9. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
+8. **`scraper_nationaltrail.py`** — fetches day-stage data for UK National Trails from `nationaltrail.co.uk`. Covers South Downs Way (route_id=5), Cotswold Way (6), Hadrian's Wall Path (7), and Pembrokeshire Coast Path (8). All `land="uk"`.
+9. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, and Ireland. Data is © OpenStreetMap contributors, ODbL 1.0.
+10. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
 10. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
 11. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
 12. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
@@ -169,6 +170,30 @@ transport.opendata.ch enforces a **daily request quota**. When hit, the scraper 
 
 Progress is also saved every 25 stages during both SBB enrichment and arrival-station enrichment.
 
+### UK National Trails (nationaltrail.co.uk)
+
+```bash
+pip3 install requests beautifulsoup4 cloudscraper
+python3 scraper_nationaltrail.py              # all 4 trails
+python3 scraper_nationaltrail.py --only sdw   # South Downs Way
+python3 scraper_nationaltrail.py --only cw    # Cotswold Way
+python3 scraper_nationaltrail.py --only hwp   # Hadrian's Wall Path
+python3 scraper_nationaltrail.py --only pcp   # Pembrokeshire Coast Path
+python3 scraper_nationaltrail.py --refresh    # re-fetch even if cached
+python3 scraper.py --import
+```
+
+Covers `land="uk"` route_ids 5–8. All stages on a single route page per trail — no individual stage URLs exist, so `smUrl` links to the trail's route description page. The site is behind Cloudflare; `cloudscraper` handles this.
+
+| route_id | Trail | Stages | Source |
+|---|---|---|---|
+| 5 | South Downs Way (Winchester → Eastbourne) | 9 | nationaltrail.co.uk |
+| 6 | Cotswold Way (Chipping Campden → Bath) | 15 | nationaltrail.co.uk |
+| 7 | Hadrian's Wall Path (Wallsend → Bowness-on-Solway) | 6 | nationaltrail.co.uk |
+| 8 | Pembrokeshire Coast Path (St Dogmaels → Amroth) | 15 | nationaltrail.co.uk |
+
+**Heading formats vary:** South Downs Way and Cotswold Way use `"Start to End – X miles (Y km)"` with the distance in the parent element; Pembrokeshire uses `"Start to End X miles (Y km)"` (no dash before miles); Hadrian's Wall has no per-section distances (dist_km is null for all 6 stages). The parser handles all three automatically. `elev_up`/`elev_down` and `duration_hrs` are null (not published by the site).
+
 ### OSM trails (via Waymarked Trails)
 
 ```bash
@@ -188,10 +213,10 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | OSM ID    | `land`    | route_id | Trail                          |
 |-----------|-----------|----------|-------------------------------|
 | 4080347   | `uk`      | 4        | Pennine Way                   |
-| 77976     | `uk`      | 5        | South Downs Way (single stage) |
-| 65239     | `uk`      | 6        | Cotswold Way (single stage)    |
-| 38791     | `uk`      | 7        | Hadrian's Wall Path (single stage) |
-| 77964     | `uk`      | 8        | Pembrokeshire Coast Path (single stage) |
+| 77976     | `uk`      | 5        | South Downs Way — OSM fallback (superseded by scraper_nationaltrail.py) |
+| 65239     | `uk`      | 6        | Cotswold Way — OSM fallback (superseded by scraper_nationaltrail.py) |
+| 38791     | `uk`      | 7        | Hadrian's Wall Path — OSM fallback (superseded by scraper_nationaltrail.py) |
+| 77964     | `uk`      | 8        | Pembrokeshire Coast Path — OSM fallback (superseded by scraper_nationaltrail.py) |
 | 9327615   | `uk`      | 9        | Cape Wrath Trail (single stage) |
 | 8386002   | `fr-hike` | 4        | Haute Randonnée Pyrénéenne    |
 | 62900     | `de-hike` | 2        | Westweg                       |

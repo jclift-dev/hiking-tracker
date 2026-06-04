@@ -1229,16 +1229,16 @@ function smUrl(route, stageNr) {
       // ODP — single route description page (no individual stage URLs)
       return 'https://www.nationaltrail.co.uk/en_GB/trails/offas-dyke-path/route/';
     }
-    // OSM-sourced UK trails — Waymarked Trails route page
-    const UK_OSM_URLS = {
+    // National Trail routes — link to route description page (no per-stage URLs)
+    const UK_NT_URLS = {
       4: 'https://hiking.waymarkedtrails.org/#route?id=4080347',
-      5: 'https://hiking.waymarkedtrails.org/#route?id=77976',
-      6: 'https://hiking.waymarkedtrails.org/#route?id=65239',
-      7: 'https://hiking.waymarkedtrails.org/#route?id=38791',
-      8: 'https://hiking.waymarkedtrails.org/#route?id=77964',
+      5: 'https://www.nationaltrail.co.uk/en_GB/trails/south-downs-way/route/',
+      6: 'https://www.nationaltrail.co.uk/en_GB/trails/cotswold-way/route/',
+      7: 'https://www.nationaltrail.co.uk/en_GB/trails/hadrians-wall-path/route/',
+      8: 'https://www.nationaltrail.co.uk/en_GB/trails/pembrokeshire-coast-path/route/',
       9: 'https://hiking.waymarkedtrails.org/#route?id=9327615',
     };
-    return UK_OSM_URLS[route.route_id] || '#';
+    return UK_NT_URLS[route.route_id] || '#';
   }
   if (route.land === 'fr-hike') {
     const FR_HIKE_URLS = {
@@ -1285,7 +1285,7 @@ function smUrl(route, stageNr) {
     ? `https://schweizmobil.ch/en/${activity}/route-${id}`
     : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
-const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP' };
+const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP', 5: 'nationaltrail.co.uk', 6: 'nationaltrail.co.uk', 7: 'nationaltrail.co.uk', 8: 'nationaltrail.co.uk' };
 const COUNTRY_SOURCE_LABELS = { 'it-hike': 'altavia1dolomites.com' };
 const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
 const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de' };
