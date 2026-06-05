@@ -866,6 +866,8 @@ def import_to_supabase(routes):
             "arrival_stations":s.get("arrival_stations", []),
             "sbb_times":       s.get("sbb_times", {}),
             "osm_id":          s.get("_osm_id"),
+            "country":         s.get("country"),
+            "admin1":          s.get("admin1"),
         }
         for r in routes for s in r["stages"]
     ]
