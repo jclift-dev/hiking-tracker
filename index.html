@@ -420,6 +420,11 @@
   .tl-dot--todo  { background: var(--surface); border: 2px solid var(--border); }
   .tl-dot--todo:hover  { border-color: var(--primary); }
   .tl-dot--future { background: var(--surface-low); border: 2px solid var(--ghost); cursor: default; }
+  .tl-dot--linked::after {
+    content: ''; position: absolute; top: -3px; right: -3px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #4f60cc; border: 1.5px solid var(--surface);
+  }
   .tl-dot-pulse {
     width: 7px; height: 7px; border-radius: 50%; background: var(--tertiary);
     animation: tl-pulse 1.8s ease-in-out infinite;
@@ -2024,11 +2029,13 @@ function renderStages(route) {
     const title       = `${multi ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}`;
 
     // Dot
+    const isLinked = !!linkedStageKey(key);
+    const linkedCls = isLinked ? ' tl-dot--linked' : '';
     const dot = done
-      ? `<div class="tl-dot tl-dot--done" onclick="toggleStage('${key}')" title="Undo">✓</div>`
+      ? `<div class="tl-dot tl-dot--done${linkedCls}" onclick="toggleStage('${key}')" title="Undo">✓</div>`
       : isNext
-        ? `<div class="tl-dot tl-dot--next"><div class="tl-dot-pulse"></div></div>`
-        : `<div class="tl-dot tl-dot--${isFuture ? 'future' : 'todo'}" onclick="toggleStage('${key}')" title="Mark done"></div>`;
+        ? `<div class="tl-dot tl-dot--next${linkedCls}"><div class="tl-dot-pulse"></div></div>`
+        : `<div class="tl-dot tl-dot--${isFuture ? 'future' : 'todo'}${linkedCls}" onclick="toggleStage('${key}')" title="Mark done"></div>`;
 
     // Badges
     const badges = `<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:5px">
