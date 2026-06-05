@@ -33,7 +33,9 @@ A hiking tracker for a small group of users, with components:
 11. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
 12. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
 13. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
-14. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
+14. **`enrich_regions.py`** — enriches `hikes.json` stages with `country` (ISO 2-letter lowercase) and `admin1` (ISO 3166-2 lowercase) fields used by the Europe dashboard map. For OSM-based stages: fetches geometry from Waymarked Trails → midpoint → point-in-polygon against Natural Earth admin-1 boundaries. For website-scraped stages: uses hardcoded `ROUTE_DEFAULTS`. Run after scraping new European trails, then re-import to Supabase. Caches Natural Earth GeoJSON to `.ne_admin1.json`.
+15. **`make_europe_svg.py`** — one-off script that generates the `europePaths` JavaScript constant embedded in `index.html`. Downloads Natural Earth 10m admin-1 GeoJSON, filters to 9 countries (AT, CH, DE, ES, FR, GB, IE, IT, LI), projects with equirectangular projection, and simplifies with Douglas-Peucker. Re-run and paste output into `index.html` only if the SVG region shapes need updating.
+16. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
 ## Land value naming convention
 
@@ -354,7 +356,7 @@ transport.opendata.ch  ───────────────────
 
 **`routes`** — shared read-only route data. Primary key: `(id, land)` — both hiking and cycling have routes numbered 1–7, so the composite key is required. The `land` column has a CHECK constraint (see above). Adding a new land value requires updating that constraint first via the Supabase SQL editor.
 
-**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb` to preserve the existing dict structure. The `land` column has the same CHECK constraint as `routes`.
+**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb` to preserve the existing dict structure. The `land` column has the same CHECK constraint as `routes`. `country` (text, nullable) and `admin1` (text, nullable) store ISO 3166-2 region codes populated by `enrich_regions.py` — used by the Europe dashboard map.
 
 **`user_state`** — per-user completions/ratings/notes. Keyed by `(user_id, stage_key)` where `stage_key` is `"land_routeId_stageNr"` (e.g. `"ch-hike_1_3"`).
 
@@ -393,10 +395,14 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
     "sbb_times": {
       "Basel SBB":  { "start": 187, "end": 45 },
       "Zürich HB":  { "start": 90,  "end": 30 }
-    }
+    },
+    "country": "ch",
+    "admin1": "ch-sg"
   }]
 }]
 ```
+
+`country` and `admin1` are populated by `enrich_regions.py` for all European lands (`eu-hike`, `fr-hike`, `de-hike`, `it-hike`, `es-hike`, `ie-hike`, `uk`). Swiss stages (`ch-hike`/`ch-cycle`) don't have these fields — the canton map uses the separate `cantons` field instead. Run `enrich_regions.py` after adding new European routes, then `--import`.
 
 `sbb_times` values are `null` (scraper tried, no connection found) or an integer (minutes). `undefined`/missing means never looked up.
 
