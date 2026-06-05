@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git workflow
+
+- **Straight to `main`**: one-file changes, new route scrapes, CSS tweaks, documentation
+- **Feature branch**: anything that touches auth flow, `persistStage`/`loadData`, state management, or spans multiple sessions
+
+  ```bash
+  git checkout -b feature/<short-description>
+  # work, commit
+  git push -u origin feature/<short-description>
+  gh pr create
+  ```
+
+Always push and create a PR for feature branches — don't merge locally.
+
 ## What this project is
 
 A hiking tracker for a small group of users, with components:

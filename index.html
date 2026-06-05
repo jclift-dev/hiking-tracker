@@ -383,6 +383,7 @@
   .badge-amber  { background: var(--amber-bg);  color: var(--amber); }
   .badge-gray   { background: var(--gray-bg);   color: var(--gray); }
   .badge-red    { background: var(--red-bg);    color: var(--red); }
+  .badge-link   { background: #eef0ff; color: #4f60cc; }
 
   .route-progress { margin-top: 10px; }
   .route-prog-bar { background: var(--sec-container); border-radius: 99px; height: 4px; overflow: visible; position: relative; }
@@ -1309,6 +1310,37 @@ function sourceLabel(route) {
   return 'SchweizMobil';
 }
 
+// ---------------------------------------------------------------------------
+// Cross-route stage linking
+// ---------------------------------------------------------------------------
+// Swiss Via Alpina (ch-hike, route_id=1) shares day stages with the full
+// international Via Alpina (eu-hike, route_id=1). Stages 2-15 are identical;
+// stage 1 shares an endpoint (Sargans); stage 16 shares a start (Lenk).
+// Stages 17-20 are unique to the Swiss route (it ends at Montreux, the
+// EU route heads south via Grand St Bernard into France).
+const LINKED_STAGE_PAIRS = [
+  ['ch-hike_1_1',  'eu-hike_1_58'],
+  ['ch-hike_1_2',  'eu-hike_1_59'],
+  ['ch-hike_1_3',  'eu-hike_1_60'],
+  ['ch-hike_1_4',  'eu-hike_1_61'],
+  ['ch-hike_1_5',  'eu-hike_1_62'],
+  ['ch-hike_1_6',  'eu-hike_1_63'],
+  ['ch-hike_1_7',  'eu-hike_1_64'],
+  ['ch-hike_1_8',  'eu-hike_1_65'],
+  ['ch-hike_1_9',  'eu-hike_1_66'],
+  ['ch-hike_1_10', 'eu-hike_1_67'],
+  ['ch-hike_1_11', 'eu-hike_1_68'],
+  ['ch-hike_1_12', 'eu-hike_1_69'],
+  ['ch-hike_1_13', 'eu-hike_1_70'],
+  ['ch-hike_1_14', 'eu-hike_1_71'],
+  ['ch-hike_1_15', 'eu-hike_1_72'],
+  ['ch-hike_1_16', 'eu-hike_1_73'],
+];
+const LINKED_STAGE_MAP = new Map(
+  LINKED_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
+);
+function linkedStageKey(key) { return LINKED_STAGE_MAP.get(key) || null; }
+
 function waymarkedStageUrl(stage) {
   if (!stage.osm_id) return null;
   return `https://hiking.waymarkedtrails.org/#route?id=${stage.osm_id}`;
@@ -2007,6 +2039,7 @@ function renderStages(route) {
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
       ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(stage.elev_up, stage.elev_down)}
+      ${linkedStageKey(key) ? `<span class="badge badge-link">↔ ${key.startsWith('eu') ? '🇨🇭' : '🇪🇺'} Via Alpina</span>` : ''}
     </div>`;
 
     // SBB transport mini
@@ -2197,6 +2230,7 @@ function renderFlatStage(stage) {
         ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
         ${(() => { const s = seasonInfo(stage, r.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
         ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+        ${linkedStageKey(key) ? `<span class="badge badge-link">↔ ${key.startsWith('eu') ? '🇨🇭' : '🇪🇺'} Via Alpina</span>` : ''}
       </div>
       ${startTravel || endTravel ? `
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
@@ -2742,14 +2776,17 @@ function wishlistRoute(rkey, undo = false) {
 
 function toggleStage(key) {
   event.stopPropagation();
+  const linked = linkedStageKey(key);
   if (completed[key]) {
     delete completed[key];
     delete ratings[key];
     persistStage(key);
+    if (linked) { delete completed[linked]; delete ratings[linked]; persistStage(linked); }
   } else {
     completed[key] = new Date().toLocaleDateString('de-CH');
     if (selectedStageKey === key) selectedStageKey = null;
     persistStage(key);
+    if (linked) { completed[linked] = completed[key]; persistStage(linked); }
   }
   saveState();
   updateStats();
@@ -2764,13 +2801,13 @@ function markRouteComplete(rkey, undo = false) {
   const today = new Date().toLocaleDateString('de-CH');
   route.stages.forEach(s => {
     const key = stageKey(land, routeId, s.stage_nr);
+    const linked = linkedStageKey(key);
     if (undo) {
-      delete completed[key];
-      delete ratings[key];
-      persistStage(key);
+      delete completed[key]; delete ratings[key]; persistStage(key);
+      if (linked) { delete completed[linked]; delete ratings[linked]; persistStage(linked); }
     } else if (!completed[key]) {
-      completed[key] = today;
-      persistStage(key);
+      completed[key] = today; persistStage(key);
+      if (linked && !completed[linked]) { completed[linked] = today; persistStage(linked); }
     }
   });
   updateStats();
