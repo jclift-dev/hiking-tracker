@@ -42,8 +42,8 @@ LAT_MIN, LAT_MAX = 34.0, 61.5
 SVG_W, SVG_H = 1100, 680
 
 # Minimum area (in SVG px²) to include a polygon (filters tiny islands/enclaves).
-MIN_AREA_PX2 = 150.0
-ALWAYS_INCLUDE = {"MC", "LI"}  # country codes exempt from min-area filter
+MIN_AREA_PX2 = 20.0
+ALWAYS_INCLUDE = {"MC", "LI", "SI"}  # country codes exempt from min-area filter
 
 # Douglas-Peucker epsilon in SVG px units.
 # Higher = more simplification (fewer points).
@@ -137,9 +137,12 @@ def make_code(props):
     if iso_a2 == "SI":
         return "si"
 
-    # Switzerland: merge all cantons under 'ch' (canton detail is in the Swiss view)
+    # Switzerland / Slovenia: merge to single country code (canton/municipality
+    # detail is either in the Swiss view or below the granularity we track)
     if iso_a2 == "CH":
         return "ch"
+    if iso_a2 == "SI":
+        return "si"
 
     # Ireland: map county → province
     if iso_a2 == "IE":
@@ -227,7 +230,10 @@ def main():
             if not exempt and area < MIN_AREA_PX2:
                 return
 
-            simplified = rdp(projected, DP_EPSILON)
+            # Use a smaller epsilon for tiny exempt features (e.g. Monaco) so
+            # they survive simplification without collapsing to a line.
+            epsilon = DP_EPSILON if area >= MIN_AREA_PX2 else 0.3
+            simplified = rdp(projected, epsilon)
             if len(simplified) < 3:
                 return
 

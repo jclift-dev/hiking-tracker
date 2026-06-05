@@ -75,18 +75,39 @@ ROUTE_DEFAULTS = {
         (1,  5,  "it", "it-bz"),   # South Tyrol / Bolzano province
         (6,  None, "it", "it-bl"), # Belluno province (Veneto)
     ],
-    # UK — national trails (scraped from nationaltrail.co.uk, no _osm_id)
-    # admin1 uses nation codes (no SVG path — country fallback colors all UK)
-    ("uk", 1):  [(1, None, "gb", "gb-eng")],   # SWCP — England
-    ("uk", 2):  [(1, None, "gb", "gb-sct")],   # WHW — Scotland
-    ("uk", 3):  [                               # ODP — England + Wales
-        (1,  4,  "gb", "gb-wls"),  # Welsh section (south)
-        (5,  None, "gb", "gb-eng"), # English section (north)
+    # UK — county-level codes matching europePaths (make_europe_svg.py)
+    ("uk", 1):  [                                        # South West Coast Path
+        (1,  1,  "gb", "gb-som"),  # Somerset: Minehead → Porlock Weir
+        (2,  9,  "gb", "gb-dev"),  # Devon (north coast): Lynmouth → Hartland Quay
+        (10, 34, "gb", "gb-con"),  # Cornwall: Bude → Polperro
+        (35, 35, "gb", "gb-con"),  # Rame Peninsula (Cornwall) → Plymouth ferry
+        (36, 45, "gb", "gb-dev"),  # Devon (south coast): Yealm → Sidmouth
+        (46, None, "gb", "gb-dor"), # Dorset: Seaton → Poole
     ],
-    ("uk", 5):  [(1, None, "gb", "gb-eng")],   # South Downs Way
-    ("uk", 6):  [(1, None, "gb", "gb-eng")],   # Cotswold Way
-    ("uk", 7):  [(1, None, "gb", "gb-eng")],   # Hadrian's Wall (mostly England)
-    ("uk", 8):  [(1, None, "gb", "gb-wls")],   # Pembrokeshire — Wales
+    ("uk", 2):  [                                        # West Highland Way
+        (1,  5,  "gb", "gb-stg"),  # Stirling (Milngavie → Bridge of Orchy)
+        (6,  None, "gb", "gb-hld"), # Highland (Rannoch Moor → Fort William)
+    ],
+    ("uk", 3):  [                                        # Offa's Dyke Path
+        (1,  2,  "gb", "gb-mon"),  # Monmouthshire
+        (3,  5,  "gb", "gb-pow"),  # Powys
+        (6,  8,  "gb", "gb-shr"),  # Shropshire
+        (9,  None, "gb", "gb-den"), # Denbighshire → Prestatyn
+    ],
+    ("uk", 5):  [                                        # South Downs Way
+        (1,  3,  "gb", "gb-ham"),  # Hampshire: Winchester → Buriton
+        (4,  6,  "gb", "gb-wsx"),  # West Sussex: Cocking → River Adur
+        (7,  None, "gb", "gb-esx"), # East Sussex: Lewes → Eastbourne
+    ],
+    ("uk", 6):  [                                        # Cotswold Way
+        (1,  13, "gb", "gb-gls"),  # Gloucestershire
+        (14, None, "gb", "gb-bas"), # Bath and North East Somerset
+    ],
+    ("uk", 7):  [                                        # Hadrian's Wall Path
+        (1,  5,  "gb", "gb-nbl"),  # Northumberland
+        (6,  None, "gb", "gb-cma"), # Cumbria: Birdoswald → Bowness-on-Solway
+    ],
+    ("uk", 8):  [(1, None, "gb", "gb-pem")],             # Pembrokeshire Coast Path
 }
 
 
@@ -199,13 +220,25 @@ def build_spatial_index(features):
             else:
                 admin1 = iso_a2.lower()
 
-        # For Switzerland and Monaco, keep country-level code
-        if iso_a2 == "CH":
-            admin1 = "ch"
-        if iso_a2 == "MC":
-            admin1 = "mc"
-        if iso_a2 == "LI":
-            admin1 = "li"
+        # Single-polygon countries: keep country-level code
+        if iso_a2 in ("CH", "MC", "LI", "SI"):
+            admin1 = iso_a2.lower()
+
+        # Ireland: map county-level codes to the 4 provinces used by make_europe_svg.py.
+        # NB: Cork county ISO is IE-CO, which collides with the europePaths province code
+        # ie-co (Connacht), so we match by name not by ISO code.
+        if iso_a2 == "IE":
+            name_lc = (props.get("name") or "").lower()
+            leinster = {"wicklow","wexford","carlow","kilkenny","laois","laoighis",
+                        "offaly","kildare","meath","westmeath","longford","louth",
+                        "dublin","fingal","south dublin","dún laoghaire–rathdown"}
+            munster  = {"cork","kerry","limerick","clare","waterford",
+                        "tipperary","north tipperary","south tipperary"}
+            connacht = {"galway","mayo","sligo","leitrim","roscommon"}
+            if   any(c in name_lc for c in leinster): admin1 = "ie-le"
+            elif any(c in name_lc for c in munster):  admin1 = "ie-mu"
+            elif any(c in name_lc for c in connacht): admin1 = "ie-co"
+            else:                                      admin1 = "ie-ul"  # Ulster + fallback
 
         geom  = feat.get("geometry", {})
         gtype = geom.get("type", "")
