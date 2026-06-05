@@ -35,6 +35,7 @@ The `land` field combines country code and activity: `{country}-{activity}` (e.g
 | `de-hike`  | Germany     | Hiking   | Malerweg (8), Westweg (OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM) |
 | `es-hike`  | Spain       | Hiking   | GR11 Senda Pirenaica (OSM), Camino Primitivo (OSM), GR221 Ruta de Pedra en Sec (OSM) |
 | `ie-hike`  | Ireland     | Hiking   | Wicklow Way (OSM), Kerry Way (OSM), Dingle Way (OSM), Causeway Coast Way (OSM), Beara Way (OSM), Western Way (OSM) |
+| `eu-hike`  | Europe (multi-country) | Hiking | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200) |
 
 ## Running the scraper
 

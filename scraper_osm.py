@@ -77,6 +77,7 @@ except ImportError:
 #   fr-hike: 4+  (1=GR20, 2=GR65, 3=GR70 already scraped)
 #   de-hike: 2+  (1=Malerweg already scraped)
 #   es-hike: 1+  (new land value — add to Supabase CHECK before --import)
+#   eu-hike: 1+  (new land value — add to Supabase CHECK before --import)
 
 TRAILS = [
     # UK — day-stage subroutes available
@@ -109,6 +110,9 @@ TRAILS = [
     (1085994,  "ie-hike", 4, "national", "Causeway Coast Way"),
     (2989585,  "ie-hike", 5, "national", "Beara Way"),
     (14702338, "ie-hike", 6, "national", "Western Way"),
+
+    # Europe — multi-country long-distance routes (eu-hike — new land; update Supabase CHECK before --import)
+    (20014200, "eu-hike", 1, "national", "Via Alpina"),
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:
@@ -134,6 +138,9 @@ ELEV_DELAY     = 1.5   # OpenTopoData rate limit: ≤1 req/sec; 1.5 s is safe
 ELEV_MAX_PTS   = 80    # sample up to this many points (API cap: 100)
 ELEV_NOISE_M   = 2     # ignore elevation changes < this (GPS noise threshold)
 
+NOMINATIM_BASE  = "https://nominatim.openstreetmap.org/reverse"
+NOMINATIM_DELAY = 1.1   # Nominatim usage policy: max 1 req/sec
+
 SAC_SCALE_MAP = {
     "hiking":                    "hiking trail",
     "mountain_hiking":           "mountain hiking trail",
@@ -148,6 +155,9 @@ SESSION.headers["User-Agent"] = USER_AGENT
 
 ELEV_SESSION = requests.Session()
 ELEV_SESSION.headers["User-Agent"] = USER_AGENT
+
+NOMINATIM_SESSION = requests.Session()
+NOMINATIM_SESSION.headers["User-Agent"] = USER_AGENT
 
 
 # ---------------------------------------------------------------------------
@@ -287,6 +297,103 @@ def fetch_relation(osm_id, label=""):
 
 
 # ---------------------------------------------------------------------------
+# Nominatim reverse geocoding
+# ---------------------------------------------------------------------------
+
+def reverse_geocode(lat, lng):
+    """
+    Return a short place name for (lat, lng) via Nominatim, or None.
+    Prefers specific named features (huts, peaks, villages) over admin areas.
+    Rate-limited to 1 req/sec per Nominatim usage policy.
+    """
+    time.sleep(NOMINATIM_DELAY)
+    try:
+        r = NOMINATIM_SESSION.get(
+            NOMINATIM_BASE,
+            params={"lat": f"{lat:.6f}", "lon": f"{lng:.6f}",
+                    "format": "json", "zoom": 14},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        addr = data.get("address", {})
+        for key in ("tourism", "natural", "leisure", "amenity",
+                    "hamlet", "village", "town", "city_district", "suburb", "city"):
+            val = addr.get(key)
+            if val:
+                return val
+        display = data.get("display_name", "")
+        return display.split(",")[0].strip() or None
+    except Exception as e:
+        print(f"   [warn] Nominatim error: {e}")
+        return None
+
+
+def is_code_name(name):
+    """True when name looks like a route reference code (e.g. 'Via Alpina Red R3')."""
+    return bool(re.match(r"^.+\s+R\d+$", name or ""))
+
+
+def backfill_stage_names():
+    """
+    For stages with code-only names (start_name == end_name, looks like 'Trail Red R3'),
+    re-fetch the stage geometry from Waymarked Trails and reverse-geocode start/end
+    via Nominatim to get real place names.  Updates hikes.json in place.
+    """
+    existing = load_existing()
+    all_routes = list(existing.values())
+    changed = False
+
+    for route in all_routes:
+        fallback = [
+            s for s in route.get("stages", [])
+            if is_code_name(s.get("start_name")) and s.get("_osm_id")
+        ]
+        if not fallback:
+            continue
+
+        print(f"\n{route['name']} ({route['land']}) — "
+              f"{len(fallback)} stages to enrich with Nominatim...")
+
+        for stage in fallback:
+            child_id = stage["_osm_id"]
+            print(f"  Stage {stage['stage_nr']:3d} (OSM {child_id})...", end=" ", flush=True)
+
+            child_data = fetch_relation(child_id, f"Stage {stage['stage_nr']}")
+            if not child_data:
+                print("fetch failed, skipping")
+                continue
+
+            pts = sample_wgs84(child_data.get("route", {}))
+            if len(pts) < 2:
+                print("no geometry, skipping")
+                continue
+
+            start_name = reverse_geocode(pts[0][0],  pts[0][1])
+            end_name   = reverse_geocode(pts[-1][0], pts[-1][1])
+
+            stage["start_name"] = start_name or stage["start_name"]
+            stage["end_name"]   = end_name   or stage["end_name"]
+            print(f"{stage['start_name']} → {stage['end_name']}")
+            changed = True
+
+        # Refresh route-level start/end if they were also code names
+        stages = route.get("stages", [])
+        if stages:
+            if is_code_name(route.get("start", "")):
+                route["start"] = stages[0]["start_name"]
+            if is_code_name(route.get("end", "")):
+                route["end"] = stages[-1]["end_name"]
+
+    if changed:
+        save(all_routes)
+        print("\nSaved enriched names to hikes.json.")
+    else:
+        print("No stages needed name enrichment.")
+
+
+# ---------------------------------------------------------------------------
 # Stage parsing
 # ---------------------------------------------------------------------------
 
@@ -307,6 +414,8 @@ def parse_start_end(data):
     clean = re.sub(r"^.+?:\s*", "", name, count=1) if re.search(
         r":\s*(?:[ÉéEe]tape|Stage|Etapa|Tappa|Abschnitt|Etappe)\s+\d+", name, re.I
     ) else name
+    # Strip "TrailName Stage N: " prefix (e.g. "Via Alpina Stage 1: Muggia → End")
+    clean = re.sub(r"^.+?\bStage\b\s*\d+\s*:\s*", "", clean, flags=re.I).strip() or clean
     # Strip leading "Étape N", "Stage N", "Etapa N", "Etappe N" etc.
     clean = re.sub(r"^(?:[ÉéEe]tape|Stage|Etapa|Tappa|Abschnitt|Etappe)\s+\d+\s*[:·\-–—]?\s*",
                    "", clean, flags=re.I).strip()
@@ -584,8 +693,8 @@ def process_trail(osm_id, land, route_id, route_type, display_name,
 
     route["stages"] = stages
     if stages:
-        route["start"] = stages[0]["start_name"] or route_start
-        route["end"]   = stages[-1]["end_name"]  or route_end
+        route["start"] = route_start or stages[0]["start_name"]
+        route["end"]   = route_end   or stages[-1]["end_name"]
     if not route["total_km"]:
         total = sum(s["dist_km"] for s in stages if s.get("dist_km"))
         route["total_km"] = round(total, 1) or None
@@ -607,7 +716,13 @@ def main():
                    help="Re-fetch this relation ID even if cached (repeatable)")
     p.add_argument("--skip-elevation", action="store_true",
                    help="Skip OpenTopoData elevation calls")
+    p.add_argument("--backfill-names", action="store_true",
+                   help="Reverse-geocode start/end for stages with code-only names (Nominatim)")
     args = p.parse_args()
+
+    if args.backfill_names:
+        backfill_stage_names()
+        return
 
     refresh_ids = set(args.refresh_ids or [])
 

@@ -820,6 +820,7 @@
           <button class="land-pill-btn" data-country="it"  onclick="setCountry('it')">🇮🇹 Italy</button>
           <button class="land-pill-btn" data-country="es"  onclick="setCountry('es')">🇪🇸 Spain</button>
           <button class="land-pill-btn" data-country="ie"  onclick="setCountry('ie')">🇮🇪 Ireland</button>
+          <button class="land-pill-btn" data-country="eu"  onclick="setCountry('eu')">🇪🇺 Europe</button>
         </div>
         <!-- Activity row — hidden when country only has one activity -->
         <div id="activity-pills" class="land-pill" style="margin-top:6px">
@@ -1189,6 +1190,7 @@ const COUNTRIES = [
   { id: 'it', lands: ['it-hike'] },
   { id: 'es', lands: ['es-hike'] },
   { id: 'ie', lands: ['ie-hike'] },
+  { id: 'eu', lands: ['eu-hike'] },
 ];
 
 function activeLand() {
@@ -1278,6 +1280,12 @@ function smUrl(route, stageNr) {
     };
     return IE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
+  if (route.land === 'eu-hike') {
+    const EU_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=20014200',
+    };
+    return EU_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
+  }
   const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
   const single = route.stages.length === 1;
@@ -1296,6 +1304,7 @@ function sourceLabel(route) {
   if (route.land === 'de-hike') return DE_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'es-hike') return ES_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'ie-hike') return 'waymarkedtrails.org';
+  if (route.land === 'eu-hike') return 'waymarkedtrails.org';
   if (COUNTRY_SOURCE_LABELS[route.land]) return COUNTRY_SOURCE_LABELS[route.land];
   return 'SchweizMobil';
 }
@@ -1570,8 +1579,8 @@ function setCountry(c) {
   document.querySelectorAll('[data-country]').forEach(b => b.classList.toggle('active', b.dataset.country === c));
   document.querySelectorAll('[data-activity]').forEach(b => b.classList.toggle('active', b.dataset.activity === selectedActivity));
   // Update header
-  const labels = { ch: 'Swiss Trail Tracker', uk: 'UK Trail Tracker', fr: 'French Trail Tracker', de: 'German Trail Tracker', it: 'Italian Trail Tracker', es: 'Spanish Trail Tracker', ie: 'Irish Trail Tracker' };
-  const titles = { ch: 'Switzerland', uk: 'UK', fr: 'France', de: 'Germany', it: 'Italy', es: 'Spain', ie: 'Ireland' };
+  const labels = { ch: 'Swiss Trail Tracker', uk: 'UK Trail Tracker', fr: 'French Trail Tracker', de: 'German Trail Tracker', it: 'Italian Trail Tracker', es: 'Spanish Trail Tracker', ie: 'Irish Trail Tracker', eu: 'European Trail Tracker' };
+  const titles = { ch: 'Switzerland', uk: 'UK', fr: 'France', de: 'Germany', it: 'Italy', es: 'Spain', ie: 'Ireland', eu: 'Europe' };
   document.getElementById('header-eyebrow').textContent = labels[c] || 'Trail Tracker';
   document.getElementById('header-title').textContent   = titles[c] || c.toUpperCase();
   document.body.dataset.land = activeLand();
