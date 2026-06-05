@@ -749,6 +749,7 @@
   .dash-canton-map svg path.hiked { fill: var(--primary); }
   .dash-canton-map svg path.partial { fill: var(--primary-lt); opacity: 0.6; }
   .dash-canton-map svg .eu-country { filter: drop-shadow(0 0 1.2px color-mix(in srgb, var(--border) 80%, transparent)); }
+  .dash-euro-map svg path { fill: #d6dade; stroke: rgba(25,28,29,0.15); }
   .dash-canton-map-legend { display: flex; gap: 16px; margin-top: 10px; }
   .dash-canton-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
   .dash-canton-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
@@ -3200,16 +3201,16 @@ function renderDashboard() {
     }).join('');
 
     euroMapHtml = `
-      <div class="dash-canton-map">
+      <div class="dash-canton-map dash-euro-map">
         <div class="dash-canton-map-header">
-          <span style="font-size:13px;font-weight:700">${euroHikedCountries.size} countries explored</span>
-          <span style="font-size:11px;color:var(--muted)">${euroHikedRegions.size} regions</span>
+          <span style="font-size:13px;font-weight:700">${euroHikedCountries.size} ${euroHikedCountries.size === 1 ? 'country' : 'countries'} explored</span>
+          <span style="font-size:11px;color:var(--muted)">${euroHikedRegions.size} region${euroHikedRegions.size !== 1 ? 's' : ''} hiked</span>
         </div>
         <svg viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">${euroSvgPaths}</svg>
         <div class="dash-canton-map-legend">
           <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary)"></div> Hiked here</div>
           <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--primary-lt);opacity:0.6"></div> Passing through</div>
-          <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:var(--surface-low);border:1px solid var(--border)"></div> Not yet</div>
+          <div class="dash-canton-legend-item"><div class="dash-canton-legend-dot" style="background:#d6dade;border:1px solid rgba(25,28,29,0.15)"></div> Not yet</div>
         </div>
       </div>`;
   }
