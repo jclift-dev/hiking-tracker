@@ -73,37 +73,57 @@ except ImportError:
 # (osm_relation_id, land, route_id, route_type, display_name)
 #
 # route_id rules — don't collide with existing entries in hikes.json:
-#   uk:      4+  (1=SWCP, 2=WHW, 3=ODP already from authoritative scrapers)
-#   fr-hike: 4+  (1=GR20, 2=GR65, 3=GR70 already scraped)
-#   de-hike: 2+  (1=Malerweg already scraped)
-#   es-hike: 1+  (new land value — add to Supabase CHECK before --import)
+#   uk:      4+  (1=SWCP, 2=WHW, 3=ODP already from authoritative scrapers; 10-13 new)
+#   fr-hike: 4+  (1=GR20, 2=GR65, 3=GR70 already scraped; 5-6 new)
+#   de-hike: 2+  (1=Malerweg already scraped; 6-7 new)
+#   es-hike: 1+  (new land value — add to Supabase CHECK before --import; 4-6 new)
+#   it-hike: 2+  (1=Alta Via 1 already scraped; 2-3 new)
+#   pt-hike: 1+  (new land value — add to Supabase CHECK before --import)
 #   eu-hike: 1+  (new land value — add to Supabase CHECK before --import)
 
 TRAILS = [
     # UK — day-stage subroutes available
-    (4080347,  "uk",      4, "national", "Pennine Way"),
+    (4080347,  "uk",      4,  "national", "Pennine Way"),
+    (12622536, "uk",      10, "national", "John O'Groats Trail"),
+    (49215,    "uk",      11, "national", "John Muir Way"),
+    (14421894, "uk",      12, "national", "Skye Trail"),
+    (3971851,  "uk",      13, "national", "England Coast Path"),
+    (918951,   "uk",      14, "national", "Ulster Way"),
     # UK — flat in OSM; imported as single stage
-    (77976,    "uk",      5, "national", "South Downs Way"),
-    (65239,    "uk",      6, "national", "Cotswold Way"),
-    (38791,    "uk",      7, "national", "Hadrian's Wall Path"),
-    (77964,    "uk",      8, "national", "Pembrokeshire Coast Path"),
-    (9327615,  "uk",      9, "national", "Cape Wrath Trail"),
+    (77976,    "uk",      5,  "national", "South Downs Way"),
+    (65239,    "uk",      6,  "national", "Cotswold Way"),
+    (38791,    "uk",      7,  "national", "Hadrian's Wall Path"),
+    (77964,    "uk",      8,  "national", "Pembrokeshire Coast Path"),
+    (9327615,  "uk",      9,  "national", "Cape Wrath Trail"),
 
     # France
     (8386002,  "fr-hike", 4, "national", "Haute Randonnée Pyrénéenne"),
+    (187781,   "fr-hike", 5, "national", "Voie de Tours"),
+    (10670467, "fr-hike", 6, "national", "Du Jura à la Méditerranée"),
+    (14234324, "fr-hike", 7, "national", "La Routo"),
 
     # Germany
     (62900,    "de-hike", 2, "national", "Westweg"),
     (61185,    "de-hike", 3, "national", "Goldsteig-Südroute"),
     (3300718,  "de-hike", 4, "national", "Goldsteig-Nordroute"),
     (19995501, "de-hike", 5, "national", "Heidschnuckenweg"),
+    (3795969,  "de-hike", 6, "national", "Lutherweg 1521"),
+    (11243633, "de-hike", 7, "national", "Rheinburgenweg"),
 
     # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
     (19298101, "es-hike", 2, "national", "Camino Primitivo"),
     (16358020, "es-hike", 3, "national", "GR 221 Ruta de Pedra en Sec"),
+    (318027,   "es-hike", 4, "national", "GR 7: Andorra - Estrecho de Gibraltar"),
+    (8883098,  "es-hike", 5, "national", "Sulayr"),
+    # (18021078, "es-hike", 6) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
 
-    # Ireland (ie-hike — new land; update Supabase CHECK constraint before --import)
+    # Italy
+    (3477430,  "it-hike", 2, "national", "Sentiero della Pace"),
+    (12286842, "it-hike", 3, "national", "Cammino Celeste"),
+    (14251864, "it-hike", 4, "national", "Cammino Materano - Via Peuceta"),
+
+    # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),
     (183744,   "ie-hike", 2, "national", "The Kerry Way"),
     (21664,    "ie-hike", 3, "national", "The Dingle Way"),
@@ -111,14 +131,52 @@ TRAILS = [
     (2989585,  "ie-hike", 5, "national", "Beara Way"),
     (14702338, "ie-hike", 6, "national", "Western Way"),
 
-    # Europe — multi-country long-distance routes (eu-hike — new land; update Supabase CHECK before --import)
+    # Portugal (pt-hike — add to Supabase CHECK before --import)
+    (20810829, "pt-hike", 1, "national", "Rota Vicentina - Trilho dos Pescadores"),
+
+    # Austria (at-hike — add to Supabase CHECK before --import)
+    (2073724,  "at-hike", 1, "national", "Jakobsweg Österreich"),
+
+    # Hungary (hu-hike — add to Supabase CHECK before --import)
+    (6007494,  "hu-hike", 1, "national", "Országos Kéktúra"),
+
+    # Czech Republic (cz-hike — add to Supabase CHECK before --import)
+    (16828381, "cz-hike", 1, "national", "Via Czechia - Severní stezka"),
+    (16828379, "cz-hike", 2, "national", "Via Czechia - Centrální stezka"),
+    (16828282, "cz-hike", 3, "national", "Via Czechia - Jižní stezka"),
+
+    # Slovenia (si-hike — add to Supabase CHECK before --import)
+    (10909145, "si-hike", 1, "national", "Julius Kugy Alpine Trail"),
+
+    # Netherlands (nl-hike — add to Supabase CHECK before --import)
+    (312993,   "nl-hike", 1, "national", "Pieterpad deel 1"),
+    (156951,   "nl-hike", 2, "national", "Pieterpad deel 2"),
+    (1561342,  "nl-hike", 3, "national", "Zuiderzeepad"),
+    (9588884,  "nl-hike", 4, "national", "Pelgrimspad deel 1"),
+    (8446574,  "nl-hike", 5, "national", "Pelgrimspad deel 2"),
+
+    # Belgium (be-hike — add to Supabase CHECK before --import)
+    (18632711, "be-hike", 1, "national", "Via Brabantica"),
+
+    # Sweden (se-hike — add to Supabase CHECK before --import)
+    (7128733,  "se-hike", 1, "national", "Hälsingeleden"),
+
+    # Norway (no-hike — add to Supabase CHECK before --import)
+    (14772115, "no-hike", 1, "national", "Fjordruta på Nordmøre"),
+
+    # Estonia (ee-hike — add to Supabase CHECK before --import)
+    (9645763,  "ee-hike", 1, "national", "Euroopa matkarada E9"),
+    (13182780, "ee-hike", 2, "national", "Peraküla-Aegviidu-Ähijärve haru"),
+    (15843108, "ee-hike", 3, "national", "Camino Estonia"),
+
+    # Europe — multi-country long-distance routes (eu-hike)
     (20014200, "eu-hike", 1, "national", "Via Alpina"),
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:
 #   GR34 Chemin des Douaniers    (7790332)   — 2 sections × ~1000 km
 #   GR5  Grande Traversée Alpes  (18308154)  — 1 section × 293 km
-#   Camino del Norte             (19001007)  — 1 section × 69 km (level-2 shows no stages)
+#   Camino del Norte             (19001007)  — 1 section × 69 km
 #   GR10 Pyrenean Traverse       (France)    — no clean parent relation identified
 #   Camino Francés               (2163573)   — flat, 1 child × 163 km
 #   Alta Via 2                   (404914)    — 0 subroutes (flat)

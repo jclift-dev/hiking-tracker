@@ -34,12 +34,15 @@ NE_URL = (
 )
 
 # Countries to include by ISO A2 code
-INCLUDE_COUNTRIES = {"GB", "FR", "DE", "AT", "IT", "ES", "IE", "CH", "SI", "MC", "LI"}
+INCLUDE_COUNTRIES = {
+    "GB", "FR", "DE", "AT", "IT", "ES", "IE", "CH", "SI", "MC", "LI", "PT",
+    "HU", "CZ", "NL", "BE", "SE", "NO", "EE",
+}
 
 # SVG viewport — equirectangular projection
 LON_MIN, LON_MAX = -12.0, 35.0
-LAT_MIN, LAT_MAX = 34.0, 61.5
-SVG_W, SVG_H = 1100, 680
+LAT_MIN, LAT_MAX = 34.0, 72.0
+SVG_W, SVG_H = 1100, 920
 
 # Minimum area (in SVG px²) to include a polygon (filters tiny islands/enclaves).
 MIN_AREA_PX2 = 20.0
