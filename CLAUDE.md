@@ -34,7 +34,25 @@ A hiking tracker for a small group of users, with components:
 12. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
 13. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
 14. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
-15. **`enrich_regions.py`** — enriches `hikes.json` stages with `country` (ISO 2-letter lowercase) and `admin1` (ISO 3166-2 lowercase) fields used by the Europe dashboard map. For OSM-based stages: fetches geometry from Waymarked Trails → midpoint → point-in-polygon against Natural Earth admin-1 boundaries. For website-scraped stages: uses hardcoded `ROUTE_DEFAULTS`. Run after scraping new European trails, then re-import to Supabase. Caches Natural Earth GeoJSON to `.ne_admin1.json`.
+15. **`discover_trails.py`** — builds and maintains a catalogue of candidate long-distance hiking trails in Europe for selective import. Two-phase: Overpass API (fetches all `iwn/nwn/rwn` hiking relations in Europe) then Waymarked Trails API (enriches with computed length, stage count, bounding box). Output: `trails_catalog.json` (56k+ entries). Key concepts:
+    - **`filter_status`** values: `candidate` (viable day stages), `needs_level2` (flagged via `needs_level2=True` — level-1 children are sections not day stages), `section_of_parent` (suppressed child section, use parent instead), `auto_excluded`, `unverified`, `in_app`, `pending_enrichment`
+    - **`tag_child_sections()`** — builds a child→parent index from `stages_raw` and sets `parent_osm_id` on section entries so they are suppressed in favour of the parent trail
+    - **`apply_section_suppression()`** — demotes `section_of_parent` entries post-filter; preserves `in_app` and `auto_excluded`
+    - **`backfill_needs_level2()`** — computes `needs_level2` for entries enriched before the field existed
+    - **`--recheck-excluded`** — level-2 descent for `auto_excluded / no_day_stages` entries ≥100 km
+    - **`--recheck-large-stages`** — level-2 descent for candidates where all level-1 children are >40 km (sections); run this after a fresh enrichment pass to get real day-stage counts for trails like Sultan's Trail, Via Francigena, E-paths
+    - Auto level-2: during Phase 2 enrichment, if all children are >40 km the script immediately fetches sections and updates stage count
+    - `trails_catalog.json` and `discover_trails_delta.log` are gitignored (large files). Re-run the script to rebuild.
+
+    ```bash
+    python3 discover_trails.py                        # full run (Overpass + WT enrichment)
+    python3 discover_trails.py --enrich-only          # skip Overpass, resume WT enrichment
+    python3 discover_trails.py --recheck-excluded     # level-2 for flat/no-stage routes
+    python3 discover_trails.py --recheck-large-stages # level-2 for section-structured trails
+    python3 discover_trails.py --refresh-id 16127693  # re-fetch one trail
+    python3 discover_trails.py --smoke-test           # Ireland only, first 5 WT calls
+    ```
+16. **`enrich_regions.py`** — enriches `hikes.json` stages with `country` (ISO 2-letter lowercase) and `admin1` (ISO 3166-2 lowercase) fields used by the Europe dashboard map. For OSM-based stages: fetches geometry from Waymarked Trails → midpoint → point-in-polygon against Natural Earth admin-1 boundaries. For website-scraped stages: uses hardcoded `ROUTE_DEFAULTS`. Run after scraping new European trails, then re-import to Supabase. Caches Natural Earth GeoJSON to `.ne_admin1.json`.
 16. **`make_europe_svg.py`** — one-off script that generates the `europePaths` JavaScript constant embedded in `index.html`. Downloads Natural Earth 10m admin-1 GeoJSON, filters to 19 countries (AT, BE, CH, CZ, DE, EE, ES, FR, GB, HU, IE, IT, LI, MC, NL, NO, PT, SE, SI), projects with equirectangular projection (LON -12–35, LAT 34–72), and simplifies with Douglas-Peucker. Re-run and paste output into `index.html` only if the SVG region shapes need updating.
 17. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
