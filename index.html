@@ -1298,20 +1298,48 @@ function smUrl(route, stageNr) {
       5: 'https://hiking.waymarkedtrails.org/#route?id=187781',
       6: 'https://hiking.waymarkedtrails.org/#route?id=10670467',
       7: 'https://hiking.waymarkedtrails.org/#route?id=14234324',
+      8: 'https://hiking.waymarkedtrails.org/#route?id=15006813',
+      9: 'https://hiking.waymarkedtrails.org/#route?id=3371115',
+      10: 'https://hiking.waymarkedtrails.org/#route?id=16195169',
+      11: 'https://hiking.waymarkedtrails.org/#route?id=3394595',
     };
     return FR_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'de-hike') {
     const DE_HIKE_URLS = {
-      1: 'https://www.saechsische-schweiz.de/malerweg/',
-      2: 'https://www.schwarzwaldverein.de/westweg/',
-      3: 'https://www.goldsteig-frankenwald.de/goldsteig-suedroute/',
-      4: 'https://www.goldsteig-frankenwald.de/goldsteig-nordroute/',
-      5: 'https://www.heidschnuckenweg.de/',
-      6: 'https://hiking.waymarkedtrails.org/#route?id=3795969',
-      7: 'https://hiking.waymarkedtrails.org/#route?id=11243633',
+      1:  'https://www.saechsische-schweiz.de/malerweg/',
+      2:  'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/westweg/',
+      3:  'https://www.goldsteig-frankenwald.de/goldsteig-suedroute/',
+      4:  'https://www.goldsteig-frankenwald.de/goldsteig-nordroute/',
+      5:  'https://www.heidschnuckenweg.de/',
+      6:  'https://hiking.waymarkedtrails.org/#route?id=3795969',
+      7:  'https://hiking.waymarkedtrails.org/#route?id=11243633',
+      8:  'https://hiking.waymarkedtrails.org/#route?id=2717790',
+      9:  'https://hiking.waymarkedtrails.org/#route?id=2927471',
+      10: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/mittelweg/',
+      11: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/ostweg/',
+      12: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/querweg-freiburg-bodensee/',
+      13: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/markgraefler-wiiwegli/',
+      14: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/schluchtensteig/',
+      15: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/kandel-hoehenweg/',
+      16: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/schwarzwald-jura-bodensee/',
+      17: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/zweitaelersteig/',
+      18: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/breisgauer-weinweg/',
+      19: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/gaeurandweg/',
+      20: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/hochrhein-hoehenweg/',
+      21: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/interregio-wanderweg/',
+      22: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/murgleiter/',
+      23: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/ortenauer-weinpfad/',
+      24: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/querweg-gengenbach-alpirsbach/',
+      25: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/querweg-lahr-rottweil/',
+      26: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/querweg-schwarzwald-kaiserstuhl-rhein/',
+      27: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/renchtalsteig/',
+      28: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/rheinauenweg/',
+      29: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/schwarzwald-nordrandweg/',
+      30: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/wasserweltensteig/',
+      31: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/hotzenwald-querweg/',
     };
-    return DE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
+    return DE_HIKE_URLS[route.route_id] || 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/';
   }
   if (route.land === 'it-hike') {
     const IT_HIKE_URLS = {
@@ -1319,6 +1347,12 @@ function smUrl(route, stageNr) {
       2: 'https://hiking.waymarkedtrails.org/#route?id=3477430',
       3: 'https://hiking.waymarkedtrails.org/#route?id=12286842',
       4: 'https://hiking.waymarkedtrails.org/#route?id=14251864',
+      5: 'https://hiking.waymarkedtrails.org/#route?id=16944248',
+      6: 'https://hiking.waymarkedtrails.org/#route?id=15956980',
+      7: 'https://hiking.waymarkedtrails.org/#route?id=358901',
+      8: 'https://hiking.waymarkedtrails.org/#route?id=3159979',
+      9: 'https://hiking.waymarkedtrails.org/#route?id=15651288',
+      10: 'https://hiking.waymarkedtrails.org/#route?id=7011030',
     };
     return IT_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
@@ -1329,6 +1363,7 @@ function smUrl(route, stageNr) {
       3: 'https://hiking.waymarkedtrails.org/#route?id=16358020',
       4: 'https://hiking.waymarkedtrails.org/#route?id=318027',
       5: 'https://hiking.waymarkedtrails.org/#route?id=8883098',
+      6: 'https://hiking.waymarkedtrails.org/#route?id=6544796',
     };
     return ES_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
@@ -1352,11 +1387,17 @@ function smUrl(route, stageNr) {
   if (route.land === 'eu-hike') {
     const EU_HIKE_URLS = {
       1: 'https://hiking.waymarkedtrails.org/#route?id=20014200',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=3176522',
     };
     return EU_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'at-hike') {
-    return `https://hiking.waymarkedtrails.org/#route?id=2073724`;
+    const AT_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=2073724',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=18013720',
+      3: 'https://hiking.waymarkedtrails.org/#route?id=2926132',
+    };
+    return AT_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'hu-hike') {
     return `https://hiking.waymarkedtrails.org/#route?id=6007494`;
@@ -1374,11 +1415,19 @@ function smUrl(route, stageNr) {
   }
   if (route.land === 'nl-hike') {
     const NL_HIKE_URLS = {
-      1: 'https://hiking.waymarkedtrails.org/#route?id=312993',
-      2: 'https://hiking.waymarkedtrails.org/#route?id=156951',
-      3: 'https://hiking.waymarkedtrails.org/#route?id=1561342',
-      4: 'https://hiking.waymarkedtrails.org/#route?id=9588884',
-      5: 'https://hiking.waymarkedtrails.org/#route?id=8446574',
+      1:  'https://hiking.waymarkedtrails.org/#route?id=312993',
+      2:  'https://hiking.waymarkedtrails.org/#route?id=156951',
+      3:  'https://hiking.waymarkedtrails.org/#route?id=1561342',
+      4:  'https://hiking.waymarkedtrails.org/#route?id=9588884',
+      5:  'https://hiking.waymarkedtrails.org/#route?id=8446574',
+      6:  'https://hiking.waymarkedtrails.org/#route?id=8469244',
+      7:  'https://hiking.waymarkedtrails.org/#route?id=532494',
+      8:  'https://hiking.waymarkedtrails.org/#route?id=8435936',
+      9:  'https://hiking.waymarkedtrails.org/#route?id=1537463',
+      10: 'https://hiking.waymarkedtrails.org/#route?id=6715665',
+      11: 'https://hiking.waymarkedtrails.org/#route?id=8463196',
+      12: 'https://hiking.waymarkedtrails.org/#route?id=2801085',
+      13: 'https://hiking.waymarkedtrails.org/#route?id=6662765',
     };
     return NL_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
@@ -1386,10 +1435,19 @@ function smUrl(route, stageNr) {
     return `https://hiking.waymarkedtrails.org/#route?id=18632711`;
   }
   if (route.land === 'se-hike') {
-    return `https://hiking.waymarkedtrails.org/#route?id=7128733`;
+    const SE_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=7128733',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=280016',
+      3: 'https://hiking.waymarkedtrails.org/#route?id=10524322',
+    };
+    return SE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'no-hike') {
-    return `https://hiking.waymarkedtrails.org/#route?id=14772115`;
+    const NO_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=14772115',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=6364172',
+    };
+    return NO_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'ee-hike') {
     const EE_HIKE_URLS = {
@@ -1398,6 +1456,13 @@ function smUrl(route, stageNr) {
       3: 'https://hiking.waymarkedtrails.org/#route?id=15843108',
     };
     return EE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
+  }
+  // OSM-sourced Swiss trails use route_id >= 100 to avoid collision with SchweizMobil IDs
+  if (route.land === 'ch-hike' && route.route_id >= 100) {
+    const CH_OSM_URLS = {
+      100: 'https://hiking.waymarkedtrails.org/#route?id=1107386',
+    };
+    return CH_OSM_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
@@ -1409,12 +1474,14 @@ function smUrl(route, stageNr) {
 const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP', 5: 'nationaltrail.co.uk', 6: 'nationaltrail.co.uk', 7: 'nationaltrail.co.uk', 8: 'nationaltrail.co.uk', 13: 'nationaltrail.co.uk' };
 const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
 const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de' };
+const SV_SLUGS = { 10:'mittelweg', 11:'ostweg', 12:'querweg-freiburg-bodensee', 13:'markgraefler-wiiwegli', 14:'schluchtensteig', 15:'kandel-hoehenweg', 16:'schwarzwald-jura-bodensee', 17:'zweitaelersteig', 18:'breisgauer-weinweg', 19:'gaeurandweg', 20:'hochrhein-hoehenweg', 21:'interregio-wanderweg', 22:'murgleiter', 23:'ortenauer-weinpfad', 24:'querweg-gengenbach-alpirsbach', 25:'querweg-lahr-rottweil', 26:'querweg-schwarzwald-kaiserstuhl-rhein', 27:'renchtalsteig', 28:'rheinauenweg', 29:'schwarzwald-nordrandweg', 30:'wasserweltensteig', 31:'hotzenwald-querweg' };
 const IT_HIKE_SOURCE_LABELS = { 1: 'altavia1dolomites.com' };
 function sourceLabel(route) {
   if (route.land === 'uk') return UK_ROUTE_LABELS[route.route_id] || 'waymarkedtrails.org';
   if (route.land === 'fr-hike') return FR_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
-  if (route.land === 'de-hike') return DE_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
+  if (route.land === 'de-hike') return DE_HIKE_SOURCE_LABELS[route.route_id] || (SV_SLUGS[route.route_id] ? 'schwarzwaldverein.de' : 'waymarkedtrails.org');
   if (route.land === 'it-hike') return IT_HIKE_SOURCE_LABELS[route.route_id] || 'waymarkedtrails.org';
+  if (route.land === 'ch-hike' && route.route_id >= 100) return 'waymarkedtrails.org';
   if (route.land === 'es-hike') return 'waymarkedtrails.org';
   if (route.land === 'ie-hike') return 'waymarkedtrails.org';
   if (route.land === 'pt-hike') return 'rotavicentina.com';
