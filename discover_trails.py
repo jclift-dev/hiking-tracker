@@ -551,6 +551,24 @@ def main():
     catalog = load_catalog()
 
     # ------------------------------------------------------------------
+    # Phase 0: Sync in-app status (always runs — no network calls)
+    # Keeps already_in_app / filter_status consistent when trails are
+    # added to scraper_osm.py between full Overpass runs.
+    # ------------------------------------------------------------------
+    synced = 0
+    for entry in catalog.values():
+        in_app_now = entry["osm_id"] in IN_APP_IDS
+        if in_app_now and not entry.get("already_in_app"):
+            entry["already_in_app"] = True
+            entry["filter_status"]  = "in_app"
+            synced += 1
+        elif not in_app_now and entry.get("already_in_app"):
+            entry["already_in_app"] = False
+    if synced:
+        print(f"Phase 0 — In-app sync: {synced} entries newly marked in_app")
+        save_catalog(catalog)
+
+    # ------------------------------------------------------------------
     # Phase 1: Overpass
     # ------------------------------------------------------------------
     if not args.enrich_only:
