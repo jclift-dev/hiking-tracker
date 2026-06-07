@@ -30,12 +30,13 @@ A hiking tracker for a small group of users, with components:
 8. **`scraper_nationaltrail.py`** — fetches day-stage data for UK National Trails from `nationaltrail.co.uk`. Covers South Downs Way (route_id=5), Cotswold Way (6), Hadrian's Wall Path (7), and Pembrokeshire Coast Path (8). All `land="uk"`. Includes GPX-based elevation splitting.
 9. **`scraper_gr.py`** — fetches French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages) from podiensis.com and chamina-voyages.com. Also backfills GR20 distances from thepostrace.com.
 10. **`scraper_osm.py`** — fetches long-distance trails from OpenStreetMap via the Waymarked Trails API (`hiking.waymarkedtrails.org`). Covers trails in UK, France, Germany, Spain, Italy, Ireland, Portugal, Austria, Hungary, Czech Republic, Slovenia, Netherlands, Belgium, Sweden, Norway, Estonia, and Europe. Data is © OpenStreetMap contributors, ODbL 1.0.
-11. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
-12. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
-13. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
-14. **`enrich_regions.py`** — enriches `hikes.json` stages with `country` (ISO 2-letter lowercase) and `admin1` (ISO 3166-2 lowercase) fields used by the Europe dashboard map. For OSM-based stages: fetches geometry from Waymarked Trails → midpoint → point-in-polygon against Natural Earth admin-1 boundaries. For website-scraped stages: uses hardcoded `ROUTE_DEFAULTS`. Run after scraping new European trails, then re-import to Supabase. Caches Natural Earth GeoJSON to `.ne_admin1.json`.
-15. **`make_europe_svg.py`** — one-off script that generates the `europePaths` JavaScript constant embedded in `index.html`. Downloads Natural Earth 10m admin-1 GeoJSON, filters to 19 countries (AT, BE, CH, CZ, DE, EE, ES, FR, GB, HU, IE, IT, LI, MC, NL, NO, PT, SE, SI), projects with equirectangular projection (LON -12–35, LAT 34–72), and simplifies with Douglas-Peucker. Re-run and paste output into `index.html` only if the SVG region shapes need updating.
-16. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
+11. **`scraper_schwarzwaldverein.py`** — fetches 22 Fernwanderwege (long-distance trails) from `schwarzwaldverein.de`. All `land="de-hike"`, route_ids 10–31. Stage data (number, start, end, distance) parsed from `elementor-icon-list-text` spans. Handles variant stages (A/B) by using only the first variant. Route-level totals (total_km, elev_up, elev_down, difficulty) also extracted. Per-stage elevation is available on 4 trails only — Schluchtensteig (route_id=14), Kandelhöhenweg (15), ZweiTälerSteig (17), Murgleiter (22) — backfilled via `scraper_osm.py --backfill-elevation` by manually injecting `_osm_id` values onto each stage (see "Backfilling elevation for website-scraped trails" below). All others have route-level totals only. Resumable: re-running skips cached routes unless `--refresh` is passed.
+12. **`index.html`** — a single-file vanilla JS web app. Authenticates via Supabase email+password, loads route data from Supabase, and lets users track completed stages, filter/search routes, and switch between countries and activities (hiking/cycling).
+13. **`test_sbb.py`** — sanity-checks the transport.opendata.ch API for all planned SBB origins. Run with `python3 test_sbb.py`.
+14. **`discover_local.py`** — Playwright script used to intercept SchweizMobil network traffic and discover API endpoints for local routes. One-off research tool.
+15. **`enrich_regions.py`** — enriches `hikes.json` stages with `country` (ISO 2-letter lowercase) and `admin1` (ISO 3166-2 lowercase) fields used by the Europe dashboard map. For OSM-based stages: fetches geometry from Waymarked Trails → midpoint → point-in-polygon against Natural Earth admin-1 boundaries. For website-scraped stages: uses hardcoded `ROUTE_DEFAULTS`. Run after scraping new European trails, then re-import to Supabase. Caches Natural Earth GeoJSON to `.ne_admin1.json`.
+16. **`make_europe_svg.py`** — one-off script that generates the `europePaths` JavaScript constant embedded in `index.html`. Downloads Natural Earth 10m admin-1 GeoJSON, filters to 19 countries (AT, BE, CH, CZ, DE, EE, ES, FR, GB, HU, IE, IT, LI, MC, NL, NO, PT, SE, SI), projects with equirectangular projection (LON -12–35, LAT 34–72), and simplifies with Douglas-Peucker. Re-run and paste output into `index.html` only if the SVG region shapes need updating.
+17. **Supabase** — hosted Postgres DB for route data and per-user state (completions, ratings, notes). Auth via email + password.
 
 ## Land value naming convention
 
@@ -46,22 +47,22 @@ The `land` field combines country code and activity: `{country}-{activity}` (e.g
 | `ch-hike`  | Switzerland | Hiking   | SchweizMobil national/regional hiking routes (1-7, 10-99) |
 | `ch-cycle` | Switzerland | Cycling  | SchweizMobil national/regional cycling routes (1-7, 10-99) |
 | `uk`       | UK          | Hiking   | SWCP (53 stages), WHW (8), ODP (12), South Downs Way (9), Cotswold Way (15), Hadrian's Wall Path (6), Pembrokeshire Coast Path (15), Cape Wrath (1), Pennine Way (OSM), John O'Groats Trail (14, OSM), John Muir Way (10, OSM), Skye Trail (7, OSM), England Coast Path (44, OSM), Ulster Way (14, OSM) |
-| `fr-hike`  | France      | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (1, OSM), Voie de Tours (15, OSM), Du Jura à la Méditerranée (20, OSM), La Routo (7, OSM) |
-| `it-hike`  | Italy       | Hiking   | Alta Via 1 (11 stages, Dolomites), Sentiero della Pace (7, OSM), Cammino Celeste (11, OSM), Cammino Materano Via Peuceta (7, OSM) |
-| `de-hike`  | Germany     | Hiking   | Malerweg (8), Westweg (OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (8, OSM), Rheinburgenweg (13, OSM) |
-| `es-hike`  | Spain       | Hiking   | GR11 Senda Pirenaica (OSM), Camino Primitivo (OSM), GR221 Ruta de Pedra en Sec (OSM), GR7 Andorra-Gibraltar (41, OSM), Sulayr (19, OSM) |
+| `fr-hike`  | France      | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (41, OSM), Voie de Tours (15, OSM), Du Jura à la Méditerranée (36, OSM), La Routo (7, OSM), Sur les Pas des Huguenots en Cévennes (24, OSM), Via Arverna (22, OSM), GR 300 Chemin de Saint-Michel (19, OSM), GR 367 Sentier Cathare (13, OSM) |
+| `it-hike`  | Italy       | Hiking   | Alta Via 1 (11 stages, Dolomites), Sentiero della Pace (7, OSM), Cammino Celeste (11, OSM), Cammino Materano Via Peuceta (7, OSM), Cammino della Pace (29, OSM), Cammino delle Pievi (20, OSM), Grande Escursione Appenninica (25, OSM), Grande Traversata delle Alpi (25, OSM), Cammino di Santu Jacu (24, OSM), Sentiero Italia Sardegna (30, OSM), Alta Via n. 2 della Valle d'Aosta (14, OSM 9898948) |
+| `de-hike`  | Germany     | Hiking   | Malerweg (8), Westweg (9, OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (6, OSM), Rheinburgenweg (13, OSM), Märchenlandweg (33, OSM), ViaJacobi (32, OSM — actually a Swiss route, Rorschach/Konstanz→Geneva, miscategorised under de-hike), Rheinsteig (21, OSM 2685, route_id=32, Bonn→Wiesbaden); Schwarzwaldverein Fernwanderwege (route_ids 10–31): Mittelweg (9), Ostweg (12), Querweg Freiburg–Bodensee (7), Markgräfler Wiiwegli (5), Schluchtensteig (6, ✓elev), Kandelhöhenweg (5, ✓elev), Schwarzwald-Jura-Bodensee (5), ZweiTälerSteig (5, ✓elev), Breisgauer Weinweg (6), Gäurandweg (5), Hochrhein-Höhenweg (6), Interregio-Wanderweg (11), Murgleiter (5, ✓elev), Ortenauer Weinpfad (5), Querweg Gengenbach–Alpirsbach (3), Querweg Lahr–Rottweil (4), Querweg Schwarzwald–Kaiserstuhl–Rhein (5), Renchtalsteig (5), Rheinauenweg (7), Schwarzwald-Nordrandweg (3), Wasserweltensteig (6), Hotzenwald-Querweg (2). ✓elev = per-stage elevation via OSM `_osm_id` injection |
+| `es-hike`  | Spain       | Hiking   | GR11 Senda Pirenaica (37, OSM), Camino Primitivo (11, OSM), GR221 Ruta de Pedra en Sec (8, OSM), GR7 Andorra-Gibraltar (41, OSM), Sulayr (19, OSM), GR 109 Asturias Interior (27, OSM), Camí del Llobregat (9, OSM 9681617), Sendero de la Alpujarra (12, OSM 9913208) |
 | `ie-hike`  | Ireland     | Hiking   | Wicklow Way (OSM), Kerry Way (OSM), Dingle Way (OSM), Causeway Coast Way (OSM), Beara Way (OSM), Western Way (OSM) |
 | `pt-hike`  | Portugal    | Hiking   | Rota Vicentina - Trilho dos Pescadores (13, OSM 20810829) |
-| `at-hike`  | Austria     | Hiking   | Jakobsweg Österreich (17, OSM 2073724) |
+| `at-hike`  | Austria     | Hiking   | Jakobsweg Österreich (17, OSM 2073724), BergeSeen Trail (23, OSM), Panoramaweg Südalpen (20, OSM) |
 | `hu-hike`  | Hungary     | Hiking   | Országos Kéktúra (27, OSM 6007494) |
 | `cz-hike`  | Czech Republic | Hiking | Via Czechia Severní stezka (15, OSM), Centrální stezka (12, OSM), Jižní stezka (12, OSM) |
 | `si-hike`  | Slovenia    | Hiking   | Julius Kugy Alpine Trail (30, OSM 10909145) |
-| `nl-hike`  | Netherlands | Hiking   | Pieterpad deel 1 (13, OSM), Pieterpad deel 2 (13, OSM), Zuiderzeepad (28, OSM), Pelgrimspad deel 1 (12, OSM), Pelgrimspad deel 2 (15, OSM) |
+| `nl-hike`  | Netherlands | Hiking   | Pieterpad deel 1 (13, OSM), Pieterpad deel 2 (13, OSM), Zuiderzeepad (28, OSM), Pelgrimspad deel 1 (12, OSM), Pelgrimspad deel 2 (15, OSM), Westerborkpad (28, OSM), Trekvogelpad (24, OSM), Maarten van Rossumpad (24, OSM), Noaberpad (23, OSM), Waterliniepad (21, OSM), Grenslandpad (20, OSM), Marskramerpad (20, OSM), Groot Frieslandpad (23, OSM) |
 | `be-hike`  | Belgium     | Hiking   | Via Brabantica (7, OSM 18632711) |
-| `se-hike`  | Sweden      | Hiking   | Hälsingeleden (22, OSM 7128733) |
-| `no-hike`  | Norway      | Hiking   | Fjordruta på Nordmøre (14, OSM 14772115) |
+| `se-hike`  | Sweden      | Hiking   | Hälsingeleden (22, OSM 7128733), Bohusleden (27, OSM), St. Olavsleden (29, OSM), Stockholm Archipelago Trail (19, OSM 19012437), Kungsleden (31, OSM 1657661), Skåneleden SL1 (20, OSM 23828), SL2 (19, OSM 415700), SL3 (14, OSM 68019), SL4 (12, OSM 408995), SL5 (19, OSM 399333), SL6 (10, OSM 11583146) |
+| `no-hike`  | Norway      | Hiking   | Fjordruta på Nordmøre (14, OSM 14772115), Nordland trekking trail (43, OSM), Lofoten Long Crossing (11, OSM 19229749) |
 | `ee-hike`  | Estonia     | Hiking   | Euroopa matkarada E9 (31, OSM), Peraküla-Aegviidu-Ähijärve haru (11, OSM), Camino Estonia (10, OSM) |
-| `eu-hike`  | Europe (multi-country) | Hiking | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200) |
+| `eu-hike`  | Europe (multi-country) | Hiking | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200), Alpe Adria Trail (43, OSM 3176522), Tour du Mont Blanc (11, OSM 6436417) |
 
 ## Running the scraper
 
@@ -272,14 +273,26 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | 19995501  | `de-hike` | 5        | Heidschnuckenweg               |
 | 3795969   | `de-hike` | 6        | Lutherweg 1521 (8 stages)      |
 | 11243633  | `de-hike` | 7        | Rheinburgenweg (13 stages)     |
-| 8865914   | `es-hike` | 1        | Senda Pirenaica (GR11)         |
-| 19298101  | `es-hike` | 2        | Camino Primitivo               |
-| 16358020  | `es-hike` | 3        | GR 221 Ruta de Pedra en Sec    |
+| 2717790   | `de-hike` | 8        | Märchenlandweg (33 stages)     |
+| 2927471   | `de-hike` | 9        | ViaJacobi (32 stages)          |
+| 8865914   | `es-hike` | 1        | Senda Pirenaica (GR11) (37 stages) |
+| 19298101  | `es-hike` | 2        | Camino Primitivo (11 stages)   |
+| 16358020  | `es-hike` | 3        | GR 221 Ruta de Pedra en Sec (8 stages) |
 | 318027    | `es-hike` | 4        | GR 7: Andorra - Gibraltar (41 stages, level-2 expanded) |
 | 8883098   | `es-hike` | 5        | Sulayr (19 stages)             |
+| 6544796   | `es-hike` | 6        | GR 109 Asturias Interior (27 stages) |
+| 9681617   | `es-hike` | 7        | Camí del Llobregat (9 stages)  |
+| 9913208   | `es-hike` | 8        | Sendero de la Alpujarra (12 stages) |
 | 3477430   | `it-hike` | 2        | Sentiero della Pace (7 stages) |
 | 12286842  | `it-hike` | 3        | Cammino Celeste (11 stages)    |
 | 14251864  | `it-hike` | 4        | Cammino Materano - Via Peuceta (7 stages) |
+| 16944248  | `it-hike` | 5        | Cammino della Pace (29 stages) |
+| 15956980  | `it-hike` | 6        | Cammino delle Pievi (20 stages) |
+| 358901    | `it-hike` | 7        | Grande Escursione Appenninica (25 stages) |
+| 3159979   | `it-hike` | 8        | Grande Traversata delle Alpi (25 stages) |
+| 15651288  | `it-hike` | 9        | Cammino di Santu Jacu (24 stages) |
+| 7011030   | `it-hike` | 10       | Sentiero Italia - Sardegna (30 stages) |
+| 9898948   | `it-hike` | 11       | Alta Via n. 2 della Valle d'Aosta (14 stages) |
 | 2740      | `ie-hike` | 1        | Wicklow Way (single stage)     |
 | 183744    | `ie-hike` | 2        | The Kerry Way (single stage)   |
 | 21664     | `ie-hike` | 3        | The Dingle Way (single stage)  |
@@ -288,6 +301,8 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | 14702338  | `ie-hike` | 6        | Western Way (single stage)     |
 | 20810829  | `pt-hike` | 1        | Rota Vicentina - Trilho dos Pescadores (13 stages) |
 | 2073724   | `at-hike` | 1        | Jakobsweg Österreich (17 stages) |
+| 18013720  | `at-hike` | 2        | BergeSeen Trail (23 stages)    |
+| 2926132   | `at-hike` | 3        | Panoramaweg Südalpen (20 stages) |
 | 6007494   | `hu-hike` | 1        | Országos Kéktúra (27 stages)   |
 | 16828381  | `cz-hike` | 1        | Via Czechia - Severní stezka (15 stages) |
 | 16828379  | `cz-hike` | 2        | Via Czechia - Centrální stezka (12 stages) |
@@ -298,35 +313,68 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}` �
 | 1561342   | `nl-hike` | 3        | Zuiderzeepad (28 stages)       |
 | 9588884   | `nl-hike` | 4        | Pelgrimspad deel 1 (12 stages) |
 | 8446574   | `nl-hike` | 5        | Pelgrimspad deel 2 (15 stages) |
+| 8469244   | `nl-hike` | 6        | Westerborkpad (28 stages)      |
+| 532494    | `nl-hike` | 7        | Trekvogelpad (24 stages)       |
+| 8435936   | `nl-hike` | 8        | Maarten van Rossumpad (24 stages) |
+| 1537463   | `nl-hike` | 9        | Noaberpad (23 stages)          |
+| 6715665   | `nl-hike` | 10       | Waterliniepad (21 stages)      |
+| 8463196   | `nl-hike` | 11       | Grenslandpad (20 stages)       |
+| 2801085   | `nl-hike` | 12       | Marskramerpad (20 stages)      |
+| 6662765   | `nl-hike` | 13       | Groot Frieslandpad (23 stages) |
 | 18632711  | `be-hike` | 1        | Via Brabantica (7 stages)      |
 | 7128733   | `se-hike` | 1        | Hälsingeleden (22 stages)      |
+| 280016    | `se-hike` | 2        | Bohusleden (27 stages)         |
+| 10524322  | `se-hike` | 3        | St. Olavsleden (29 stages)     |
+| 19012437  | `se-hike` | 4        | Stockholm Archipelago Trail (19 stages) |
+| 1657661   | `se-hike` | 5        | Kungsleden (31 stages, Abisko→Hemavan) |
+| 23828     | `se-hike` | 6        | Skåneleden SL1 - Kust till kust (20 stages) |
+| 415700    | `se-hike` | 7        | Skåneleden SL2 - Nord till syd (19 stages) |
+| 68019     | `se-hike` | 8        | Skåneleden SL3 - Ås till ås (14 stages) |
+| 408995    | `se-hike` | 9        | Skåneleden SL4 - Österlen (12 stages) |
+| 399333    | `se-hike` | 10       | Skåneleden SL5 - Öresund (19 stages) |
+| 11583146  | `se-hike` | 11       | Skåneleden SL6 - Vattenriket (10 stages) |
 | 14772115  | `no-hike` | 1        | Fjordruta på Nordmøre (14 stages) |
+| 6364172   | `no-hike` | 2        | Nordland trekking trail (43 stages) |
+| 19229749  | `no-hike` | 3        | Lofoten Long Crossing (11 stages) |
 | 9645763   | `ee-hike` | 1        | Euroopa matkarada E9 (31 stages) |
 | 13182780  | `ee-hike` | 2        | Peraküla-Aegviidu-Ähijärve haru (11 stages) |
 | 15843108  | `ee-hike` | 3        | Camino Estonia (10 stages)     |
-
+| 20014200  | `eu-hike` | 1        | Via Alpina (116 stages, Monaco → Trieste) |
+| 3176522   | `eu-hike` | 2        | Alpe Adria Trail (43 stages, Salzburg → Trieste) |
+| 6436417   | `eu-hike` | 3        | Tour du Mont Blanc (11 stages, circular FR/IT/CH, CCW) |
 **Resumable:** re-running skips fully-cached trails (matched by `_osm_id` on each stage). `--refresh-trail <id>` re-fetches even if cached.
 
 **Elevation:** OpenTopoData SRTM30m, 1000 req/day quota (~1 call per stage). Detects quota exhaustion and saves progress. Stage variants (OSM names containing "Variante") and micro-stages (< 1 km by parent-reported length) are filtered automatically.
 
+**Permanent elevation gap — Scandinavian trails (236 stages):** The following OSM relations exist but their subroute geometry is not exposed via the Waymarked Trails API, so elevation will remain `null` permanently without a different geometry source:
+- Hälsingeleden (22 stages, se-hike)
+- St. Olavsleden (29 stages, se-hike)
+- Kungsleden (31 stages, se-hike)
+- Skåneleden SL1–SL6 (20+19+14+12+19+10 = 94 stages, se-hike)
+- Fjordruta på Nordmøre (14 stages, no-hike)
+- Nordland trekking trail (43 stages, no-hike)
+- Lofoten Long Crossing (11 stages, no-hike — no WT geometry at all)
+
+**Backfilling elevation for website-scraped trails:** `--backfill-elevation` also works on non-OSM stages if `_osm_id` is manually injected. Pattern: search WT by trail name (`/api/v1/list/search?query=NAME`), verify the subroute count matches the stage count exactly, then set `stage["_osm_id"]` on each stage in hikes.json and run `--backfill-elevation`. Used to add elevation to 4 Schwarzwaldverein trails (Schluchtensteig, Kandelhöhenweg, ZweiTälerSteig, Murgleiter). Never run two scraper_osm.py processes simultaneously against hikes.json.
+
 **Adding a new trail:** look up the OSM relation ID on `hiking.waymarkedtrails.org`, check it has subroutes at one level (`/api/v1/details/relation/{id}` → `.route.main[].route_type == "route"`), add to `TRAILS` in `scraper_osm.py`, and add the new `smUrl` / `sourceLabel` entries in `index.html` if needed.
 
-**Deferred** (no viable day-stage subroutes at one level): GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~300 km), Rennsteig, Cleveland Way, Alta Via 2, GR54, Camino del Norte (5×~180 km).
+**Deferred** (no viable day-stage subroutes at one level): GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~300 km), GR10 Pyrenean Traverse (9×~100 km sections), Coast to Coast (raw way geometry only), Rennsteig, Cleveland Way, Alta Via 2, GR54, Camino del Norte (5×~180 km), Rothaarsteig (id=None children), Via Francigena (id=None at all levels), Lycian Way (id=None), Caminho Português (id=None), Badische Jakobswege (id=None).
 
 **Future candidates** (not yet probed — check OSM relation before adding):
 
 | Trail | Country | Notes |
 |---|---|---|
 | Offa's Dyke (OSM) | `uk` | Already have ODP from nationaltrail.co.uk; skip unless replacing |
-| GR10 Pyrenean Traverse | `fr-hike` | French side of the Pyrenees; no clean parent relation identified yet |
-| Tour du Mont Blanc | `fr-hike` / `it-hike` | Circular; may not have day-stage subroutes |
+| GR10 Pyrenean Traverse | `fr-hike` | Deferred — WT has 9 sections of ~100 km with no day-stage breakdown |
+| Tour du Mont Blanc | `eu-hike` route_id=3 | ✓ Done — OSM 6436417 (CCW), 11 stages |
 | Via Francigena | `it-hike` | Canterbury → Rome; check if Italian section has subroutes |
 | Lycian Way | (new `tr-hike`) | Turkey; needs new land value |
 | Camino Portugués | `pt-hike` | Likely has subroutes; worth checking |
 | Camino Francés | `es-hike` | Most popular Camino; parent relation not yet identified |
 | E1 / E4 / E8 (European paths) | varies | Long multi-country paths; likely too coarse |
 | Rothaarsteig | `de-hike` | Sauerland ridge trail; check for subroutes |
-| Rheinsteig | `de-hike` | Rhine gorge trail; check for subroutes |
+| Rheinsteig | `de-hike` | ✓ Done — OSM 2685, 21 stages, Bonn→Wiesbaden |
 | Rennsteig | `de-hike` | Currently deferred (flat relation — 0 subroutes) |
 
 To check a candidate: `curl "https://hiking.waymarkedtrails.org/api/v1/details/relation/{id}" | python3 -m json.tool | grep -E '"route_type"|"length"'` — look for 10–40 children each 5–40 km.
@@ -340,7 +388,7 @@ SUPABASE_URL=https://mpgkkmkvzgqkvtoearxp.supabase.co
 SUPABASE_SERVICE_KEY=<service_role key>
 ```
 
-Load with: `export $(cat .env | xargs) && python3 scraper.py --import`
+Load with: `source .env && python3 scraper.py --import`
 
 ### Supabase land CHECK constraint
 
@@ -516,13 +564,8 @@ All routes are cached after the first `--routes-only` run. Each subsequent `--sb
 
 Use `python3 scraper.py --sbb-all` to process all origins in sequence (run in `tmux` so it survives laptop sleep). It skips complete origins and processes incomplete ones shortest-first.
 
-**Complete (1179 Swiss stages each):**
-Basel SBB, Bern, Biel/Bienne, Chur, Genève, Interlaken Ost, Lausanne, Lugano, Luzern, St. Gallen, Zürich HB
-
-**Incomplete:**
-- Thun — 701/1179 stages (as of 2026-06-04)
-
-> **Note:** Basel SBB shows 1332 stages due to counting methodology; all 11 planned Swiss origins plus Thun are effectively complete for the 1179 Swiss hiking/cycling stages. Thun is the only origin with remaining work.
+**Complete (all 12 origins, all Swiss stages):**
+Basel SBB, Bern, Biel/Bienne, Chur, Genève, Interlaken Ost, Lausanne, Lugano, Luzern, St. Gallen, Thun, Zürich HB
 
 ### Dev servers
 

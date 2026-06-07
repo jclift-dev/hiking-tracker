@@ -39,7 +39,11 @@ WT_DELAY       = 1.8   # seconds between Waymarked Trails requests
 USER_AGENT     = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
 # Lands to enrich (all European non-Swiss)
-EU_LANDS = {"eu-hike", "fr-hike", "de-hike", "it-hike", "es-hike", "ie-hike", "uk"}
+EU_LANDS = {
+    "eu-hike", "fr-hike", "de-hike", "it-hike", "es-hike", "ie-hike", "uk",
+    "pt-hike", "at-hike", "hu-hike", "cz-hike", "si-hike",
+    "nl-hike", "be-hike", "se-hike", "no-hike", "ee-hike",
+}
 
 # ---------------------------------------------------------------------------
 # Hardcoded defaults for website-scraped routes (no _osm_id on stages).
@@ -108,6 +112,29 @@ ROUTE_DEFAULTS = {
         (6,  None, "gb", "gb-cma"), # Cumbria: Birdoswald → Bowness-on-Solway
     ],
     ("uk", 8):  [(1, None, "gb", "gb-pem")],             # Pembrokeshire Coast Path
+    # Germany — Schwarzwaldverein Fernwanderwege (route_ids 10–31), all in Baden-Württemberg
+    ("de-hike", 10): [(1, None, "de", "de-bw")],  # Mittelweg
+    ("de-hike", 11): [(1, None, "de", "de-bw")],  # Ostweg
+    ("de-hike", 12): [(1, None, "de", "de-bw")],  # Querweg Freiburg-Bodensee
+    ("de-hike", 13): [(1, None, "de", "de-bw")],  # Markgräfler Wiiwegli
+    ("de-hike", 14): [(1, None, "de", "de-bw")],  # Schluchtensteig
+    ("de-hike", 15): [(1, None, "de", "de-bw")],  # Kandelhöhenweg
+    ("de-hike", 16): [(1, None, "de", "de-bw")],  # Schwarzwald-Jura-Bodensee
+    ("de-hike", 17): [(1, None, "de", "de-bw")],  # ZweiTälerSteig
+    ("de-hike", 18): [(1, None, "de", "de-bw")],  # Breisgauer Weinweg
+    ("de-hike", 19): [(1, None, "de", "de-bw")],  # Gäurandweg
+    ("de-hike", 20): [(1, None, "de", "de-bw")],  # Hochrhein-Höhenweg
+    ("de-hike", 21): [(1, None, "de", "de-bw")],  # Interregio-Wanderweg
+    ("de-hike", 22): [(1, None, "de", "de-bw")],  # Murgleiter
+    ("de-hike", 23): [(1, None, "de", "de-bw")],  # Ortenauer Weinpfad
+    ("de-hike", 24): [(1, None, "de", "de-bw")],  # Querweg Gengenbach-Alpirsbach
+    ("de-hike", 25): [(1, None, "de", "de-bw")],  # Querweg Lahr-Rottweil
+    ("de-hike", 26): [(1, None, "de", "de-bw")],  # Querweg Schwarzwald-Kaiserstuhl-Rhein
+    ("de-hike", 27): [(1, None, "de", "de-bw")],  # Renchtalsteig
+    ("de-hike", 28): [(1, None, "de", "de-bw")],  # Rheinauenweg
+    ("de-hike", 29): [(1, None, "de", "de-bw")],  # Schwarzwald-Nordrandweg
+    ("de-hike", 30): [(1, None, "de", "de-bw")],  # Wasserweltensteig
+    ("de-hike", 31): [(1, None, "de", "de-bw")],  # Hotzenwald-Querweg
 }
 
 

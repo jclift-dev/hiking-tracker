@@ -101,14 +101,21 @@ TRAILS = [
     (187781,   "fr-hike", 5, "national", "Voie de Tours"),
     (10670467, "fr-hike", 6, "national", "Du Jura à la Méditerranée"),
     (14234324, "fr-hike", 7, "national", "La Routo"),
+    (15006813, "fr-hike", 8, "national", "Sur les Pas des Huguenots en Cévennes"),
+    (3371115,  "fr-hike", 9, "national", "Via Arverna"),
+    (16195169, "fr-hike", 10, "national", "GR 300 Chemin de Saint-Michel"),
+    (3394595,  "fr-hike", 11, "national", "GR 367 Sentier Cathare"),
 
     # Germany
-    (62900,    "de-hike", 2, "national", "Westweg"),
+    # (62900, "de-hike", 2) — Westweg: OSM relation stops at Titisee (9 stages), missing Basel section. Now scraped from schwarzwaldverein.de (11 stages, western variant) via scraper_schwarzwaldverein.py.
     (61185,    "de-hike", 3, "national", "Goldsteig-Südroute"),
     (3300718,  "de-hike", 4, "national", "Goldsteig-Nordroute"),
     (19995501, "de-hike", 5, "national", "Heidschnuckenweg"),
     (3795969,  "de-hike", 6, "national", "Lutherweg 1521"),
     (11243633, "de-hike", 7, "national", "Rheinburgenweg"),
+    (2717790,  "de-hike", 8, "national", "Märchenlandweg"),
+    (2927471,  "de-hike", 9, "national", "ViaJacobi"),
+    (2685,     "de-hike", 32, "national", "Rheinsteig"),
 
     # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
@@ -116,12 +123,22 @@ TRAILS = [
     (16358020, "es-hike", 3, "national", "GR 221 Ruta de Pedra en Sec"),
     (318027,   "es-hike", 4, "national", "GR 7: Andorra - Estrecho de Gibraltar"),
     (8883098,  "es-hike", 5, "national", "Sulayr"),
-    # (18021078, "es-hike", 6) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
+    (6544796,  "es-hike", 6, "national", "GR 109 Asturias Interior"),
+    (9681617,  "es-hike", 7, "national", "Camí del Llobregat"),
+    (9913208,  "es-hike", 8, "national", "Sendero de la Alpujarra"),
+    # (18021078, "es-hike", ?) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
 
     # Italy
     (3477430,  "it-hike", 2, "national", "Sentiero della Pace"),
     (12286842, "it-hike", 3, "national", "Cammino Celeste"),
     (14251864, "it-hike", 4, "national", "Cammino Materano - Via Peuceta"),
+    (16944248, "it-hike", 5, "national", "Cammino della Pace"),
+    (15956980, "it-hike", 6, "national", "Cammino delle Pievi"),
+    (358901,   "it-hike", 7, "national", "Grande Escursione Appenninica"),
+    (3159979,  "it-hike", 8, "national", "Grande Traversata delle Alpi"),
+    (15651288, "it-hike", 9, "national", "Cammino di Santu Jacu"),
+    (7011030,  "it-hike", 10, "national", "Sentiero Italia - Sardegna"),
+    (9898948,  "it-hike", 11, "national", "Alta Via n. 2 della Valle d'Aosta"),
 
     # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),
@@ -134,8 +151,10 @@ TRAILS = [
     # Portugal (pt-hike — add to Supabase CHECK before --import)
     (20810829, "pt-hike", 1, "national", "Rota Vicentina - Trilho dos Pescadores"),
 
-    # Austria (at-hike — add to Supabase CHECK before --import)
+    # Austria (at-hike)
     (2073724,  "at-hike", 1, "national", "Jakobsweg Österreich"),
+    (18013720, "at-hike", 2, "national", "BergeSeen Trail"),
+    (2926132,  "at-hike", 3, "national", "Panoramaweg Südalpen"),
 
     # Hungary (hu-hike — add to Supabase CHECK before --import)
     (6007494,  "hu-hike", 1, "national", "Országos Kéktúra"),
@@ -148,21 +167,41 @@ TRAILS = [
     # Slovenia (si-hike — add to Supabase CHECK before --import)
     (10909145, "si-hike", 1, "national", "Julius Kugy Alpine Trail"),
 
-    # Netherlands (nl-hike — add to Supabase CHECK before --import)
+    # Netherlands (nl-hike)
     (312993,   "nl-hike", 1, "national", "Pieterpad deel 1"),
     (156951,   "nl-hike", 2, "national", "Pieterpad deel 2"),
     (1561342,  "nl-hike", 3, "national", "Zuiderzeepad"),
     (9588884,  "nl-hike", 4, "national", "Pelgrimspad deel 1"),
     (8446574,  "nl-hike", 5, "national", "Pelgrimspad deel 2"),
+    (8469244,  "nl-hike", 6, "national", "Westerborkpad"),
+    (532494,   "nl-hike", 7, "national", "Trekvogelpad"),
+    (8435936,  "nl-hike", 8, "national", "Maarten van Rossumpad"),
+    (1537463,  "nl-hike", 9, "national", "Noaberpad"),
+    (6715665,  "nl-hike", 10, "national", "Waterliniepad"),
+    (8463196,  "nl-hike", 11, "national", "Grenslandpad"),
+    (2801085,  "nl-hike", 12, "national", "Marskramerpad"),
+    (6662765,  "nl-hike", 13, "national", "Groot Frieslandpad"),
 
-    # Belgium (be-hike — add to Supabase CHECK before --import)
+    # Belgium (be-hike)
     (18632711, "be-hike", 1, "national", "Via Brabantica"),
 
-    # Sweden (se-hike — add to Supabase CHECK before --import)
+    # Sweden (se-hike)
     (7128733,  "se-hike", 1, "national", "Hälsingeleden"),
+    (280016,   "se-hike", 2, "national", "Bohusleden"),
+    (10524322, "se-hike", 3, "national", "St. Olavsleden"),
+    (19012437, "se-hike", 4, "national", "Stockholm Archipelago Trail"),
+    (1657661,  "se-hike", 5, "national", "Kungsleden"),
+    (23828,    "se-hike", 6, "national", "Skåneleden SL1 - Kust till kust"),
+    (415700,   "se-hike", 7, "national", "Skåneleden SL2 - Nord till syd"),
+    (68019,    "se-hike", 8, "national", "Skåneleden SL3 - Ås till ås"),
+    (408995,   "se-hike", 9, "national", "Skåneleden SL4 - Österlen"),
+    (399333,   "se-hike", 10, "national", "Skåneleden SL5 - Öresund"),
+    (11583146, "se-hike", 11, "national", "Skåneleden SL6 - Vattenriket"),
 
-    # Norway (no-hike — add to Supabase CHECK before --import)
+    # Norway (no-hike)
     (14772115, "no-hike", 1, "national", "Fjordruta på Nordmøre"),
+    (6364172,  "no-hike", 2, "national", "Nordland trekking trail"),
+    (19229749, "no-hike", 3, "national", "Lofoten Long Crossing"),
 
     # Estonia (ee-hike — add to Supabase CHECK before --import)
     (9645763,  "ee-hike", 1, "national", "Euroopa matkarada E9"),
@@ -171,6 +210,8 @@ TRAILS = [
 
     # Europe — multi-country long-distance routes (eu-hike)
     (20014200, "eu-hike", 1, "national", "Via Alpina"),
+    (3176522,  "eu-hike", 2, "national", "Alpe Adria Trail"),
+    (6436417,  "eu-hike", 3, "national", "Tour du Mont Blanc"),
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:
@@ -449,6 +490,67 @@ def backfill_stage_names():
         print("\nSaved enriched names to hikes.json.")
     else:
         print("No stages needed name enrichment.")
+
+
+def backfill_elevation():
+    """
+    For cached stages that have _osm_id but no elev_up, re-fetch geometry from
+    Waymarked Trails and compute elevation via OpenTopoData.  Updates hikes.json
+    in place; stops cleanly when the daily quota is exhausted.
+    """
+    existing = load_existing()
+    all_routes = list(existing.values())
+
+    # Collect all stages missing elevation
+    missing = []
+    for route in all_routes:
+        for stage in route.get("stages", []):
+            if stage.get("_osm_id") and stage.get("elev_up") is None:
+                missing.append((route, stage))
+
+    if not missing:
+        print("No stages need elevation backfill.")
+        return
+
+    print(f"Backfilling elevation for {len(missing)} stages...")
+    quota_hit = False
+    enriched = 0
+
+    for route, stage in missing:
+        if quota_hit:
+            break
+        child_id = stage["_osm_id"]
+        print(f"  {route['name']} stage {stage['stage_nr']:3d} (OSM {child_id})...",
+              end=" ", flush=True)
+
+        child_data = fetch_relation(child_id, f"Stage {stage['stage_nr']}")
+        if not child_data:
+            print("fetch failed, skipping")
+            continue
+
+        pts = sample_wgs84(child_data.get("route", {}))
+        if not pts:
+            print("no geometry, skipping")
+            continue
+
+        result_up, result_down = fetch_elevation(pts)
+        if result_up == "QUOTA_EXHAUSTED":
+            print("quota exhausted — stopping.")
+            quota_hit = True
+            break
+
+        stage["elev_up"]   = result_up
+        stage["elev_down"] = result_down
+        elev_str = f"↑{result_up}m ↓{result_down}m" if result_up is not None else "no data"
+        print(elev_str)
+        enriched += 1
+
+        # Save after every stage so progress is never lost
+        save(all_routes)
+
+    remaining = len(missing) - enriched
+    print(f"\nDone. Enriched {enriched} stages; {remaining} still missing"
+          f"{' (quota hit)' if quota_hit else ''}.")
 
 
 # ---------------------------------------------------------------------------
@@ -776,10 +878,16 @@ def main():
                    help="Skip OpenTopoData elevation calls")
     p.add_argument("--backfill-names", action="store_true",
                    help="Reverse-geocode start/end for stages with code-only names (Nominatim)")
+    p.add_argument("--backfill-elevation", action="store_true",
+                   help="Fetch elevation for cached stages that have _osm_id but no elev_up")
     args = p.parse_args()
 
     if args.backfill_names:
         backfill_stage_names()
+        return
+
+    if args.backfill_elevation:
+        backfill_elevation()
         return
 
     refresh_ids = set(args.refresh_ids or [])
