@@ -1338,6 +1338,11 @@ function smUrl(route, stageNr) {
       29: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/schwarzwald-nordrandweg/',
       30: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/wasserweltensteig/',
       31: 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/hotzenwald-querweg/',
+      32: 'https://hiking.waymarkedtrails.org/#route?id=2685',
+      33: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw1/etappenbeschreibung-hw1/',
+      34: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw2/etappenbeschreibung-hw2/',
+      35: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw5/etappenbeschreibung-hw5/',
+      36: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw7/etappenbeschreibung-hw7/',
     };
     return DE_HIKE_URLS[route.route_id] || 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/';
   }
@@ -1388,6 +1393,8 @@ function smUrl(route, stageNr) {
     const EU_HIKE_URLS = {
       1: 'https://hiking.waymarkedtrails.org/#route?id=20014200',
       2: 'https://hiking.waymarkedtrails.org/#route?id=3176522',
+      3: 'https://hiking.waymarkedtrails.org/#route?id=6436417',
+      4: 'https://hiking.waymarkedtrails.org/#route?id=16127693',
     };
     return EU_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
@@ -1473,7 +1480,7 @@ function smUrl(route, stageNr) {
 }
 const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP', 5: 'nationaltrail.co.uk', 6: 'nationaltrail.co.uk', 7: 'nationaltrail.co.uk', 8: 'nationaltrail.co.uk', 13: 'nationaltrail.co.uk' };
 const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
-const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de' };
+const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de', 33: 'wege.albverein.net', 34: 'wege.albverein.net', 35: 'wege.albverein.net', 36: 'wege.albverein.net' };
 const SV_SLUGS = { 10:'mittelweg', 11:'ostweg', 12:'querweg-freiburg-bodensee', 13:'markgraefler-wiiwegli', 14:'schluchtensteig', 15:'kandel-hoehenweg', 16:'schwarzwald-jura-bodensee', 17:'zweitaelersteig', 18:'breisgauer-weinweg', 19:'gaeurandweg', 20:'hochrhein-hoehenweg', 21:'interregio-wanderweg', 22:'murgleiter', 23:'ortenauer-weinpfad', 24:'querweg-gengenbach-alpirsbach', 25:'querweg-lahr-rottweil', 26:'querweg-schwarzwald-kaiserstuhl-rhein', 27:'renchtalsteig', 28:'rheinauenweg', 29:'schwarzwald-nordrandweg', 30:'wasserweltensteig', 31:'hotzenwald-querweg' };
 const IT_HIKE_SOURCE_LABELS = { 1: 'altavia1dolomites.com' };
 function sourceLabel(route) {

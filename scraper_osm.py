@@ -212,6 +212,7 @@ TRAILS = [
     (20014200, "eu-hike", 1, "national", "Via Alpina"),
     (3176522,  "eu-hike", 2, "national", "Alpe Adria Trail"),
     (6436417,  "eu-hike", 3, "national", "Tour du Mont Blanc"),
+    (16127693, "eu-hike", 4, "national", "Sultan's Trail"),
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:

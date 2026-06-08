@@ -221,6 +221,26 @@ python3 scraper.py --import
 
 Source: schwarzwaldverein.de. All `land="de-hike"`, route_ids 10–31. Stage data parsed from `elementor-icon-list-text` spans. Variant stages (A/B): only first variant used. Route-level totals (total_km, elev_up, elev_down, difficulty) extracted for all. Per-stage elevation available on 4 trails only — backfilled via `scraper_osm.py --backfill-elevation` with manually injected `_osm_id` values.
 
+## Albverein Hauptwanderwege — scraper_albverein.py
+
+```bash
+python3 scraper_albverein.py              # all 4 trails
+python3 scraper_albverein.py --only hw1   # one trail (hw1, hw2, hw5, hw7)
+python3 scraper_albverein.py --refresh    # re-fetch even if cached
+python3 scraper.py --import
+```
+
+Source: `https://wege.albverein.net/wanderwege/hauptwanderwege/{slug}/etappenbeschreibung-{slug}/`. Stage format: `<strong>Etappe N | Start – End | X,Y Km</strong>` (en-dash is `&#8211;` in raw HTML). Plain requests works (no Playwright needed) — page content is server-rendered at the correct URL.
+
+| route_id | Trail | Stages | Total km |
+|----------|-------|--------|----------|
+| 33 | Schwäbische Alb-Nordrand-Weg (HW1) | 23 | 356 km |
+| 34 | Schwäbische Alb-Südrand-Weg (HW2) | 19 | 288 km |
+| 35 | Schwarzwald-Schwäbische-Alb-Allgäu-Weg (HW5) | 19 | 309 km |
+| 36 | Schwäbische-Alb-Oberschwaben-Weg (HW7) | 16 | 232 km |
+
+No elevation or duration data (not published per stage). To add more HW trails: add entry to `TRAILS` in `scraper_albverein.py` with slug, route_id, name, start, end. Route_ids continue from 37.
+
 ## Trail discovery — discover_trails.py
 
 ```bash

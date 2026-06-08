@@ -11,7 +11,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `uk`       | UK             | Hiking   | SWCP (53 stages), WHW (8), ODP (12), South Downs Way (9), Cotswold Way (15), Hadrian's Wall Path (6), Pembrokeshire Coast Path (15), Cape Wrath (1), Pennine Way (OSM), John O'Groats Trail (14, OSM), John Muir Way (10, OSM), Skye Trail (7, OSM), England Coast Path (44, OSM), Ulster Way (14, OSM) |
 | `fr-hike`  | France         | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (41, OSM), Voie de Tours (15, OSM), Du Jura à la Méditerranée (36, OSM), La Routo (7, OSM), Sur les Pas des Huguenots en Cévennes (24, OSM), Via Arverna (22, OSM), GR 300 Chemin de Saint-Michel (19, OSM), GR 367 Sentier Cathare (13, OSM) |
 | `it-hike`  | Italy          | Hiking   | Alta Via 1 (11 stages, Dolomites), Sentiero della Pace (7, OSM), Cammino Celeste (11, OSM), Cammino Materano Via Peuceta (7, OSM), Cammino della Pace (29, OSM), Cammino delle Pievi (20, OSM), Grande Escursione Appenninica (25, OSM), Grande Traversata delle Alpi (25, OSM), Cammino di Santu Jacu (24, OSM), Sentiero Italia Sardegna (30, OSM), Alta Via n. 2 della Valle d'Aosta (14, OSM 9898948) |
-| `de-hike`  | Germany        | Hiking   | Malerweg (8), Westweg (9, OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (6, OSM), Rheinburgenweg (13, OSM), Märchenlandweg (33, OSM), ViaJacobi (32, OSM — actually a Swiss route, Rorschach/Konstanz→Geneva, miscategorised under de-hike), Rheinsteig (21, OSM 2685, route_id=32, Bonn→Wiesbaden); Schwarzwaldverein Fernwanderwege (route_ids 10–31): Mittelweg (9), Ostweg (12), Querweg Freiburg–Bodensee (7), Markgräfler Wiiwegli (5), Schluchtensteig (6, ✓elev), Kandelhöhenweg (5, ✓elev), Schwarzwald-Jura-Bodensee (5), ZweiTälerSteig (5, ✓elev), Breisgauer Weinweg (6), Gäurandweg (5), Hochrhein-Höhenweg (6), Interregio-Wanderweg (11), Murgleiter (5, ✓elev), Ortenauer Weinpfad (5), Querweg Gengenbach–Alpirsbach (3), Querweg Lahr–Rottweil (4), Querweg Schwarzwald–Kaiserstuhl–Rhein (5), Renchtalsteig (5), Rheinauenweg (7), Schwarzwald-Nordrandweg (3), Wasserweltensteig (6), Hotzenwald-Querweg (2). ✓elev = per-stage elevation via OSM `_osm_id` injection |
+| `de-hike`  | Germany        | Hiking   | Malerweg (8), Westweg (9, OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (6, OSM), Rheinburgenweg (13, OSM), Märchenlandweg (33, OSM), ViaJacobi (32, OSM — actually a Swiss route, Rorschach/Konstanz→Geneva, miscategorised under de-hike), Rheinsteig (21, OSM 2685, route_id=32, Bonn→Wiesbaden); Schwarzwaldverein Fernwanderwege (route_ids 10–31): Mittelweg (9), Ostweg (12), Querweg Freiburg–Bodensee (7), Markgräfler Wiiwegli (5), Schluchtensteig (6, ✓elev), Kandelhöhenweg (5, ✓elev), Schwarzwald-Jura-Bodensee (5), ZweiTälerSteig (5, ✓elev), Breisgauer Weinweg (6), Gäurandweg (5), Hochrhein-Höhenweg (6), Interregio-Wanderweg (11), Murgleiter (5, ✓elev), Ortenauer Weinpfad (5), Querweg Gengenbach–Alpirsbach (3), Querweg Lahr–Rottweil (4), Querweg Schwarzwald–Kaiserstuhl–Rhein (5), Renchtalsteig (5), Rheinauenweg (7), Schwarzwald-Nordrandweg (3), Wasserweltensteig (6), Hotzenwald-Querweg (2). ✓elev = per-stage elevation via OSM `_osm_id` injection; Albverein Hauptwanderwege (route_ids 33–36): Schwäbische Alb-Nordrand-Weg/HW1 (23), Schwäbische Alb-Südrand-Weg/HW2 (19), Schwarzwald-Schwäbische-Alb-Allgäu-Weg/HW5 (19), Schwäbische-Alb-Oberschwaben-Weg/HW7 (16) |
 | `es-hike`  | Spain          | Hiking   | GR11 Senda Pirenaica (37, OSM), Camino Primitivo (11, OSM), GR221 Ruta de Pedra en Sec (8, OSM), GR7 Andorra-Gibraltar (41, OSM), Sulayr (19, OSM), GR 109 Asturias Interior (27, OSM), Camí del Llobregat (9, OSM 9681617), Sendero de la Alpujarra (12, OSM 9913208) |
 | `ie-hike`  | Ireland        | Hiking   | Wicklow Way (OSM), Kerry Way (OSM), Dingle Way (OSM), Causeway Coast Way (OSM), Beara Way (OSM), Western Way (OSM) |
 | `pt-hike`  | Portugal       | Hiking   | Rota Vicentina - Trilho dos Pescadores (13, OSM 20810829) |
@@ -24,7 +24,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `se-hike`  | Sweden         | Hiking   | Hälsingeleden (22, OSM 7128733), Bohusleden (27, OSM), St. Olavsleden (29, OSM), Stockholm Archipelago Trail (19, OSM 19012437), Kungsleden (31, OSM 1657661), Skåneleden SL1 (20, OSM 23828), SL2 (19, OSM 415700), SL3 (14, OSM 68019), SL4 (12, OSM 408995), SL5 (19, OSM 399333), SL6 (10, OSM 11583146) |
 | `no-hike`  | Norway         | Hiking   | Fjordruta på Nordmøre (14, OSM 14772115), Nordland trekking trail (43, OSM), Lofoten Long Crossing (11, OSM 19229749) |
 | `ee-hike`  | Estonia        | Hiking   | Euroopa matkarada E9 (31, OSM), Peraküla-Aegviidu-Ähijärve haru (11, OSM), Camino Estonia (10, OSM) |
-| `eu-hike`  | Europe (multi) | Hiking   | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200), Alpe Adria Trail (43, OSM 3176522), Tour du Mont Blanc (11, OSM 6436417) |
+| `eu-hike`  | Europe (multi) | Hiking   | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200), Alpe Adria Trail (43, OSM 3176522), Tour du Mont Blanc (11, OSM 6436417), Sultan's Trail (120, OSM 16127693, Vienna→Istanbul) |
 
 ## OSM trail catalog (scraper_osm.py TRAILS list)
 
@@ -121,6 +121,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 20014200  | `eu-hike` | 1        | Via Alpina (116 stages, Monaco → Trieste) |
 | 3176522   | `eu-hike` | 2        | Alpe Adria Trail (43 stages, Salzburg → Trieste) |
 | 6436417   | `eu-hike` | 3        | Tour du Mont Blanc (11 stages, circular FR/IT/CH, CCW) |
+| 16127693  | `eu-hike` | 4        | Sultan's Trail (120 stages, Vienna → Istanbul, AT/SK/HU/RS/BG/TR) |
 
 ## Deferred (no viable day-stage subroutes)
 
@@ -130,7 +131,7 @@ GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~30
 
 | Trail | Land | Notes |
 |---|---|---|
-| **Sultan's Trail** | `eu-hike` route_id=4 | OSM 16127693, ~120 day stages Vienna→Istanbul (AT/SK/HU/RS/BG/TR). Ready to add — optionally expand SVG to RS/BG/TR first, then run `--backfill-names` (stage names are "ST10 Kahlenberg - Stephansdom" format) |
+| **Sultan's Trail** | `eu-hike` route_id=4 | ✓ Done — OSM 16127693, 120 stages, Vienna→Istanbul. Note: RS/BG/TR not in Europe SVG so those stages won't show on map. |
 | **Albverein HW1** | `de-hike` route_id=33 | Schwäbische-Alb-Nordrand-Weg, 23 stages, 360km. URL: `wege.albverein.net/.../etappenbeschreibung-{slug}/`. Stage format: `<strong>Etappe N \| Start – End \| X,Y Km</strong>` |
 | **Albverein HW2** | `de-hike` route_id=34 | 15 stages, 289km. Same site/format. |
 | **Albverein HW5** | `de-hike` route_id=35 | 15 stages, 307km. Same site/format. |
