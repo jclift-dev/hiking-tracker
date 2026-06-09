@@ -139,6 +139,7 @@ TRAILS = [
     (15651288, "it-hike", 9, "national", "Cammino di Santu Jacu"),
     (7011030,  "it-hike", 10, "national", "Sentiero Italia - Sardegna"),
     (9898948,  "it-hike", 11, "national", "Alta Via n. 2 della Valle d'Aosta"),
+    (12116509, "it-hike", 12, "national", "Magna Via Francigena"),
 
     # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),

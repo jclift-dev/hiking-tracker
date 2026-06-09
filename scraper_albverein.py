@@ -68,6 +68,20 @@ TRAILS = [
         "start":      "Pforzheim",
         "end":        "Rothenburg ob der Tauber",
     },
+    {
+        "slug":       "hw9",
+        "route_id":   40,
+        "name":       "Heuberg-Allgäu-Weg",
+        "start":      "Spaichingen",
+        "end":        "Schwarzer Grat",
+    },
+    {
+        "slug":       "hw10",
+        "route_id":   41,
+        "name":       "Stromberg-Schwäbischer Wald-Weg",
+        "start":      "Pforzheim",
+        "end":        "Lorch",
+    },
 ]
 
 SESSION = requests.Session()
