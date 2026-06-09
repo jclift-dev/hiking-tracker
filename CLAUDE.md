@@ -38,14 +38,16 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 9. **`scraper_gr.py`** — French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages).
 10. **`scraper_osm.py`** — Long-distance trails via Waymarked Trails API (19+ countries). Data © OpenStreetMap contributors, ODbL 1.0.
 11. **`scraper_schwarzwaldverein.py`** — 22 Fernwanderwege from schwarzwaldverein.de (`de-hike`, route_ids 10–31). See docs/scrapers.md for elevation backfill notes.
-12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
-13. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
-13. **`test_sbb.py`** — Sanity-checks transport.opendata.ch API for all SBB origins.
-14. **`discover_local.py`** — Playwright script to intercept SchweizMobil network traffic. One-off research tool.
-15. **`discover_trails.py`** — Builds/maintains `trails_catalog.json` (56k+ entries) of European hiking trail candidates via Overpass + Waymarked Trails APIs. See docs/scrapers.md for CLI and filter_status values.
-16. **`discover_trail_websites.py`** — Three-source pipeline that checks which catalog candidates have day-stage pages on their official websites. Outputs `trail_websites.json` (status="found" = viable; 68 confirmed hits across 896 processed). One-off research tool; re-run to refresh.
-17. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `--import`.
-18. **`make_europe_svg.py`** — One-off: generates `europePaths` JS constant for `index.html` from Natural Earth GeoJSON. Re-run only if SVG region shapes need updating.
+12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Camino de la Frontera (es-hike 11), Grande Rota Peneda-Gerês (pt-hike 2). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
+13. **`scraper_e1.py`** — E1 European Long Distance Path (eu-hike, route_id=5, 425 stages, North Cape→Sicily) from hiking-europe.eu. CLI: `--refresh`, `--clear-cache`. Uses `.e1_cache.json` to avoid re-fetching.
+14. **`scraper_albverein.py`** — Albverein Hauptwanderwege (de-hike, route_ids 33–41, 52) from wege.albverein.net. CLI: `--only <slug>`, `--refresh`.
+15. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
+16. **`test_sbb.py`** — Sanity-checks transport.opendata.ch API for all SBB origins.
+17. **`discover_local.py`** — Playwright script to intercept SchweizMobil network traffic. One-off research tool.
+18. **`discover_trails.py`** — Builds/maintains `trails_catalog.json` (56k+ entries) of European hiking trail candidates via Overpass + Waymarked Trails APIs. See docs/scrapers.md for CLI and filter_status values.
+19. **`discover_trail_websites.py`** — Three-source pipeline that checks which catalog candidates have day-stage pages on their official websites. Outputs `trail_websites.json` (status="found" = viable; 68 confirmed hits across 896 processed). One-off research tool; re-run to refresh.
+20. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `--import`.
+21. **`make_europe_svg.py`** — One-off: generates `europePaths` JS constant for `index.html` from Natural Earth GeoJSON. Re-run only if SVG region shapes need updating.
 
 ## Land values
 

@@ -12,6 +12,8 @@ Trails:
   Stormarnweg                  (de-hike, route_id=53)  wildganz.com
   Oberlausitzer Bergweg        (de-hike, route_id=54)  oberlausitzer-bergweg.de
   Werra-Burgen-Steig Hessen    (de-hike, route_id=55)  werra-burgen-steig-hessen.de
+  König-Ludwig-Weg             (de-hike, route_id=56)  koenig-ludwig-weg.de  [hardcoded — JS-rendered]
+  X27 Friedrich-Wilhelm-Grimme-Weg (de-hike, route_id=57)  ich-geh-wandern.de
   Camino de la Frontera        (es-hike, route_id=11)  caminodelafrontera.es
   Grande Rota Peneda-Gerês     (pt-hike, route_id=2)   walkingpenedageres.pt
 
@@ -653,6 +655,122 @@ def scrape_werra():
 
 
 # ---------------------------------------------------------------------------
+# König-Ludwig-Weg — koenig-ludwig-weg.de (JS-rendered; hardcoded from official source)
+# ---------------------------------------------------------------------------
+# 6 stages, 122.8 km total. Berg (near Starnberg) → Füssen.
+# Source data extracted from koenig-ludwig-weg.de stage pages.
+
+KOENIG_LUDWIG_URL = "https://www.koenig-ludwig-weg.de/en/stages"
+
+KOENIG_LUDWIG_STAGES = [
+    (1, "Berg",             "Dießen",           32.6),
+    (2, "Dießen",           "Paterzell",        17.2),
+    (3, "Paterzell",        "Hohenpeißenberg",  13.0),
+    (4, "Hohenpeißenberg",  "Rottenbuch",       13.0),
+    (5, "Rottenbuch",       "Prem",             22.4),
+    (6, "Prem",             "Füssen",           24.6),
+]
+
+
+def scrape_koenig_ludwig():
+    print(f"König-Ludwig-Weg — hardcoded (JS-rendered source)")
+    stages = []
+    for nr, start, end, km in KOENIG_LUDWIG_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      KOENIG_LUDWIG_URL,
+        })
+        print(f"  Etappe {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   56,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "König-Ludwig-Weg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# X27 Friedrich-Wilhelm-Grimme-Weg — ich-geh-wandern.de
+# ---------------------------------------------------------------------------
+# 4 stages, ~85 km. Altenhundem → Bigge (Attendorn).
+# Each stage page has "Länge: XX.XXkm" in the page text.
+
+X27_STAGES = [
+    (1, "altenhundem-schmallenberg",  "Altenhundem", "Schmallenberg"),
+    (2, "schmallenberg-nordenau",     "Schmallenberg", "Nordenau"),
+    (3, "nordenau-siedlinghausen",    "Nordenau",    "Siedlinghausen"),
+    (4, "siedlinghausen-bigge",       "Siedlinghausen", "Bigge"),
+]
+X27_BASE = "https://www.ich-geh-wandern.de/friedrich-wilhelm-grimme-weg-etappe"
+X27_KM_RE = re.compile(r'Länge:\s*([\d.]+)\s*km')
+
+
+def scrape_x27():
+    stages = []
+    for nr, slug, start, end in X27_STAGES:
+        url = f"{X27_BASE}-{nr}-{slug}"
+        print(f"  Fetching stage {nr} — {url}", flush=True)
+        time.sleep(DELAY)
+        html = fetch(url)
+        if not html:
+            print(f"    fetch error")
+            continue
+        km_m = X27_KM_RE.search(html)
+        km = round(float(km_m.group(1)), 1) if km_m else None
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      url,
+        })
+        print(f"    {start} → {end} ({km} km)")
+
+    if not stages:
+        print("  ERROR: no stages fetched")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   57,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "X27 Friedrich-Wilhelm-Grimme-Weg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Camino de la Frontera — caminodelafrontera.es/etapas-del-camino-de-la-frontera/
 # ---------------------------------------------------------------------------
 # Single page listing all stages: "Etapa NN: Start – End (X,XX kms)"
@@ -804,6 +922,8 @@ TRAILS = {
     "stormarnweg":    scrape_stormarnweg,
     "oberlausitz":    scrape_oberlausitz,
     "werra":          scrape_werra,
+    "koenig-ludwig":  scrape_koenig_ludwig,
+    "x27":            scrape_x27,
     "frontera":       scrape_frontera,
     "peneda":         scrape_peneda,
 }
