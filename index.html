@@ -1537,18 +1537,40 @@ const SWISS_EU_STAGE_PAIRS = [
   ['ch-hike_1_16', 'eu-hike_1_73'],
 ];
 
-// Seeded from SWISS_EU_STAGE_PAIRS at startup; rebuilt with OSM-derived links
+// E1 ↔ overlapping national routes (identical start/end names, verified against hikes.json)
+const E1_STAGE_PAIRS = [
+  ['de-hike_2_1',   'eu-hike_5_265'],  // Pforzheim → Dobel (Westweg)
+  ['de-hike_2_2',   'eu-hike_5_266'],  // Dobel → Forbach (Westweg)
+  ['de-hike_5_6',   'eu-hike_5_227'],  // Bispingen → Soltau (Heidschnuckenweg)
+  ['de-hike_12_4',  'eu-hike_5_277'],  // Blumberg → Engen (Querweg Freiburg–Bodensee)
+  ['de-hike_12_5',  'eu-hike_5_278'],  // Engen → Singen (Querweg Freiburg–Bodensee)
+  ['de-hike_16_4',  'eu-hike_5_278'],  // Engen → Singen (Schwarzwald-Jura-Bodensee-Weg)
+  ['de-hike_9_22',  'eu-hike_5_282'],  // Märstetten → Fischingen (ViaJacobi DE)
+  ['ch-hike_2_25',  'eu-hike_5_290'],  // Airolo → Osco (Trans Swiss Trail)
+  ['ch-hike_2_26',  'eu-hike_5_291'],  // Osco → Anzonico (Trans Swiss Trail)
+  ['ch-hike_2_27',  'eu-hike_5_292'],  // Anzonico → Biasca (Trans Swiss Trail)
+  ['ch-hike_2_28',  'eu-hike_5_293'],  // Biasca → Bellinzona (Trans Swiss Trail)
+  ['ch-hike_2_29',  'eu-hike_5_294'],  // Bellinzona → Tesserete (Trans Swiss Trail)
+  ['ch-hike_4_22',  'eu-hike_5_282'],  // Märstetten → Fischingen (ViaJacobi CH)
+  ['ch-hike_7_15',  'eu-hike_5_293'],  // Biasca → Bellinzona (ViaGottardo)
+  ['ch-hike_7_16',  'eu-hike_5_294'],  // Bellinzona → Tesserete (ViaGottardo)
+  ['ch-cycle_3_5',  'eu-hike_5_289'],  // Andermatt → Airolo (North–South Route)
+  ['no-hike_2_35',  'eu-hike_5_45'],   // Sitashytta → Paurohytta (Nordland trekking trail)
+];
+
+const ALL_STAGE_PAIRS = [...SWISS_EU_STAGE_PAIRS, ...E1_STAGE_PAIRS];
+
+// Seeded from ALL_STAGE_PAIRS at startup; rebuilt with OSM-derived links
 // by buildLinkedStageMap() once route data is loaded.
 let LINKED_STAGE_MAP = new Map(
-  SWISS_EU_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
+  ALL_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
 );
 
-// Rebuild after loadData(): augments the hard-coded Swiss↔EU pairs with any
-// additional links derivable from shared osm_id values (e.g. future TMB stages
-// that appear in both eu-hike and fr-hike/it-hike).
+// Rebuild after loadData(): augments hard-coded pairs with any additional links
+// derivable from shared osm_id values.
 function buildLinkedStageMap() {
   LINKED_STAGE_MAP = new Map(
-    SWISS_EU_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
+    ALL_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
   );
   const byOsmId = new Map();
   allRoutes.forEach(r => r.stages.forEach(s => {
@@ -1567,6 +1589,26 @@ function buildLinkedStageMap() {
 }
 
 function linkedStageKey(key) { return LINKED_STAGE_MAP.get(key) || null; }
+
+const LAND_FLAG = {
+  'ch-hike': '🇨🇭', 'ch-cycle': '🇨🇭', 'eu-hike': '🇪🇺',
+  'de-hike': '🇩🇪', 'fr-hike': '🇫🇷', 'it-hike': '🇮🇹',
+  'es-hike': '🇪🇸', 'uk':      '🇬🇧', 'no-hike': '🇳🇴',
+  'se-hike': '🇸🇪', 'pt-hike': '🇵🇹', 'at-hike': '🇦🇹',
+  'ie-hike': '🇮🇪', 'hu-hike': '🇭🇺', 'cz-hike': '🇨🇿',
+  'si-hike': '🇸🇮', 'nl-hike': '🇳🇱', 'be-hike': '🇧🇪',
+  'hr-hike': '🇭🇷', 'ee-hike': '🇪🇪',
+};
+
+function linkedBadgeText(key) {
+  const lk = linkedStageKey(key);
+  if (!lk) return null;
+  const m = lk.match(/^(.+?)_(\d+)_\d+$/);
+  if (!m) return null;
+  const route = allRoutes.find(r => r.land === m[1] && r.route_id === +m[2]);
+  if (!route) return null;
+  return `↔ ${LAND_FLAG[route.land] || ''} ${route.name}`;
+}
 
 function waymarkedStageUrl(stage) {
   if (!stage.osm_id) return null;
@@ -2318,7 +2360,7 @@ function renderStages(route) {
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
       ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(stage.elev_up, stage.elev_down)}
-      ${linkedStageKey(key) ? `<span class="badge badge-link">↔ ${key.startsWith('eu') ? '🇨🇭' : '🇪🇺'} Via Alpina</span>` : ''}
+      ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${t}</span>` : ''; })()}
     </div>`;
 
     // SBB transport mini
@@ -2509,7 +2551,7 @@ function renderFlatStage(stage) {
         ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
         ${(() => { const s = seasonInfo(stage, r.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
         ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
-        ${linkedStageKey(key) ? `<span class="badge badge-link">↔ ${key.startsWith('eu') ? '🇨🇭' : '🇪🇺'} Via Alpina</span>` : ''}
+        ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${t}</span>` : ''; })()}
       </div>
       ${startTravel || endTravel ? `
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
