@@ -22,7 +22,7 @@ transport.opendata.ch  ───────────────────
 
 **`routes`** — shared read-only route data. Primary key: `(id, land)` — hiking and cycling both have routes numbered 1–7, so the composite key is required. The `land` column has a CHECK constraint (see CLAUDE.md). Adding a new land value requires updating that constraint first via the Supabase SQL editor.
 
-**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb`. `country` (text, nullable) and `admin1` (text, nullable) store ISO 3166-2 region codes populated by `enrich_regions.py` — used by the Europe dashboard map.
+**`stages`** — per-stage data. Unique on `(route_id, land, stage_nr)`. `sbb_times` stored as `jsonb`. `country` (text, nullable) and `admin1` (text, nullable) store ISO 3166-2 region codes populated by `enrich_regions.py` — used by the Europe dashboard map. `osm_id` (integer, nullable) is the Waymarked Trails OSM relation ID for the day stage — used for the 🗺 Map preview button and for dynamic cross-route linking (see Stage linking below).
 
 **`user_state`** — per-user completions/ratings/notes. Keyed by `(user_id, stage_key)` where `stage_key` is `"land_routeId_stageNr"` (e.g. `"ch-hike_1_3"`). Fields: `stage_key, completed_on, rating, note, wishlist, updated_at`.
 
@@ -40,7 +40,7 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 [{
   "route_id": 1,
   "route_type": "national" | "regional",
-  "land": "ch-hike" | "ch-cycle" | "uk" | "fr-hike" | "it-hike" | "de-hike",
+  "land": "ch-hike" | "ch-cycle" | "uk" | "fr-hike" | "it-hike" | "de-hike" | "es-hike" | "pt-hike" | "eu-hike" | "at-hike" | "se-hike" | "no-hike" | "hr-hike" | "sk-hike" | ...,
   "name": "Via Alpina",
   "description": "...",
   "start": "Vaduz (Gaflei, FL)",
@@ -63,10 +63,13 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
       "Zürich HB":  { "start": 90,  "end": 30 }
     },
     "country": "ch",
-    "admin1": "ch-sg"
+    "admin1": "ch-sg",
+    "_osm_id": 12359031
   }]
 }]
 ```
+
+`_osm_id` is the Waymarked Trails OSM relation ID for the day stage. Present on OSM-scraped routes and ch-hike routes 1–7 (backfilled via `--backfill-ch-osm-ids`). Imported to Supabase as `osm_id`. Enables the 🗺 Map button and dynamic cross-route linking.
 
 `country` and `admin1` are populated by `enrich_regions.py` for European lands (`eu-hike`, `fr-hike`, `de-hike`, `it-hike`, `es-hike`, `ie-hike`, `uk`). Swiss stages use the separate `cantons` field instead.
 
@@ -77,6 +80,16 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 For `land="uk"` stages, difficulty is `"easy"`, `"moderate"`, or `"challenging"` — from the primary-grade image filename on each walksdb page. `duration_hrs` is `null` for SWCP stages (not published by the site).
 
 `_walk_id` in hikes.json is an internal scraper field (not imported to Supabase). `index.html` has a static `SWCP_WALK_IDS` array (53 entries) mapping `stage_nr → walksdb ID` for the "View on SWCP ↗" link.
+
+## Cross-route stage linking
+
+`buildLinkedStageMap()` runs at boot (after `loadData()`) and builds a `Map<stageKey, stageKey>` of linked pairs. Two stages are linked if they share the same `osm_id` value in Supabase — meaning they cover identical geography on different named routes (e.g. a Swiss Via Alpina stage and the international Via Alpina stage for the same day). A linked stage badge appears on the card, and completing one stage shows the other as progress on both routes.
+
+A small hardcoded fallback `E1_STAGE_PAIRS` covers 17 E1 ↔ national-route links where E1 has no `osm_id` (scraped from hiking-europe.eu, not OSM). `SWISS_EU_STAGE_PAIRS` is now empty — Swiss ch-hike stages have OSM IDs backfilled, so linking is automatic.
+
+## Map preview
+
+Stages with an `osm_id` show a 🗺 Map button. Clicking it lazy-loads Leaflet.js (once per session), fetches the route GeoJSON from `https://hiking.waymarkedtrails.org/api/details/relation/{osm_id}/geometry`, and renders a 200px inline map with an OSM tile layer. Geometry is cached in `stageGeomCache` (keyed by `osm_id`) so re-opens are instant. Live map instances are tracked in `stageMaps` and torn down on close.
 
 ## Assets
 

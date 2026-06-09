@@ -189,6 +189,7 @@ python3 scraper_osm.py --refresh-trail 4080347 # re-fetch a specific trail
 python3 scraper_osm.py --skip-elevation        # skip OpenTopoData calls (faster)
 python3 scraper_osm.py --backfill-elevation    # fill elev_up/down for stages with _osm_id
 python3 scraper_osm.py --backfill-names        # Nominatim reverse-geocoding for code-style names
+python3 scraper_osm.py --backfill-ch-osm-ids   # assign _osm_id to ch-hike routes 1-7 by position-matching OSM parent superroutes
 python3 scraper.py --import
 ```
 
@@ -206,6 +207,8 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}`. S
 **Backfilling elevation for website-scraped trails:** `--backfill-elevation` also works on non-OSM stages if `_osm_id` is manually injected. Pattern: search WT by trail name (`/api/v1/list/search?query=NAME`), verify subroute count matches stage count, inject `stage["_osm_id"]` into hikes.json, run `--backfill-elevation`. Used for 4 Schwarzwaldverein trails (Schluchtensteig route_id=14, Kandelhöhenweg 15, ZweiTälerSteig 17, Murgleiter 22).
 
 **`--backfill-names`:** Nominatim reverse-geocoding for stages with OSM code-style names (e.g. "Via Alpina Red R3"). ~1.1 s/call. `is_code_name()` detects "Trail Red RN" patterns only (not "Stage N" — those need manual fix).
+
+**`--backfill-ch-osm-ids`:** Assigns `_osm_id` to ch-hike stages for routes 1–7 (Via Alpina, Trans Swiss Trail, Alpine Panorama Trail, ViaJacobi, Jura Crest Trail, Alpine Passes Trail, ViaGottardo) by fetching each route's OSM parent superroute and matching subroutes by position. OSM parent IDs are hardcoded in `CH_OSM_PARENTS`. Routes 4 and 5 have a one-stage count mismatch (OSM vs SchweizMobil) — the first N matching stages are assigned. Once imported, `buildLinkedStageMap()` in index.html automatically links ch-hike stages to eu-hike stages that share the same `osm_id` (no hardcoding needed). Also enables the 🗺 Map button on Swiss stages.
 
 **Adding a new trail:** look up the OSM relation ID on `hiking.waymarkedtrails.org`, check it has subroutes (`/api/v1/details/relation/{id}` → `.route.main[].route_type == "route"`), add to `TRAILS` in `scraper_osm.py`, add `smUrl`/`sourceLabel` in `index.html`. Full OSM ID → land → route_id table in docs/trails.md.
 
