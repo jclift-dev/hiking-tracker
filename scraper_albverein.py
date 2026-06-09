@@ -47,6 +47,27 @@ TRAILS = [
         "start":      "Lorch",
         "end":        "Friedrichshafen",
     },
+    {
+        "slug":       "hw3",
+        "route_id":   37,
+        "name":       "Main-Neckar-Rhein-Weg",
+        "start":      "Wertheim",
+        "end":        "Lörrach",
+    },
+    {
+        "slug":       "hw6",
+        "route_id":   38,
+        "name":       "Limes-Wanderweg",
+        "start":      "Miltenberg",
+        "end":        "Wilburgstetten",
+    },
+    {
+        "slug":       "hw8",
+        "route_id":   39,
+        "name":       "Frankenweg",
+        "start":      "Pforzheim",
+        "end":        "Rothenburg ob der Tauber",
+    },
 ]
 
 SESSION = requests.Session()

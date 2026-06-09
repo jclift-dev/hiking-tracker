@@ -1343,6 +1343,9 @@ function smUrl(route, stageNr) {
       34: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw2/etappenbeschreibung-hw2/',
       35: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw5/etappenbeschreibung-hw5/',
       36: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw7/etappenbeschreibung-hw7/',
+      37: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw3/etappenbeschreibung-hw3/',
+      38: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw6/etappenbeschreibung-hw6/',
+      39: 'https://wege.albverein.net/wanderwege/hauptwanderwege/hw8/etappenbeschreibung-hw8/',
     };
     return DE_HIKE_URLS[route.route_id] || 'https://www.schwarzwaldverein.de/natursport-und-wege/fernwanderwege/';
   }
@@ -1480,7 +1483,7 @@ function smUrl(route, stageNr) {
 }
 const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP', 5: 'nationaltrail.co.uk', 6: 'nationaltrail.co.uk', 7: 'nationaltrail.co.uk', 8: 'nationaltrail.co.uk', 13: 'nationaltrail.co.uk' };
 const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
-const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de', 33: 'wege.albverein.net', 34: 'wege.albverein.net', 35: 'wege.albverein.net', 36: 'wege.albverein.net' };
+const DE_HIKE_SOURCE_LABELS = { 1: 'saechsische-schweiz.de', 33: 'wege.albverein.net', 34: 'wege.albverein.net', 35: 'wege.albverein.net', 36: 'wege.albverein.net', 37: 'wege.albverein.net', 38: 'wege.albverein.net', 39: 'wege.albverein.net' };
 const SV_SLUGS = { 10:'mittelweg', 11:'ostweg', 12:'querweg-freiburg-bodensee', 13:'markgraefler-wiiwegli', 14:'schluchtensteig', 15:'kandel-hoehenweg', 16:'schwarzwald-jura-bodensee', 17:'zweitaelersteig', 18:'breisgauer-weinweg', 19:'gaeurandweg', 20:'hochrhein-hoehenweg', 21:'interregio-wanderweg', 22:'murgleiter', 23:'ortenauer-weinpfad', 24:'querweg-gengenbach-alpirsbach', 25:'querweg-lahr-rottweil', 26:'querweg-schwarzwald-kaiserstuhl-rhein', 27:'renchtalsteig', 28:'rheinauenweg', 29:'schwarzwald-nordrandweg', 30:'wasserweltensteig', 31:'hotzenwald-querweg' };
 const IT_HIKE_SOURCE_LABELS = { 1: 'altavia1dolomites.com' };
 function sourceLabel(route) {
