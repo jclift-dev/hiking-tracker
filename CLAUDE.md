@@ -38,12 +38,14 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 9. **`scraper_gr.py`** — French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages).
 10. **`scraper_osm.py`** — Long-distance trails via Waymarked Trails API (19+ countries). Data © OpenStreetMap contributors, ODbL 1.0.
 11. **`scraper_schwarzwaldverein.py`** — 22 Fernwanderwege from schwarzwaldverein.de (`de-hike`, route_ids 10–31). See docs/scrapers.md for elevation backfill notes.
-12. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
+12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
+13. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
 13. **`test_sbb.py`** — Sanity-checks transport.opendata.ch API for all SBB origins.
 14. **`discover_local.py`** — Playwright script to intercept SchweizMobil network traffic. One-off research tool.
 15. **`discover_trails.py`** — Builds/maintains `trails_catalog.json` (56k+ entries) of European hiking trail candidates via Overpass + Waymarked Trails APIs. See docs/scrapers.md for CLI and filter_status values.
-16. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `--import`.
-17. **`make_europe_svg.py`** — One-off: generates `europePaths` JS constant for `index.html` from Natural Earth GeoJSON. Re-run only if SVG region shapes need updating.
+16. **`discover_trail_websites.py`** — Three-source pipeline that checks which catalog candidates have day-stage pages on their official websites. Outputs `trail_websites.json` (status="found" = viable; 68 confirmed hits across 896 processed). One-off research tool; re-run to refresh.
+17. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `--import`.
+18. **`make_europe_svg.py`** — One-off: generates `europePaths` JS constant for `index.html` from Natural Earth GeoJSON. Re-run only if SVG region shapes need updating.
 
 ## Land values
 
@@ -68,6 +70,7 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 | `be-hike`  | Belgium        | Hiking   |
 | `se-hike`  | Sweden         | Hiking   |
 | `no-hike`  | Norway         | Hiking   |
+| `hr-hike`  | Croatia        | Hiking   |
 | `ee-hike`  | Estonia        | Hiking   |
 | `eu-hike`  | Europe (multi) | Hiking   |
 
@@ -89,10 +92,10 @@ Update both tables' constraints before importing any new land value:
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike'));
 ```
 
 ## Viewing the web app

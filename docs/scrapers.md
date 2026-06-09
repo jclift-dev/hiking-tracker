@@ -241,6 +241,34 @@ Source: `https://wege.albverein.net/wanderwege/hauptwanderwege/{slug}/etappenbes
 
 No elevation or duration data (not published per stage). To add more HW trails: add entry to `TRAILS` in `scraper_albverein.py` with slug, route_id, name, start, end. Route_ids continue from 37.
 
+## Website-only routes — scraper_websites.py
+
+```bash
+pip3 install requests beautifulsoup4
+python3 scraper_websites.py                   # all trails
+python3 scraper_websites.py --only eifelsteig # one trail by slug
+python3 scraper_websites.py --refresh         # re-fetch even if cached
+python3 scraper.py --import
+```
+
+For routes with no viable OSM day-stage hierarchy. Each trail has a custom scrape function. `DELAY = 1.5s` between requests.
+
+| Slug | Trail | Land | route_id | Stages | Source |
+|------|-------|------|----------|--------|--------|
+| `eifelsteig` | Eifelsteig | `de-hike` | 49 | 15 | eifelsteig.de |
+| `italiac2c` | Italia Coast to Coast | `it-hike` | 13 | 18 | italiacoast2coast.it |
+| `sauerland` | Sauerland-Waldroute | `de-hike` | 44 | 7 (partial) | sauerland-waldroute.de |
+| `linksrheinisch` | Linksrheinischer Jakobsweg | `de-hike` | 50 | 12 | linksrheinischer-jakobsweg.info |
+| `westfalenww` | WestfalenWanderWeg | `de-hike` | 51 | 11 | wildganz.com |
+
+**Sauerland-Waldroute note:** Overwrites the 3 coarse OSM sections in route_id=44. Only 7 of 19 stages are server-rendered (rest require JS). Use `--only sauerland` to re-fetch.
+
+**Linksrheinischer Jakobsweg:** Fetches 12 individual stage pages at `/index.php/linksrheinischer-jakobsweg/etappenuebersicht/N-etappe`.
+
+**WestfalenWanderWeg:** All 11 stages parsed from the bottom listing on stage 1's page — single fetch only.
+
+**To add a new trail:** add a scrape function and a `TRAILS[slug]` entry. Keys: `land`, `route_id`, `name`, `fetch_fn`. If it's a new `land` value, update the Supabase CHECK constraint before importing (see CLAUDE.md).
+
 ## Trail discovery — discover_trails.py
 
 ```bash

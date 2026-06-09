@@ -9,10 +9,10 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `ch-hike`  | Switzerland    | Hiking   | SchweizMobil national/regional hiking routes (1-7, 10-99) |
 | `ch-cycle` | Switzerland    | Cycling  | SchweizMobil national/regional cycling routes (1-7, 10-99) |
 | `uk`       | UK             | Hiking   | SWCP (53 stages), WHW (8), ODP (12), South Downs Way (9), Cotswold Way (15), Hadrian's Wall Path (6), Pembrokeshire Coast Path (15), Cape Wrath (1), Pennine Way (OSM), John O'Groats Trail (14, OSM), John Muir Way (10, OSM), Skye Trail (7, OSM), England Coast Path (44, OSM), Ulster Way (14, OSM) |
-| `fr-hike`  | France         | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (41, OSM), Voie de Tours (15, OSM), Du Jura à la Méditerranée (36, OSM), La Routo (7, OSM), Sur les Pas des Huguenots en Cévennes (24, OSM), Via Arverna (22, OSM), GR 300 Chemin de Saint-Michel (19, OSM), GR 367 Sentier Cathare (13, OSM) |
-| `it-hike`  | Italy          | Hiking   | Alta Via 1 (11 stages, Dolomites), Sentiero della Pace (7, OSM), Cammino Celeste (11, OSM), Cammino Materano Via Peuceta (7, OSM), Cammino della Pace (29, OSM), Cammino delle Pievi (20, OSM), Grande Escursione Appenninica (25, OSM), Grande Traversata delle Alpi (25, OSM), Cammino di Santu Jacu (24, OSM), Sentiero Italia Sardegna (30, OSM), Alta Via n. 2 della Valle d'Aosta (14, OSM 9898948) |
-| `de-hike`  | Germany        | Hiking   | Malerweg (8), Westweg (9, OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (6, OSM), Rheinburgenweg (13, OSM), Märchenlandweg (33, OSM), ViaJacobi (32, OSM — actually a Swiss route, Rorschach/Konstanz→Geneva, miscategorised under de-hike), Rheinsteig (21, OSM 2685, route_id=32, Bonn→Wiesbaden); Schwarzwaldverein Fernwanderwege (route_ids 10–31): Mittelweg (9), Ostweg (12), Querweg Freiburg–Bodensee (7), Markgräfler Wiiwegli (5), Schluchtensteig (6, ✓elev), Kandelhöhenweg (5, ✓elev), Schwarzwald-Jura-Bodensee (5), ZweiTälerSteig (5, ✓elev), Breisgauer Weinweg (6), Gäurandweg (5), Hochrhein-Höhenweg (6), Interregio-Wanderweg (11), Murgleiter (5, ✓elev), Ortenauer Weinpfad (5), Querweg Gengenbach–Alpirsbach (3), Querweg Lahr–Rottweil (4), Querweg Schwarzwald–Kaiserstuhl–Rhein (5), Renchtalsteig (5), Rheinauenweg (7), Schwarzwald-Nordrandweg (3), Wasserweltensteig (6), Hotzenwald-Querweg (2). ✓elev = per-stage elevation via OSM `_osm_id` injection; Albverein Hauptwanderwege (route_ids 33–36): Schwäbische Alb-Nordrand-Weg/HW1 (23), Schwäbische Alb-Südrand-Weg/HW2 (19), Schwarzwald-Schwäbische-Alb-Allgäu-Weg/HW5 (19), Schwäbische-Alb-Oberschwaben-Weg/HW7 (16) |
-| `es-hike`  | Spain          | Hiking   | GR11 Senda Pirenaica (37, OSM), Camino Primitivo (11, OSM), GR221 Ruta de Pedra en Sec (8, OSM), GR7 Andorra-Gibraltar (41, OSM), Sulayr (19, OSM), GR 109 Asturias Interior (27, OSM), Camí del Llobregat (9, OSM 9681617), Sendero de la Alpujarra (12, OSM 9913208) |
+| `fr-hike`  | France         | Hiking   | GR20 (16 stages, Corsica), GR65 Via Podiensis (32), GR70 Chemin de Stevenson (13), HRP Haute Randonnée Pyrénéenne (41, OSM), Voie de Tours (15, OSM), Du Jura à la Méditerranée (36, OSM), La Routo (7, OSM), Sur les Pas des Huguenots en Cévennes (24, OSM), Via Arverna (22, OSM), GR 300 Chemin de Saint-Michel (19, OSM), GR 367 Sentier Cathare (13, OSM), L'Echappée Jurassienne (5, OSM 16234318), Grand Tour de la Gervanne (7, OSM 17667253) |
+| `it-hike`  | Italy          | Hiking   | Alta Via 1 (11 stages, Dolomites), Sentiero della Pace (7, OSM), Cammino Celeste (11, OSM), Cammino Materano Via Peuceta (7, OSM), Cammino della Pace (29, OSM), Cammino delle Pievi (20, OSM), Grande Escursione Appenninica (25, OSM), Grande Traversata delle Alpi (25, OSM), Cammino di Santu Jacu (24, OSM), Sentiero Italia Sardegna (30, OSM), Alta Via n. 2 della Valle d'Aosta (14, OSM 9898948), Magna Via Francigena (9, OSM 12116509), Italia Coast to Coast (18, scraper_websites.py) |
+| `de-hike`  | Germany        | Hiking   | Malerweg (8), Westweg (9, OSM), Goldsteig Nord+Süd (OSM), Heidschnuckenweg (OSM), Lutherweg 1521 (6, OSM), Rheinburgenweg (13, OSM), Märchenlandweg (33, OSM), ViaJacobi (32, OSM — actually a Swiss route, Rorschach/Konstanz→Geneva, miscategorised under de-hike), Rheinsteig (21, OSM 2685, route_id=32, Bonn→Wiesbaden); Schwarzwaldverein Fernwanderwege (route_ids 10–31): Mittelweg (9), Ostweg (12), Querweg Freiburg–Bodensee (7), Markgräfler Wiiwegli (5), Schluchtensteig (6, ✓elev), Kandelhöhenweg (5, ✓elev), Schwarzwald-Jura-Bodensee (5), ZweiTälerSteig (5, ✓elev), Breisgauer Weinweg (6), Gäurandweg (5), Hochrhein-Höhenweg (6), Interregio-Wanderweg (11), Murgleiter (5, ✓elev), Ortenauer Weinpfad (5), Querweg Gengenbach–Alpirsbach (3), Querweg Lahr–Rottweil (4), Querweg Schwarzwald–Kaiserstuhl–Rhein (5), Renchtalsteig (5), Rheinauenweg (7), Schwarzwald-Nordrandweg (3), Wasserweltensteig (6), Hotzenwald-Querweg (2). ✓elev = per-stage elevation via OSM `_osm_id` injection; Albverein Hauptwanderwege (route_ids 33–36): Schwäbische Alb-Nordrand-Weg/HW1 (23), Schwäbische Alb-Südrand-Weg/HW2 (19), Schwarzwald-Schwäbische-Alb-Allgäu-Weg/HW5 (19), Schwäbische-Alb-Oberschwaben-Weg/HW7 (16); Albverein HW3/HW6/HW8 (route_ids 37–39): Main-Neckar-Rhein-Weg/HW3 (36), Limes-Wanderweg/HW6 (14), Frankenweg/HW8 (14); Albverein sub-routes (route_ids 40–41): Heuberg-Allgäu-Weg (12), Stromberg-Schwäbischer Wald-Weg (12); OSM routes (route_ids 42–48): Lahnwanderweg (19, OSM 3718434), Hünenweg (12, OSM 13561380), Sauerland-Waldroute (7, OSM 89751, website-enhanced), Paul-Gerhardt-Weg (10, OSM 14988038), Lahn-Camino Jakobsweg (6, OSM 18138429), Ulrikaweg (6, OSM 19221478), Kammweg Erzgebirge-Vogtland (3, OSM 2153742); Website routes (route_ids 49–51): Eifelsteig (15), Linksrheinischer Jakobsweg (12), WestfalenWanderWeg (11) |
+| `es-hike`  | Spain          | Hiking   | GR11 Senda Pirenaica (37, OSM), Camino Primitivo (11, OSM), GR221 Ruta de Pedra en Sec (8, OSM), GR7 Andorra-Gibraltar (41, OSM), Sulayr (19, OSM), GR 109 Asturias Interior (27, OSM), Camí del Llobregat (9, OSM 9681617), Sendero de la Alpujarra (12, OSM 9913208), Camí dels bons homes (5, OSM 1181120), Gran Senda del Guadalhorce (4, OSM 6390970) |
 | `ie-hike`  | Ireland        | Hiking   | Wicklow Way (OSM), Kerry Way (OSM), Dingle Way (OSM), Causeway Coast Way (OSM), Beara Way (OSM), Western Way (OSM) |
 | `pt-hike`  | Portugal       | Hiking   | Rota Vicentina - Trilho dos Pescadores (13, OSM 20810829) |
 | `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (17, OSM 2073724), BergeSeen Trail (23, OSM), Panoramaweg Südalpen (20, OSM) |
@@ -21,7 +21,8 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `si-hike`  | Slovenia       | Hiking   | Julius Kugy Alpine Trail (30, OSM 10909145) |
 | `nl-hike`  | Netherlands    | Hiking   | Pieterpad deel 1 (13, OSM), Pieterpad deel 2 (13, OSM), Zuiderzeepad (28, OSM), Pelgrimspad deel 1 (12, OSM), Pelgrimspad deel 2 (15, OSM), Westerborkpad (28, OSM), Trekvogelpad (24, OSM), Maarten van Rossumpad (24, OSM), Noaberpad (23, OSM), Waterliniepad (21, OSM), Grenslandpad (20, OSM), Marskramerpad (20, OSM), Groot Frieslandpad (23, OSM) |
 | `be-hike`  | Belgium        | Hiking   | Via Brabantica (7, OSM 18632711) |
-| `se-hike`  | Sweden         | Hiking   | Hälsingeleden (22, OSM 7128733), Bohusleden (27, OSM), St. Olavsleden (29, OSM), Stockholm Archipelago Trail (19, OSM 19012437), Kungsleden (31, OSM 1657661), Skåneleden SL1 (20, OSM 23828), SL2 (19, OSM 415700), SL3 (14, OSM 68019), SL4 (12, OSM 408995), SL5 (19, OSM 399333), SL6 (10, OSM 11583146) |
+| `hr-hike`  | Croatia        | Hiking   | Via Apsyrtides (11, OSM 14368967) |
+| `se-hike`  | Sweden         | Hiking   | Hälsingeleden (22, OSM 7128733), Bohusleden (27, OSM), St. Olavsleden (29, OSM), Stockholm Archipelago Trail (19, OSM 19012437), Kungsleden (31, OSM 1657661), Skåneleden SL1 (20, OSM 23828), SL2 (19, OSM 415700), SL3 (14, OSM 68019), SL4 (12, OSM 408995), SL5 (19, OSM 399333), SL6 (10, OSM 11583146), SL7 Sydkust (5, OSM 18194568) |
 | `no-hike`  | Norway         | Hiking   | Fjordruta på Nordmøre (14, OSM 14772115), Nordland trekking trail (43, OSM), Lofoten Long Crossing (11, OSM 19229749) |
 | `ee-hike`  | Estonia        | Hiking   | Euroopa matkarada E9 (31, OSM), Peraküla-Aegviidu-Ähijärve haru (11, OSM), Camino Estonia (10, OSM) |
 | `eu-hike`  | Europe (multi) | Hiking   | Via Alpina (116 stages, Monaco → Trieste, OSM 20014200), Alpe Adria Trail (43, OSM 3176522), Tour du Mont Blanc (11, OSM 6436417), Sultan's Trail (120, OSM 16127693, Vienna→Istanbul) |
@@ -62,6 +63,8 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 6544796   | `es-hike` | 6        | GR 109 Asturias Interior (27 stages) |
 | 9681617   | `es-hike` | 7        | Camí del Llobregat (9 stages) |
 | 9913208   | `es-hike` | 8        | Sendero de la Alpujarra (12 stages) |
+| 1181120   | `es-hike` | 9        | Camí dels bons homes (5 stages) |
+| 6390970   | `es-hike` | 10       | Gran Senda del Guadalhorce (4 stages) |
 | 3477430   | `it-hike` | 2        | Sentiero della Pace (7 stages) |
 | 12286842  | `it-hike` | 3        | Cammino Celeste (11 stages) |
 | 14251864  | `it-hike` | 4        | Cammino Materano - Via Peuceta (7 stages) |
@@ -72,6 +75,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 15651288  | `it-hike` | 9        | Cammino di Santu Jacu (24 stages) |
 | 7011030   | `it-hike` | 10       | Sentiero Italia - Sardegna (30 stages) |
 | 9898948   | `it-hike` | 11       | Alta Via n. 2 della Valle d'Aosta (14 stages) |
+| 12116509  | `it-hike` | 12       | Magna Via Francigena (9 stages) |
 | 2740      | `ie-hike` | 1        | Wicklow Way (single stage) |
 | 183744    | `ie-hike` | 2        | The Kerry Way (single stage) |
 | 21664     | `ie-hike` | 3        | The Dingle Way (single stage) |
@@ -112,6 +116,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 408995    | `se-hike` | 9        | Skåneleden SL4 - Österlen (12 stages) |
 | 399333    | `se-hike` | 10       | Skåneleden SL5 - Öresund (19 stages) |
 | 11583146  | `se-hike` | 11       | Skåneleden SL6 - Vattenriket (10 stages) |
+| 18194568  | `se-hike` | 12       | Skåneleden SL7 - Sydkust (5 stages) |
 | 14772115  | `no-hike` | 1        | Fjordruta på Nordmøre (14 stages) |
 | 6364172   | `no-hike` | 2        | Nordland trekking trail (43 stages) |
 | 19229749  | `no-hike` | 3        | Lofoten Long Crossing (11 stages) |
@@ -121,26 +126,59 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 20014200  | `eu-hike` | 1        | Via Alpina (116 stages, Monaco → Trieste) |
 | 3176522   | `eu-hike` | 2        | Alpe Adria Trail (43 stages, Salzburg → Trieste) |
 | 6436417   | `eu-hike` | 3        | Tour du Mont Blanc (11 stages, circular FR/IT/CH, CCW) |
+| 16234318  | `fr-hike` | 12       | L'Echappée Jurassienne (5 stages) |
+| 17667253  | `fr-hike` | 13       | Grand Tour de la Gervanne (7 stages) |
+| 3718434   | `de-hike` | 42       | Lahnwanderweg (19 stages) |
+| 13561380  | `de-hike` | 43       | Hünenweg (12 stages) |
+| 89751     | `de-hike` | 44       | Sauerland-Waldroute (3 OSM sections; overwritten by scraper_websites.py with 7 stages) |
+| 14988038  | `de-hike` | 45       | Paul-Gerhardt-Weg (10 stages) |
+| 18138429  | `de-hike` | 46       | Lahn-Camino - Jakobsweg (6 stages) |
+| 19221478  | `de-hike` | 47       | Ulrikaweg (6 stages) |
+| 2153742   | `de-hike` | 48       | Kammweg Erzgebirge-Vogtland (3 stages) |
+| 14368967  | `hr-hike` | 1        | Via Apsyrtides (11 stages, Rijeka → Pula) |
 | 16127693  | `eu-hike` | 4        | Sultan's Trail (120 stages, Vienna → Istanbul, AT/SK/HU/RS/BG/TR) |
 
 ## Deferred (no viable day-stage subroutes)
 
 GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~300 km), GR10 Pyrenean Traverse (9×~100 km sections), Coast to Coast (raw way geometry only), Rennsteig, Cleveland Way, Alta Via 2, GR54, Camino del Norte (5×~180 km), Rothaarsteig (id=None children), Via Francigena (id=None at all levels), Lycian Way (id=None), Caminho Português (id=None), Badische Jakobswege (id=None).
 
+## Website-only routes (scraper_websites.py)
+
+| route_id | Trail | Land | Stages | Source |
+|----------|-------|------|--------|--------|
+| 44 | Sauerland-Waldroute | `de-hike` | 7 (partial — JS-rendered site; 19 actual stages) | sauerland-waldroute.de |
+| 49 | Eifelsteig | `de-hike` | 15 | eifelsteig.de |
+| 50 | Linksrheinischer Jakobsweg | `de-hike` | 12 | linksrheinischer-jakobsweg.info |
+| 51 | WestfalenWanderWeg | `de-hike` | 11 | wildganz.com |
+| 13 | Italia Coast to Coast | `it-hike` | 18 | italiacoast2coast.it |
+
 ## Future candidates
 
 | Trail | Land | Notes |
 |---|---|---|
-| **Sultan's Trail** | `eu-hike` route_id=4 | ✓ Done — OSM 16127693, 120 stages, Vienna→Istanbul. Note: RS/BG/TR not in Europe SVG so those stages won't show on map. |
-| **Albverein HW1** | `de-hike` route_id=33 | Schwäbische-Alb-Nordrand-Weg, 23 stages, 360km. URL: `wege.albverein.net/.../etappenbeschreibung-{slug}/`. Stage format: `<strong>Etappe N \| Start – End \| X,Y Km</strong>` |
-| **Albverein HW2** | `de-hike` route_id=34 | 15 stages, 289km. Same site/format. |
-| **Albverein HW5** | `de-hike` route_id=35 | 15 stages, 307km. Same site/format. |
-| **Albverein HW7** | `de-hike` route_id=36 | 15 stages, 235km. Same site/format. |
 | **Coast to Coast** | `uk` | Wainwright's, 190 miles, Cumbria→North Yorkshire. Check wainwright.org.uk or OSM. |
 | **Camino Portugués** | `pt-hike` | Likely has OSM subroutes; worth checking. |
 | **Camino Francés** | `es-hike` | OSM 2163573 is flat (1 child × 163 km) — deferred. |
 | **GR10** | `fr-hike` | WT has 9 sections ~100 km each — no day-stage breakdown at level-2. Deferred. |
-| **Italian Caminos** | `it-hike` | Cammino di Dante, Magna Via Francigena/Sicily, Basilicata Coast to Coast, others — all viable in catalog. |
+| **High Scardus Trail** | `eu-hike` | 31 stages, 215km, North Macedonia/Kosovo/Albania. high-scardus-trail.com. |
+| **Stråsjöleden** | `se-hike` route_id=13 | 15 stages, 264km. paxwalk.se. |
+| **Grande Rota Peneda-Gerês** | `pt-hike` route_id=2 | 19 stages, 183km. walkingpenedageres.pt. |
+| **El Camino Espiritual del Sur** | `es-hike` | 14 stages, 316km. Flat OSM (no day-stage hierarchy). |
+| **Camino de la Frontera** | `es-hike` | 20 stages, 253km. Flat OSM. |
+| **La Bresse Comtoise** | `fr-hike` | 20 stages, 105km. Flat OSM. |
+| **Georg-Fahrbach-Weg** | `de-hike` | 10 stages, 121km. Flat OSM. |
+| **Müritz-Nationalpark-Wanderweg** | `de-hike` | 9 stages, 173km. Flat OSM. |
+| **König-Ludwig-Weg** | `de-hike` | 8 stages, 121km. Flat OSM. |
+| **Zentralalpenweg 02** | `at-hike` | 8 stages, 1146km. Flat OSM (coarse sections). |
+| **Kaiserweg** | `de-hike` | 7 stages, 111km. Flat OSM. |
+| **Oberlausitzer Bergweg** | `de-hike` | 7 stages, 108km. Flat OSM. |
+| **Ith-Hils-Wanderweg** | `de-hike` | 7 stages, 80km. Flat OSM. |
+| **Stormarnweg** | `de-hike` | 6 stages, 112km. Flat OSM. |
+| **Vulkanring Vogelsberg** | `de-hike` | 6 stages, 120km. Flat OSM. |
+| **Werra-Burgen-Steig Hessen** | `de-hike` | 6 stages, 129km. Flat OSM. |
+| **Ruta del Ter** | `es-hike` | 4 stages, 218km. Flat OSM. |
+| **Friedrich-Rückert-Wanderweg** | `de-hike` | 4 stages, 141km. Flat OSM. |
+| **Kelten-Erlebnisweg** | `de-hike` | 4 stages, 254km. Flat OSM. |
 | GR5 Grande Traversée des Alpes | `eu-hike` | OSM 18308154, no viable day-stage subroutes at level-2. Re-check periodically. |
 | Via Francigena | `it-hike` | Canterbury→Rome; check if Italian section has subroutes. |
 | Lycian Way | (new `tr-hike`) | Turkey; needs new land value. |
@@ -149,6 +187,8 @@ GR34 Chemin des Douaniers (23×~90 km), GR5 Grande Traversée des Alpes (15×~30
 
 ## Pending tasks
 
-- **Supabase DELETE Trans Swiss Trail** — `DELETE FROM stages WHERE land='ch-hike' AND route_id=100; DELETE FROM routes WHERE land='ch-hike' AND id=100;` — never done.
 - **Westweg user_state alignment** — stages 5–9 renumbered when OSM version replaced Schwarzwaldverein (11-stage). Any user completions for old stages 5–9 now map to wrong stages. Fix with manual Supabase SQL if needed.
 - **`discover_trails.py --recheck-large-stages`** — run to get real day-stage counts for ~120 multi-section candidates (Sultan's Trail, Via Francigena, E-paths etc).
+- **Sauerland-Waldroute** — 19 full stages exist on sauerland-waldroute.de but only 7 visible in static HTML (rest JS-rendered). Consider Playwright scrape for full stage list.
+- **Kammweg Erzgebirge-Vogtland** — only 3 coarse OSM sections (65/79/72 km). Could be improved via the official website.
+- **Ulrikaweg** — stage names are transit stop codes ("Etappe 1-6"). Backfill-names or manual fix would improve them.
