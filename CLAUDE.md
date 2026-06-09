@@ -38,7 +38,7 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 9. **`scraper_gr.py`** — French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages).
 10. **`scraper_osm.py`** — Long-distance trails via Waymarked Trails API (19+ countries). Data © OpenStreetMap contributors, ODbL 1.0.
 11. **`scraper_schwarzwaldverein.py`** — 22 Fernwanderwege from schwarzwaldverein.de (`de-hike`, route_ids 10–31). See docs/scrapers.md for elevation backfill notes.
-12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Camino de la Frontera (es-hike 11), Grande Rota Peneda-Gerês (pt-hike 2). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
+12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Camino de la Frontera (es-hike 11), Grande Rota Peneda-Gerês (pt-hike 2), Camino Portugués (pt-hike 3, pilgrim.es, Lisboa→Santiago), SNP Trail (sk-hike 1, snptrail.com, hardcoded). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
 13. **`scraper_e1.py`** — E1 European Long Distance Path (eu-hike, route_id=5, 425 stages, North Cape→Sicily) from hiking-europe.eu. CLI: `--refresh`, `--clear-cache`. Uses `.e1_cache.json` to avoid re-fetching.
 14. **`scraper_albverein.py`** — Albverein Hauptwanderwege (de-hike, route_ids 33–41, 52) from wege.albverein.net. CLI: `--only <slug>`, `--refresh`.
 15. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
@@ -74,6 +74,7 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 | `no-hike`  | Norway         | Hiking   |
 | `hr-hike`  | Croatia        | Hiking   |
 | `ee-hike`  | Estonia        | Hiking   |
+| `sk-hike`  | Slovakia       | Hiking   |
 | `eu-hike`  | Europe (multi) | Hiking   |
 
 ## Supabase credentials
@@ -94,10 +95,10 @@ Update both tables' constraints before importing any new land value:
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike','sk-hike'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike'));
+  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike','sk-hike'));
 ```
 
 ## Viewing the web app

@@ -16,6 +16,8 @@ Trails:
   X27 Friedrich-Wilhelm-Grimme-Weg (de-hike, route_id=57)  ich-geh-wandern.de
   Camino de la Frontera        (es-hike, route_id=11)  caminodelafrontera.es
   Grande Rota Peneda-Gerês     (pt-hike, route_id=2)   walkingpenedageres.pt
+  Camino Portugués             (pt-hike, route_id=3)   pilgrim.es
+  SNP Trail                    (sk-hike, route_id=1)   snptrail.com  [hardcoded — multi-page]
 
 Usage:
   python3 scraper_websites.py
@@ -910,6 +912,193 @@ def scrape_peneda():
 
 
 # ---------------------------------------------------------------------------
+# Camino Portugués — pilgrim.es/en/portuguese-way/
+# ---------------------------------------------------------------------------
+# 25 walking stages, Lisboa → Santiago de Compostela.
+# Stage cards: <a href="/en/portuguese-way/stage-N-.../">
+#   <h3>N</h3><h3>Start</h3><h3>❯ End</h3><p>XXKm</p><p>X.Xh</p>
+
+PILGRIM_URL      = "https://www.pilgrim.es/en/portuguese-way/"
+PILGRIM_HREF_RE  = re.compile(r'/portuguese-way/stage-(\d+)-')
+PILGRIM_KM_RE    = re.compile(r'^([\d.,]+)\s*[Kk][Mm]')
+PILGRIM_HRS_RE   = re.compile(r'^([\d.,]+)\s*h$', re.IGNORECASE)
+
+
+def scrape_camino_portugues():
+    print(f"Fetching {PILGRIM_URL} ...")
+    time.sleep(DELAY)
+    html = fetch(PILGRIM_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    stages = []
+    seen = set()
+
+    for a in soup.find_all("a", href=PILGRIM_HREF_RE):
+        href = a.get("href", "")
+        m = PILGRIM_HREF_RE.search(href)
+        if not m:
+            continue
+        nr = int(m.group(1))
+        if nr in seen:
+            continue
+
+        h3s = a.find_all("h3")
+        # h3[0]=Start  h3[1]="❯End"  h3[2]="Stage N :"
+        if len(h3s) < 2:
+            continue
+
+        start   = h3s[0].get_text(strip=True)
+        end_raw = h3s[1].get_text(strip=True)
+        end     = end_raw.replace("❯", "").strip()
+
+        if not start or not end:
+            continue
+
+        # km in <div><i class="icon-location"></i>XXKm</div>
+        # hrs in <div><i class="icon-clock"></i>X,Xh</div>
+        km = hrs = None
+        for div in a.find_all("div"):
+            icon = div.find("i")
+            if not icon:
+                continue
+            icon_cls = (icon.get("class") or [""])[0]
+            text = div.get_text(strip=True)
+            if icon_cls == "icon-location":
+                km_m = PILGRIM_KM_RE.match(text)
+                if km_m:
+                    km = parse_km(km_m.group(1))
+            elif icon_cls == "icon-clock":
+                hrs_m = PILGRIM_HRS_RE.match(text)
+                if hrs_m:
+                    try:
+                        hrs = round(float(hrs_m.group(1).replace(",", ".")), 1)
+                    except ValueError:
+                        pass
+
+        seen.add(nr)
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     hrs,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      PILGRIM_URL,
+        })
+        print(f"  Stage {nr:2d}  {start} → {end} ({km} km, {hrs}h)")
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   3,
+        "route_type": "international",
+        "land":       "pt-hike",
+        "name":       "Camino Portugués",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# SNP Trail / E8 Slovakia — snptrail.com (hardcoded, static HTML multi-page)
+# ---------------------------------------------------------------------------
+# 27 stages, ~771 km, Dukelský Priesmyk (Dukla Pass) → Devín Castle.
+# Slovak section of the E8 European Long Distance Path.
+# Data verified against snptrail.com June 2026. URL pattern is inconsistent
+# across pages (part2 has no hyphen; parts 3-5 have hyphen), so hardcoded.
+
+SNP_PAGE_URLS = [
+    "https://snptrail.com/maps-of-the-trail/",           # stages 1–5
+    "https://snptrail.com/maps-of-the-trail-part2/",     # stages 6–10
+    "https://snptrail.com/maps-of-the-trail-part-3/",    # stages 11–15
+    "https://snptrail.com/maps-of-the-trail-part-4/",    # stages 16–20
+    "https://snptrail.com/maps-of-the-trail-part-5/",    # stages 21–27
+]
+
+SNP_STAGES = [
+    #  nr   start                              end                          km    page
+    (1,  "Dukelský Priesmyk (Dukla Pass)",  "Svidník",                  26.4, SNP_PAGE_URLS[0]),
+    (2,  "Svidník",                          "Zborov",                   29.0, SNP_PAGE_URLS[0]),
+    (3,  "Zborov",                           "Žobrák",                   32.2, SNP_PAGE_URLS[0]),
+    (4,  "Žobrák",                           "Veľký Šariš",              30.0, SNP_PAGE_URLS[0]),
+    (5,  "Veľký Šariš",                      "Kysak",                    32.6, SNP_PAGE_URLS[0]),
+    (6,  "Kysak",                            "Jahodná mountain hut",     30.3, SNP_PAGE_URLS[1]),
+    (7,  "Jahodná mountain hut",             "Štós spa",                 35.8, SNP_PAGE_URLS[1]),
+    (8,  "Štós spa",                         "Mountain hut Volovec",     31.9, SNP_PAGE_URLS[1]),
+    (9,  "Mountain hut Volovec",             "Dobšinský Kopec",          29.0, SNP_PAGE_URLS[1]),
+    (10, "Dobšinský Kopec",                  "Telgart",                  21.0, SNP_PAGE_URLS[1]),
+    (11, "Telgart",                          "Andrejcová shelter",       16.2, SNP_PAGE_URLS[2]),
+    (12, "Andrejcová shelter",               "Čertovica pass",           28.0, SNP_PAGE_URLS[2]),
+    (13, "Čertovica",                        "Ďurková shelter",          25.6, SNP_PAGE_URLS[2]),
+    (14, "Ďurková shelter",                  "Donovaly",                 27.7, SNP_PAGE_URLS[2]),
+    (15, "Donovaly",                         "Kráľova Studňa Hotel",     20.4, SNP_PAGE_URLS[2]),
+    (16, "Kráľova Studňa hotel",             "Skalka",                   26.0, SNP_PAGE_URLS[3]),
+    (17, "Skalka",                           "Jalovské Lazy",            28.0, SNP_PAGE_URLS[3]),
+    (18, "Jalovské Lazy",                    "Fačkovské Sedlo",          33.5, SNP_PAGE_URLS[3]),
+    (19, "Fačkovské Sedlo",                  "Zliechov",                 20.0, SNP_PAGE_URLS[3]),
+    (20, "Zliechov",                         "Trenčianske Teplice",      32.0, SNP_PAGE_URLS[3]),
+    (21, "Trenčianske Teplice",              "Vyškovec",                 35.0, SNP_PAGE_URLS[4]),
+    (22, "Vyškovec",                         "Veľká Javorina",           24.0, SNP_PAGE_URLS[4]),
+    (23, "Veľká Javorina",                   "Brezová pod Bradlom",      31.7, SNP_PAGE_URLS[4]),
+    (24, "Brezová pod Bradlom",              "Buková camping",           37.5, SNP_PAGE_URLS[4]),
+    (25, "Buková",                           "Zochova Chata",            30.0, SNP_PAGE_URLS[4]),
+    (26, "Zochova Chata",                    "Biely Kríž",               26.0, SNP_PAGE_URLS[4]),
+    (27, "Biely Kríž",                       "Devín Castle",             31.0, SNP_PAGE_URLS[4]),
+]
+
+
+def scrape_snp():
+    print("SNP Trail / E8 Slovakia — hardcoded from snptrail.com")
+    stages = []
+    for nr, start, end, km, src_url in SNP_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      src_url,
+        })
+        print(f"  Stage {nr:2d}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   1,
+        "route_type": "national",
+        "land":       "sk-hike",
+        "name":       "SNP Trail",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -924,8 +1113,10 @@ TRAILS = {
     "werra":          scrape_werra,
     "koenig-ludwig":  scrape_koenig_ludwig,
     "x27":            scrape_x27,
-    "frontera":       scrape_frontera,
-    "peneda":         scrape_peneda,
+    "frontera":           scrape_frontera,
+    "peneda":             scrape_peneda,
+    "camino-portugues":   scrape_camino_portugues,
+    "snp":                scrape_snp,
 }
 
 
