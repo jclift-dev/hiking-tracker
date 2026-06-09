@@ -82,6 +82,13 @@ TRAILS = [
         "start":      "Pforzheim",
         "end":        "Lorch",
     },
+    {
+        "slug":       "georg-fahrbach-weg-gfw",
+        "route_id":   52,
+        "name":       "Georg-Fahrbach-Weg",
+        "start":      "Criesbach",
+        "end":        "Stuttgart-Uhlbach",
+    },
 ]
 
 SESSION = requests.Session()

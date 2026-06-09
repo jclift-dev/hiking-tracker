@@ -9,6 +9,11 @@ Trails:
   Sauerland-Waldroute          (de-hike, route_id=44)  sauerland-waldroute.de  [overwrites OSM sections]
   Linksrheinischer Jakobsweg   (de-hike, route_id=50)  linksrheinischer-jakobsweg.info
   WestfalenWanderWeg           (de-hike, route_id=51)  wildganz.com
+  Stormarnweg                  (de-hike, route_id=53)  wildganz.com
+  Oberlausitzer Bergweg        (de-hike, route_id=54)  oberlausitzer-bergweg.de
+  Werra-Burgen-Steig Hessen    (de-hike, route_id=55)  werra-burgen-steig-hessen.de
+  Camino de la Frontera        (es-hike, route_id=11)  caminodelafrontera.es
+  Grande Rota Peneda-Gerês     (pt-hike, route_id=2)   walkingpenedageres.pt
 
 Usage:
   python3 scraper_websites.py
@@ -419,6 +424,374 @@ def scrape_westfalen():
 
 
 # ---------------------------------------------------------------------------
+# Stormarnweg — wildganz.com/fernwanderweg/stormarnweg
+# ---------------------------------------------------------------------------
+# Index page lists all 6 stages: "Etappe N" / km in el-freifeld1 / Start: / Ziel:
+
+STORMARNWEG_URL = "https://www.wildganz.com/fernwanderweg/stormarnweg"
+STORMARNWEG_BLOCK_RE = re.compile(
+    r'Etappe\s+(\d+)\s*</div>.*?el-freifeld1[^>]*>([\d,.]+\s*km).*?Start:\s*(.*?)</.*?Ziel:\s*(.*?)</',
+    re.DOTALL,
+)
+
+
+def scrape_stormarnweg():
+    print(f"Fetching {STORMARNWEG_URL} ...", flush=True)
+    time.sleep(DELAY)
+    html = fetch(STORMARNWEG_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    stages = []
+    seen = set()
+    for m in STORMARNWEG_BLOCK_RE.finditer(html):
+        nr = int(m.group(1))
+        if nr in seen:
+            continue
+        seen.add(nr)
+        km_raw = re.sub(r'[^\d,.]', '', m.group(2))
+        start = re.sub(r'\s+', ' ', m.group(3)).strip()
+        end   = re.sub(r'\s+', ' ', m.group(4)).strip()
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          parse_km(km_raw),
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      STORMARNWEG_URL,
+        })
+        print(f"  Etappe {nr:2d}  {start} → {end} ({parse_km(km_raw)} km)")
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   53,
+        "route_type": "regional",
+        "land":       "de-hike",
+        "name":       "Stormarnweg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Oberlausitzer Bergweg — oberlausitzer-bergweg.de/tourenplanung/etappen
+# ---------------------------------------------------------------------------
+# Each stage block: "Oberlausitzer Bergweg - Etappe N" heading, prose description
+# with "von[m] X [bis] nach Y" pattern, "Strecke X,X km" following.
+
+OBERLAUSITZ_URL = "https://www.oberlausitzer-bergweg.de/tourenplanung/etappen"
+OBERLAUSITZ_STAGE_RE = re.compile(
+    r'Oberlausitzer Bergweg - Etappe (\d+)(.*?)(?=Oberlausitzer Bergweg - Etappe|\Z)',
+    re.DOTALL,
+)
+OBERLAUSITZ_FROM_TO_RE = re.compile(
+    r'vo[nm]\s+(.+?)\s+(?:bis\s+zu\s+\w+\s+\w+\s+|bis\s+)?nach\s+(.+?)(?:\s+auf\s+\w|\.\s*Strecke|\s*Strecke)',
+    re.DOTALL,
+)
+OBERLAUSITZ_KM_RE = re.compile(r'Strecke\s+([\d,\.]+)\s*km')
+
+
+def scrape_oberlausitz():
+    print(f"Fetching {OBERLAUSITZ_URL} ...", flush=True)
+    time.sleep(DELAY)
+    html = fetch(OBERLAUSITZ_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+    # Normalise whitespace
+    text = re.sub(r'\s+', ' ', text)
+
+    stages = []
+    for m in OBERLAUSITZ_STAGE_RE.finditer(text):
+        nr   = int(m.group(1))
+        body = m.group(2)
+        km_m = OBERLAUSITZ_KM_RE.search(body)
+        ft_m = OBERLAUSITZ_FROM_TO_RE.search(body)
+        start = re.sub(r'\s+bis\s+zu\s+.*$', '', ft_m.group(1).strip()) if ft_m else None
+        end   = ft_m.group(2).strip() if ft_m else None
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start or f"Etappe {nr} start",
+            "end_name":         end   or f"Etappe {nr} end",
+            "via":              None,
+            "dist_km":          parse_km(km_m.group(1)) if km_m else None,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      OBERLAUSITZ_URL,
+        })
+        print(f"  Etappe {nr:2d}  {start} → {end} ({(parse_km(km_m.group(1)) if km_m else '?')} km)")
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   54,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "Oberlausitzer Bergweg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Werra-Burgen-Steig Hessen — werra-burgen-steig-hessen.de/abschnitte
+# ---------------------------------------------------------------------------
+# Page lists 11 sections: "X5 H (N) Start-End Länge: X km"
+# Use rsplit("-", 1) for start/end (acceptable for the one compound-name case).
+
+WERRA_URL = "https://www.werra-burgen-steig-hessen.de/abschnitte"
+WERRA_RE = re.compile(
+    r'X5 H \((\d+)\)\s+(.+?)\s+Länge:\s+([\d,\.]+)\s*km',
+    re.IGNORECASE,
+)
+
+
+def scrape_werra():
+    print(f"Fetching {WERRA_URL} ...", flush=True)
+    time.sleep(DELAY)
+    html = fetch(WERRA_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+    text = re.sub(r'\s+', ' ', text)
+
+    raw = []
+    seen = set()
+    for m in WERRA_RE.finditer(text):
+        nr = int(m.group(1))
+        if nr in seen:
+            continue
+        seen.add(nr)
+        raw.append((nr, m.group(2).strip(), parse_km(m.group(3))))
+
+    # Smart split: use lsplit or rsplit depending on which makes start match prev_end
+    def smart_split(label, prev_end):
+        parts_l = label.split("-", 1)
+        start_l = parts_l[0].strip()
+        end_l   = parts_l[1].strip() if len(parts_l) > 1 else ""
+        parts_r = label.rsplit("-", 1)
+        start_r = parts_r[0].strip()
+        end_r   = parts_r[1].strip() if len(parts_r) > 1 else ""
+        if prev_end and start_r == prev_end:
+            return start_r, end_r
+        return start_l, end_l
+
+    stages = []
+    prev_end = None
+    for nr, label, km in raw:
+        start, end = smart_split(label, prev_end)
+        prev_end = end
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      WERRA_URL,
+        })
+        print(f"  X5H({nr:2d})  {start} → {end} ({km} km)")
+
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   55,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "Werra-Burgen-Steig Hessen",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Camino de la Frontera — caminodelafrontera.es/etapas-del-camino-de-la-frontera/
+# ---------------------------------------------------------------------------
+# Single page listing all stages: "Etapa NN: Start – End (X,XX kms)"
+
+FRONTERA_URL = "https://caminodelafrontera.es/etapas-del-camino-de-la-frontera/"
+FRONTERA_RE = re.compile(
+    r'[Ee]tapa\s+0?(\d+):\s*(.+?)\s*[–—-]\s*(.+?)\s*\([\s]*([\d,\.]+)\s*kms?\)',
+    re.DOTALL,
+)
+
+
+def scrape_frontera():
+    print(f"Fetching {FRONTERA_URL} ...", flush=True)
+    time.sleep(DELAY)
+    html = fetch(FRONTERA_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+    text = re.sub(r'\s+', ' ', text)
+
+    stages = []
+    seen = set()
+    for m in FRONTERA_RE.finditer(text):
+        nr = int(m.group(1))
+        if nr in seen:
+            continue
+        seen.add(nr)
+        start = m.group(2).strip()
+        end   = m.group(3).strip()
+        km    = parse_km(m.group(4))
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      FRONTERA_URL,
+        })
+        print(f"  Etapa {nr:2d}  {start} → {end} ({km} km)")
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   11,
+        "route_type": "national",
+        "land":       "es-hike",
+        "name":       "Camino de la Frontera",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Grande Rota Peneda-Gerês — walkingpenedageres.pt/pt/etapas/
+# ---------------------------------------------------------------------------
+# Single page listing all 19 stages: "Etapa N | Start – End"
+# No distance data available in static HTML.
+
+PENEDA_URL = "https://www.walkingpenedageres.pt/pt/etapas/"
+PENEDA_RE = re.compile(
+    r'Etapa\s+(\d+)\s*\|\s*(.+?)\s*[–—-]\s*(.+?)(?=\s*Etapa\s+\d+|\s*PLANEIE|\s*PESQUISAR|\Z)',
+    re.DOTALL,
+)
+
+
+def scrape_peneda():
+    print(f"Fetching {PENEDA_URL} ...", flush=True)
+    time.sleep(DELAY)
+    html = fetch(PENEDA_URL)
+    if not html:
+        print("  ERROR: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+    text = re.sub(r'\s+', ' ', text)
+
+    stages = []
+    seen = set()
+    for m in PENEDA_RE.finditer(text):
+        nr = int(m.group(1))
+        if nr in seen:
+            continue
+        seen.add(nr)
+        start = m.group(2).strip()
+        end   = m.group(3).strip()
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          None,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      PENEDA_URL,
+        })
+        print(f"  Etapa {nr:2d}  {start} → {end}")
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    print(f"  {len(stages)} stages (no km data in static HTML)")
+    return {
+        "route_id":   2,
+        "route_type": "national",
+        "land":       "pt-hike",
+        "name":       "Grande Rota Peneda-Gerês",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   None,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -428,6 +801,11 @@ TRAILS = {
     "sauerland":      scrape_sauerland,
     "linksrh":        scrape_linksrh,
     "westfalen":      scrape_westfalen,
+    "stormarnweg":    scrape_stormarnweg,
+    "oberlausitz":    scrape_oberlausitz,
+    "werra":          scrape_werra,
+    "frontera":       scrape_frontera,
+    "peneda":         scrape_peneda,
 }
 
 
