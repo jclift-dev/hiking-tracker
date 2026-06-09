@@ -1517,10 +1517,9 @@ function sourceLabel(route) {
 // stages were backfilled with _osm_id via scraper_osm.py --backfill-ch-osm-ids.
 // The two pairs below are hardcoded only where stage boundaries differ between
 // SchweizMobil and the OSM/eu-hike version (different start or end point).
-const SWISS_EU_STAGE_PAIRS = [
-  ['ch-hike_1_1',  'eu-hike_1_58'],  // Vaduz→Sargans vs Sücka→Sargans (different start)
-  ['ch-hike_1_16', 'eu-hike_1_73'],  // Lenk→Gstaad vs Lenk→Lauenen (different end)
-];
+const SWISS_EU_STAGE_PAIRS = [];
+// Stage 1: ch-hike starts Vaduz/Gaflei→Sargans; eu-hike starts Sücka→Sargans — different routes, no link.
+// Stage 16: ch-hike ends Lenk→Gstaad; eu-hike ends Lenk→Lauenen — different routes, no link.
 
 // E1 ↔ overlapping national routes (identical start/end names, verified against hikes.json)
 const E1_STAGE_PAIRS = [
