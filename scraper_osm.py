@@ -573,6 +573,73 @@ def backfill_elevation():
 
 
 # ---------------------------------------------------------------------------
+# Swiss ch-hike OSM ID backfill
+# ---------------------------------------------------------------------------
+
+# Parent OSM superroute relations for Swiss national hiking routes.
+# Subroutes are listed in stage order — we match by position.
+# Counts verified against SchweizMobil stage counts; mismatches noted.
+CH_OSM_PARENTS = {
+    1: (12359033, "Via Alpina"),            # 20 stages, exact match
+    2: (1107386,  "Trans Swiss Trail"),      # 32 stages, exact match
+    3: (3372194,  "Alpine Panorama Trail"),  # 29 stages, exact match
+    4: (2927471,  "ViaJacobi"),             # OSM=32, SM=33 — first 32 assigned
+    5: (120118,   "Jura Crest Trail"),       # OSM=15, SM=16 — first 15 assigned
+    6: (18021781, "Alpine Passes Trail"),    # 43 stages, exact match
+    7: (2927508,  "ViaGottardo"),           # 20 stages, exact match
+}
+
+
+def backfill_ch_osm_ids():
+    """
+    Assign _osm_id to ch-hike stages by position-matching against OSM parent
+    superroute subroutes.  Preserves all SchweizMobil data (names, elevation,
+    SBB times, etc.) — only adds _osm_id.  Once imported, buildLinkedStageMap()
+    in index.html auto-links Swiss stages to eu-hike/E-path stages that share
+    the same OSM relation.
+    """
+    existing = load_existing()
+    all_routes = list(existing.values())
+    route_index = {(r["land"], r["route_id"]): r for r in all_routes}
+
+    total_assigned = 0
+
+    for ch_route_id, (osm_parent_id, label) in CH_OSM_PARENTS.items():
+        route = route_index.get(("ch-hike", ch_route_id))
+        if not route:
+            print(f"  ch-hike_{ch_route_id} ({label}): not found in hikes.json, skipping")
+            continue
+
+        stages = route["stages"]
+        print(f"\n  ch-hike_{ch_route_id} ({label}, {len(stages)} SM stages): "
+              f"fetching OSM {osm_parent_id} ...", flush=True)
+
+        parent_data = fetch_relation(osm_parent_id, label)
+        if not parent_data:
+            print(f"    fetch failed, skipping")
+            continue
+
+        children = parent_data.get("route", {}).get("main", [])
+        osm_ids = [c["id"] for c in children if "id" in c]
+
+        n_assign = min(len(stages), len(osm_ids))
+        if len(stages) != len(osm_ids):
+            print(f"    ⚠  SM={len(stages)} stages, OSM={len(osm_ids)} subroutes "
+                  f"— assigning first {n_assign}")
+
+        for i in range(n_assign):
+            stages[i]["_osm_id"] = osm_ids[i]
+
+        print(f"    ✓  {n_assign} stages assigned _osm_id "
+              f"(first: {osm_ids[0]}, last: {osm_ids[n_assign-1]})")
+        total_assigned += n_assign
+
+    save(all_routes)
+    print(f"\nTotal: {total_assigned} Swiss stages updated with _osm_id.")
+    print("Next: source .env && python3 scraper.py --import")
+
+
+# ---------------------------------------------------------------------------
 # Stage parsing
 # ---------------------------------------------------------------------------
 
@@ -899,6 +966,8 @@ def main():
                    help="Reverse-geocode start/end for stages with code-only names (Nominatim)")
     p.add_argument("--backfill-elevation", action="store_true",
                    help="Fetch elevation for cached stages that have _osm_id but no elev_up")
+    p.add_argument("--backfill-ch-osm-ids", action="store_true",
+                   help="Assign _osm_id to ch-hike stages from OSM parent superroutes (by position)")
     args = p.parse_args()
 
     if args.backfill_names:
@@ -907,6 +976,10 @@ def main():
 
     if args.backfill_elevation:
         backfill_elevation()
+        return
+
+    if args.backfill_ch_osm_ids:
+        backfill_ch_osm_ids()
         return
 
     refresh_ids = set(args.refresh_ids or [])
