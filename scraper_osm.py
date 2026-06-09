@@ -116,6 +116,13 @@ TRAILS = [
     (2717790,  "de-hike", 8, "national", "Märchenlandweg"),
     (2927471,  "de-hike", 9, "national", "ViaJacobi"),
     (2685,     "de-hike", 32, "national", "Rheinsteig"),
+    (3718434,  "de-hike", 42, "national", "Lahnwanderweg"),
+    (13561380, "de-hike", 43, "national", "Hünenweg"),
+    (89751,    "de-hike", 44, "national", "Sauerland-Waldroute"),
+    (14988038, "de-hike", 45, "national", "Paul-Gerhardt-Weg"),
+    (18138429, "de-hike", 46, "national", "Lahn-Camino - Jakobsweg"),
+    (19221478, "de-hike", 47, "national", "Ulrikaweg"),
+    (2153742,  "de-hike", 48, "national", "Kammweg Erzgebirge-Vogtland"),
 
     # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
@@ -127,6 +134,8 @@ TRAILS = [
     (9681617,  "es-hike", 7, "national", "Camí del Llobregat"),
     (9913208,  "es-hike", 8, "national", "Sendero de la Alpujarra"),
     # (18021078, "es-hike", ?) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
+    (1181120,  "es-hike", 9,  "national", "Camí dels bons homes"),
+    (6390970,  "es-hike", 10, "national", "Gran Senda del Guadalhorce"),
 
     # Italy
     (3477430,  "it-hike", 2, "national", "Sentiero della Pace"),
@@ -198,6 +207,7 @@ TRAILS = [
     (408995,   "se-hike", 9, "national", "Skåneleden SL4 - Österlen"),
     (399333,   "se-hike", 10, "national", "Skåneleden SL5 - Öresund"),
     (11583146, "se-hike", 11, "national", "Skåneleden SL6 - Vattenriket"),
+    (18194568, "se-hike", 12, "national", "Skåneleden SL7 - Sydkust"),
 
     # Norway (no-hike)
     (14772115, "no-hike", 1, "national", "Fjordruta på Nordmøre"),
@@ -214,6 +224,13 @@ TRAILS = [
     (3176522,  "eu-hike", 2, "national", "Alpe Adria Trail"),
     (6436417,  "eu-hike", 3, "national", "Tour du Mont Blanc"),
     (16127693, "eu-hike", 4, "national", "Sultan's Trail"),
+
+    # France — new
+    (16234318, "fr-hike", 12, "national", "L'Echappée Jurassienne"),
+    (17667253, "fr-hike", 13, "national", "Grand Tour de la Gervanne"),
+
+    # Croatia (hr-hike — add to Supabase CHECK before --import)
+    (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:
