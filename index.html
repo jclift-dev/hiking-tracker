@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,700&family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --primary:    #012d1d;
@@ -108,6 +108,10 @@
     opacity: 0.55; mix-blend-mode: luminosity;
     pointer-events: none;
   }
+  .header-bg-svg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; display: block;
+  }
   /* Bottom-up gradient overlay */
   .header::after {
     content: '';
@@ -125,9 +129,9 @@
     color: rgba(255,255,255,0.5); margin-bottom: 8px; font-family: 'Manrope', sans-serif;
   }
   .header h1 {
-    font-family: 'Manrope', sans-serif;
-    font-size: 64px; font-weight: 800; letter-spacing: -0.05em;
-    color: #fff; line-height: 0.95;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 64px; font-weight: 800; letter-spacing: -0.04em;
+    color: #fff; line-height: 0.92;
     text-shadow: 0 2px 24px rgba(0,0,0,0.35);
   }
   .header p  { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; margin-top: 8px; letter-spacing: 0; text-transform: none; }
@@ -145,8 +149,8 @@
   .header-topbar-center { flex: none; display: flex; align-items: center; gap: 2px; }
   .header-topbar-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
   .topbar-logo {
-    font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800;
-    letter-spacing: 0.12em; color: #fff;
+    font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 700;
+    font-style: italic; letter-spacing: 0.02em; color: #fff;
   }
   .header-nav-btn {
     padding: 6px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
@@ -333,7 +337,7 @@
   /* Stats (right side of header) */
   .header-stats { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; text-align: right; }
   .header-stat { padding: 0.3rem 0; }
-  .header-stat-value { font-size: 26px; font-weight: 800; color: #fff; line-height: 1; font-family: 'Manrope', sans-serif; letter-spacing: -0.03em; }
+  .header-stat-value { font-size: 26px; font-weight: 800; color: #fff; line-height: 1; font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.03em; }
   .header-stat-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.45); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.1em; }
 
 
@@ -350,8 +354,8 @@
 
   /* Route cards */
   .route-list { display: flex; flex-direction: column; gap: 14px; }
-  .route-card { background: var(--surface-low); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.2s; }
-  .route-card:hover { box-shadow: var(--shadow-lg); }
+  .route-card { background: var(--surface-low); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.2s, transform 0.2s; }
+  .route-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
   .route-header { padding: 1.25rem 1.4rem; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; }
   .route-header:hover { background: rgba(25,28,29,0.02); }
 
@@ -370,7 +374,7 @@
   .badge-cycle  { background: var(--cycle-bg);  color: var(--cycle-dark); }
 
   .route-meta { flex: 1; min-width: 0; }
-  .route-name { font-size: 20px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; line-height: 1.2; }
+  .route-name { font-size: 20px; font-weight: 700; font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.02em; line-height: 1.2; }
   .route-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   /* Editorial stat columns (reference: Stitch mockup) */
   .route-stats-row { display: flex; gap: 18px; margin-top: 10px; }
@@ -389,7 +393,7 @@
   .route-progress { margin-top: 10px; }
   .route-prog-bar { background: var(--sec-container); border-radius: 99px; height: 4px; overflow: visible; position: relative; }
   .route-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; transition: width 0.3s; position: relative; }
-  .route-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--surface); }
+  .route-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #fff; border-radius: 50%; border: 2px solid var(--green-dark); }
   .route-prog-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 4px; letter-spacing: 0.02em; }
 
   .route-chevron { color: var(--muted); font-size: 14px; margin-top: 4px; flex-shrink: 0; transition: transform 0.2s; }
@@ -475,8 +479,13 @@
 
   .stage-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); }
   .stage-check:hover { border-color: var(--green); }
-  .stage-check.done { background: var(--green); border-color: var(--green); }
+  .stage-check.done { background: var(--green); border-color: var(--green); animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
   .stage-check.done::after { content: ''; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: block; }
+  @keyframes checkPop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
 
   .stage-info { flex: 1; min-width: 0; }
   .stage-title { font-size: 15px; font-weight: 600; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; line-height: 1.3; }
@@ -616,11 +625,11 @@
   }
   .dash-hero-inner { position: relative; z-index: 1; }
   .dash-hero-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; font-family: 'Manrope', sans-serif; margin-bottom: 8px; }
-  .dash-hero h2 { font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 6px; }
+  .dash-hero h2 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 6px; }
   .dash-hero-sub { font-size: 13px; font-weight: 500; opacity: 0.7; margin-bottom: 1.25rem; }
   .dash-hero-prog-wrap { background: rgba(255,255,255,0.15); border-radius: 99px; height: 4px; margin-bottom: 6px; }
   .dash-hero-prog-fill { height: 100%; background: #fff; border-radius: 99px; position: relative; }
-  .dash-hero-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--primary); }
+  .dash-hero-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #fff; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); }
   .dash-hero-prog-label { font-size: 11px; font-weight: 700; opacity: 0.7; margin-bottom: 1.25rem; }
   .dash-hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
   .dash-hero-btn { padding: 9px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; }
@@ -640,7 +649,7 @@
     box-shadow: var(--shadow); transition: box-shadow 0.2s; cursor: pointer;
   }
   .dash-trail-card:hover { box-shadow: var(--shadow-lg); }
-  .dash-trail-name { font-size: 18px; font-weight: 700; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 4px; }
+  .dash-trail-name { font-size: 18px; font-weight: 700; font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 4px; }
   .dash-trail-desc { font-size: 12px; color: var(--muted); margin-bottom: 1rem; line-height: 1.5; flex: 1; }
   .dash-trail-stats { display: flex; justify-content: space-between; margin-bottom: 1rem; }
   .dash-trail-stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
@@ -649,7 +658,7 @@
   .dash-trail-prog-pct { color: var(--primary); font-family: 'Manrope', sans-serif; }
   .dash-trail-prog-bar { background: var(--sec-container); border-radius: 99px; height: 5px; position: relative; overflow: visible; }
   .dash-trail-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; position: relative; }
-  .dash-trail-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; border: 1.5px solid var(--surface-low); }
+  .dash-trail-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #fff; border-radius: 50%; border: 2px solid var(--green-dark); }
   .dash-trail-next { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
   .dash-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; margin-bottom: 20px; }
@@ -661,7 +670,7 @@
   }
   .dash-big-stat::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 50%; }
   .dash-big-stat-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.55; font-family: 'Manrope', sans-serif; }
-  .dash-big-stat-num { font-size: 52px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.04em; line-height: 1; margin: 10px 0 2px; }
+  .dash-big-stat-num { font-size: 52px; font-weight: 800; font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.04em; line-height: 1; margin: 10px 0 2px; }
   .dash-big-stat-unit { font-size: 18px; font-weight: 700; opacity: 0.55; }
   .dash-big-stat-sub { font-size: 12px; font-weight: 500; opacity: 0.65; margin-top: 4px; margin-bottom: 1.25rem; }
   .dash-big-stat-divider { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -686,7 +695,7 @@
   /* Next Up card */
   .dash-next-up { background: var(--surface); border-radius: var(--radius-lg); padding: 1.4rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 20px; }
   .dash-next-up-route { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-  .dash-next-up-title { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 10px; }
+  .dash-next-up-title { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 10px; }
   .dash-next-up-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
   .dash-next-up-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
   .dash-next-up-btn { padding: 8px 18px; border-radius: 99px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; }
@@ -697,7 +706,7 @@
   .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
   .dash-stat-card { background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow); }
   .dash-stat-eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-family: 'Manrope', sans-serif; margin-bottom: 6px; }
-  .dash-stat-num { font-size: 36px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.04em; line-height: 1; color: var(--text); }
+  .dash-stat-num { font-size: 36px; font-weight: 800; font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.04em; line-height: 1; color: var(--text); }
   .dash-stat-unit { font-size: 14px; font-weight: 700; color: var(--muted); margin-left: 2px; }
   .dash-stat-fun { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
   .dash-stat-icon { font-size: 22px; margin-bottom: 6px; }
@@ -725,14 +734,14 @@
   .dash-best-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
 
   /* This Month */
-  .dash-month-num { font-family: 'Manrope', sans-serif; font-size: 48px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; color: var(--text); }
+  .dash-month-num { font-family: 'Fraunces', Georgia, serif; font-size: 48px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; color: var(--text); }
   .dash-month-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .dash-month-divider { border-top: 1px solid var(--ghost); margin-top: 14px; padding-top: 12px; display: flex; gap: 20px; }
   .dash-month-sub-val { font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
   .dash-month-sub-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
 
   /* Hike of the day */
-  .dash-hotd-name { font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 6px; }
+  .dash-hotd-name { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 6px; }
   .dash-hotd-route { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
   .dash-hotd-desc { font-size: 12px; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -757,6 +766,84 @@
 
   /* ── End Dashboard ───────────────────────────────────────────── */
 
+  /* ── Country pill scroll strip ──────────────────────────────── */
+  #country-pills {
+    overflow-x: auto; flex-wrap: nowrap !important;
+    scrollbar-width: none; -ms-overflow-style: none;
+    /* remove pill container shape so it flows edge-to-edge */
+    background: transparent; padding: 0; border-radius: 0; gap: 4px;
+  }
+  #country-pills::-webkit-scrollbar { display: none; }
+  #country-pills .land-pill-btn {
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* ── Route card entrance animation ──────────────────────────── */
+  @keyframes cardSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .route-card { animation: cardSlideIn 0.32s ease both; }
+  .route-card:nth-child(1)  { animation-delay:   0ms; }
+  .route-card:nth-child(2)  { animation-delay:  45ms; }
+  .route-card:nth-child(3)  { animation-delay:  90ms; }
+  .route-card:nth-child(4)  { animation-delay: 135ms; }
+  .route-card:nth-child(5)  { animation-delay: 180ms; }
+  .route-card:nth-child(6)  { animation-delay: 225ms; }
+  .route-card:nth-child(7)  { animation-delay: 270ms; }
+  .route-card:nth-child(8)  { animation-delay: 315ms; }
+  .route-card:nth-child(9)  { animation-delay: 360ms; }
+  .route-card:nth-child(10) { animation-delay: 405ms; }
+
+  /* ── Auth screen ─────────────────────────────────────────────── */
+  #auth-screen {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--page);
+    flex-direction: column; align-items: center; justify-content: center;
+  }
+  .auth-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem 2rem; width: min(360px, 90vw);
+    box-shadow: var(--shadow-lg);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .auth-logo {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 48px; font-weight: 800; font-style: italic;
+    letter-spacing: -0.03em; color: var(--primary);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .auth-tagline {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 2rem;
+  }
+  .auth-form { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .auth-input {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    background: var(--surface-low); color: var(--text);
+    font-size: 14px; font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color 0.15s; box-sizing: border-box;
+  }
+  .auth-input:focus { border-color: var(--primary); }
+  .auth-btn {
+    width: 100%; padding: 12px;
+    background: var(--primary); color: #fff;
+    border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif;
+    cursor: pointer; transition: background 0.15s; margin-top: 2px;
+  }
+  .auth-btn:hover { background: var(--primary-lt); }
+  .auth-error { font-size: 12px; color: var(--red); text-align: center; }
+  .auth-sent  { font-size: 13px; color: var(--muted); text-align: center; }
+  .auth-newpass-label { font-size: 14px; color: var(--muted); text-align: center; }
+  .auth-link {
+    font-size: 12px; color: var(--muted); text-align: center;
+    text-decoration: none; margin-top: 2px; display: block;
+  }
+  .auth-link:hover { color: var(--text); }
+  .auth-link-dim { opacity: 0.5; }
+
   /* Difficulty colours — hiking (spec: primary-fixed for easy, tertiary for demanding) */
   .diff-t1 { background: #c1ecd4; color: #274e3d; }
   .diff-t2 { background: var(--blue-bg); color: var(--blue); }
@@ -770,40 +857,81 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body data-land="ch-hike">
-<div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
-  <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;font-family:'Manrope',sans-serif;letter-spacing:-0.03em">Via</div>
-  <div id="auth-login" style="display:flex;flex-direction:column;gap:0.5rem;width:280px">
-    <input id="auth-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
-    <input id="auth-password" type="password" placeholder="Password" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
-    <button onclick="signIn()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Sign in</button>
-    <div id="auth-error" style="font-size:12px;color:#e05;display:none"></div>
-    <a href="#" onclick="showResetForm();return false;" style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px">Forgot password?</a>
-    <a href="?reset" style="font-size:11px;color:var(--muted);opacity:0.5;text-align:center;margin-top:8px">Stuck? Clear session & reload</a>
-  </div>
-  <div id="auth-reset" style="display:none;flex-direction:column;gap:0.5rem;width:280px">
-    <input id="auth-reset-email" type="email" placeholder="Email" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
-    <button onclick="sendReset()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Send reset link</button>
-    <div id="auth-reset-error" style="font-size:12px;color:#e05;display:none"></div>
-    <div id="auth-reset-sent" style="font-size:13px;color:var(--muted);text-align:center;display:none">Check your email for a reset link ✓</div>
-    <a href="#" onclick="showLoginForm();return false;" style="font-size:12px;color:var(--muted);text-align:center">← Back to sign in</a>
-  </div>
-  <div id="auth-newpass" style="display:none;flex-direction:column;gap:0.5rem;width:280px">
-    <div style="font-size:14px;color:var(--muted);text-align:center;margin-bottom:4px">Set your new password</div>
-    <input id="auth-newpass-input" type="password" placeholder="New password" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:14px">
-    <button onclick="setNewPassword()" style="padding:0.5rem;background:var(--green-dark);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Set password</button>
-    <div id="auth-newpass-error" style="font-size:12px;color:#e05;display:none"></div>
+<div id="auth-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">Via</div>
+    <div class="auth-tagline">Your hiking journey</div>
+    <div id="auth-login" class="auth-form">
+      <input id="auth-email" type="email" placeholder="Email" class="auth-input">
+      <input id="auth-password" type="password" placeholder="Password" class="auth-input">
+      <button onclick="signIn()" class="auth-btn">Sign in</button>
+      <div id="auth-error" class="auth-error" style="display:none"></div>
+      <a href="#" onclick="showResetForm();return false;" class="auth-link">Forgot password?</a>
+      <a href="?reset" class="auth-link auth-link-dim">Stuck? Clear session & reload</a>
+    </div>
+    <div id="auth-reset" class="auth-form" style="display:none">
+      <input id="auth-reset-email" type="email" placeholder="Email" class="auth-input">
+      <button onclick="sendReset()" class="auth-btn">Send reset link</button>
+      <div id="auth-reset-error" class="auth-error" style="display:none"></div>
+      <div id="auth-reset-sent" class="auth-sent" style="display:none">Check your email for a reset link ✓</div>
+      <a href="#" onclick="showLoginForm();return false;" class="auth-link">← Back to sign in</a>
+    </div>
+    <div id="auth-newpass" class="auth-form" style="display:none">
+      <div class="auth-newpass-label">Set your new password</div>
+      <input id="auth-newpass-input" type="password" placeholder="New password" class="auth-input">
+      <button onclick="setNewPassword()" class="auth-btn">Set password</button>
+      <div id="auth-newpass-error" class="auth-error" style="display:none"></div>
+    </div>
   </div>
 </div>
 <div class="app">
 
   <div class="header" id="main-header">
-    <img class="header-bg-img" id="header-bg-img"
-      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC"
-      alt="Swiss Alps">
+    <svg class="header-bg-svg" viewBox="0 0 800 280" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- stars -->
+      <circle cx="72"  cy="26" r="1"   fill="rgba(255,255,255,0.38)"/>
+      <circle cx="162" cy="16" r="0.8" fill="rgba(255,255,255,0.28)"/>
+      <circle cx="246" cy="40" r="1.1" fill="rgba(255,255,255,0.32)"/>
+      <circle cx="336" cy="20" r="0.9" fill="rgba(255,255,255,0.38)"/>
+      <circle cx="478" cy="30" r="1"   fill="rgba(255,255,255,0.30)"/>
+      <circle cx="558" cy="12" r="0.8" fill="rgba(255,255,255,0.28)"/>
+      <circle cx="648" cy="42" r="1.2" fill="rgba(255,255,255,0.35)"/>
+      <circle cx="728" cy="22" r="0.9" fill="rgba(255,255,255,0.30)"/>
+      <circle cx="42"  cy="52" r="0.7" fill="rgba(255,255,255,0.22)"/>
+      <circle cx="595" cy="50" r="0.8" fill="rgba(255,255,255,0.25)"/>
+      <!-- distant peaks -->
+      <path fill="rgba(255,255,255,0.07)"
+        d="M-10,280 L-10,210 L50,202 L85,190 L115,178 L145,182 L165,168
+           L190,172 L215,155 L240,162 L265,140 L280,145 L295,118 L310,125
+           L330,108 L350,115 L375,90 L390,82 L405,55 L420,68 L440,75
+           L460,68 L480,78 L498,88 L518,78 L538,90 L558,88 L578,102
+           L600,95 L625,108 L650,100 L678,112 L705,105 L728,118
+           L755,112 L778,125 L810,118 L810,280 Z"/>
+      <!-- snow caps -->
+      <path fill="rgba(255,255,255,0.42)"
+        d="M390,82 L405,55 L420,72 Z
+           M362,112 L375,90 L390,110 Z
+           M447,90 L460,68 L476,88 Z
+           M282,140 L295,118 L310,138 Z"/>
+      <!-- mid range -->
+      <path fill="rgba(255,255,255,0.08)"
+        d="M-10,280 L-10,245 L30,238 L60,248 L90,230 L118,240 L148,220
+           L175,232 L205,212 L235,222 L265,205 L292,215 L320,198 L348,210
+           L375,192 L400,198 L428,185 L458,195 L485,178 L515,190 L545,180
+           L572,195 L600,185 L628,198 L658,188 L688,202 L718,192
+           L748,205 L778,195 L810,202 L810,280 Z"/>
+      <!-- foreground ridge -->
+      <path fill="rgba(255,255,255,0.12)"
+        d="M-10,280 L-10,260 L25,255 L55,265 L82,252 L108,262 L135,248
+           L162,258 L190,242 L218,255 L245,240 L272,252 L300,238 L328,250
+           L355,235 L382,248 L410,232 L438,245 L465,230 L492,242 L520,228
+           L548,240 L575,226 L602,238 L628,224 L655,236 L682,222
+           L710,235 L738,220 L765,233 L792,218 L810,225 L810,280 Z"/>
+    </svg>
     <!-- Top bar -->
     <div class="header-topbar">
       <div class="header-topbar-left">
-        <span class="topbar-logo">VIA</span>
+        <button class="topbar-logo" onclick="setCountry('eu');setView('dashboard');" style="background:none;border:none;cursor:pointer;padding:0">VIA</button>
       </div>
       <nav class="header-topbar-center">
         <button class="header-nav-btn" id="view-dashboard" onclick="setView('dashboard')">Dashboard</button>
@@ -822,7 +950,7 @@
         <h1><span id="header-title">Switzerland</span></h1>
         <p id="subtitle">Loading routes…</p>
         <!-- Country row -->
-        <div id="country-pills" class="land-pill" style="margin-top:12px;flex-wrap:wrap">
+        <div id="country-pills" class="land-pill" style="margin-top:12px">
           <button class="land-pill-btn active" data-country="ch" onclick="setCountry('ch')">🇨🇭 Switzerland</button>
           <button class="land-pill-btn" data-country="uk"  onclick="setCountry('uk')">🇬🇧 UK</button>
           <button class="land-pill-btn" data-country="fr"  onclick="setCountry('fr')">🇫🇷 France</button>
@@ -893,7 +1021,8 @@
       <button class="subview-btn" id="subview-stages" onclick="setView('stages')">All Stages</button>
     </div>
     <button class="filter-btn" id="filter-btn" onclick="openFilters()">
-      ⚙ Filters <span class="filter-count" id="filter-count" style="display:none"></span>
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" style="flex-shrink:0"><line x1="1" y1="3" x2="13" y2="3"/><line x1="3" y1="7" x2="11" y2="7"/><line x1="5" y1="11" x2="9" y2="11"/></svg>
+      Filters <span class="filter-count" id="filter-count" style="display:none"></span>
     </button>
     <button class="view-btn" onclick="surpriseMe()" title="Pick a random stage for you">🎲 Surprise me</button>
   </div>
