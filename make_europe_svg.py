@@ -37,6 +37,7 @@ NE_URL = (
 INCLUDE_COUNTRIES = {
     "GB", "FR", "DE", "AT", "IT", "ES", "IE", "CH", "SI", "MC", "LI", "PT",
     "HU", "CZ", "NL", "BE", "SE", "NO", "EE", "HR", "SK", "DK",
+    "RS", "BG", "GR", "TR",
 }
 
 # SVG viewport — equirectangular projection
