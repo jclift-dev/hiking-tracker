@@ -9,6 +9,8 @@ Read these when working on the relevant area — don't load them all upfront:
 - **[docs/architecture.md](docs/architecture.md)** — Supabase schema, hikes.json format, web app state, auth, assets, route numbering
 - **[docs/trails.md](docs/trails.md)** — full route lists per land value, OSM trail IDs, deferred & future candidates
 
+**Keep docs current**: after adding routes, update `docs/trails.md` (routes-by-land table, OSM catalog, website-only/Geotrek tables, deferred list). After adding a new `land` value, also update: the land table in this file, the Supabase CHECK constraint template below, and `enrich_regions.py` `EU_LANDS`.
+
 ## Git workflow
 
 - **Straight to `main`**: one-file changes, new route scrapes, CSS tweaks, documentation
