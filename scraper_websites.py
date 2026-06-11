@@ -23,6 +23,8 @@ Trails:
   Camino Espiritual del Sur    (es-hike, route_id=12)  caminoespiritualdelsur.com
   GR54 Tour de l'Oisans       (fr-hike, route_id=14)  geotrek-admin.ecrins-parcnational.fr
   Grande traversée Alpi Marittime (eu-hike, route_id=7) adminrando.marittimemercantour.eu
+  Alto Tanaro Tour             (it-hike, route_id=44)  adminrando.marittimemercantour.eu
+  Tour des glaciers de la Vanoise (fr-hike, route_id=15) adminrando.vanoise.com
 
 Usage:
   python3 scraper_websites.py
@@ -1473,6 +1475,12 @@ GR54_PARENT  = 937571
 ALPI_MARITTIME_API    = "https://adminrando.marittimemercantour.eu/api/v2/trek/{}/?format=json&language=fr"
 ALPI_MARITTIME_PARENT = 169810
 
+ALTO_TANARO_API    = ALPI_MARITTIME_API
+ALTO_TANARO_PARENT = 154947
+
+VANOISE_API    = "https://adminrando.vanoise.com/api/v2/trek/{}/?format=json&language=fr"
+VANOISE_PARENT = 56199
+
 
 def scrape_alpi_marittime():
     print("Grande traversée Alpi Marittime — Geotrek API (Mercantour/Marittime)")
@@ -1600,6 +1608,126 @@ def scrape_gr54():
 
 
 # ---------------------------------------------------------------------------
+# Alto Tanaro Tour — adminrando.marittimemercantour.eu (same instance as Alpi Marittime)
+# ---------------------------------------------------------------------------
+# 9-stage circular tour in the Ligurian Alps, Cuneo province, Piedmont.
+
+def scrape_alto_tanaro():
+    print("Alto Tanaro Tour — Geotrek API (Mercantour/Marittime)")
+    r = SESSION.get(ALTO_TANARO_API.format(ALTO_TANARO_PARENT), timeout=15)
+    if r.status_code != 200:
+        print(f"  ERROR: parent fetch returned {r.status_code}")
+        return None
+    parent = r.json()
+    child_ids = parent.get("children", [])
+
+    stages = []
+    for nr, cid in enumerate(child_ids, 1):
+        time.sleep(0.4)
+        r2 = SESSION.get(ALTO_TANARO_API.format(cid), timeout=15)
+        if r2.status_code != 200:
+            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
+            continue
+        s = r2.json()
+        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
+        dep  = (s.get("departure") or "").strip()
+        arr  = (s.get("arrival")   or "").strip()
+        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{s.get('ascent')}m/{s.get('descent')}m")
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       dep,
+            "end_name":         arr,
+            "via":              None,
+            "dist_km":          dist,
+            "elev_up":          s.get("ascent"),
+            "elev_down":        abs(s["descent"]) if s.get("descent") else None,
+            "duration_hrs":     s.get("duration"),
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      f"https://rando.marittimemercantour.eu/trek/{cid}",
+        })
+
+    if not stages:
+        print("  ERROR: no stages scraped")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":    44,
+        "route_type":  "regional",
+        "land":        "it-hike",
+        "name":        "Alto Tanaro Tour",
+        "description": None,
+        "start":       stages[0]["start_name"],
+        "end":         stages[-1]["end_name"],
+        "total_km":    total_km,
+        "stages":      stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Tour des glaciers de la Vanoise — adminrando.vanoise.com
+# ---------------------------------------------------------------------------
+# 7-stage circular tour in the Vanoise national park, Savoie, France.
+
+def scrape_vanoise():
+    print("Tour des glaciers de la Vanoise — Geotrek API (Vanoise)")
+    r = SESSION.get(VANOISE_API.format(VANOISE_PARENT), timeout=15)
+    if r.status_code != 200:
+        print(f"  ERROR: parent fetch returned {r.status_code}")
+        return None
+    parent = r.json()
+    child_ids = parent.get("children", [])
+
+    stages = []
+    for nr, cid in enumerate(child_ids, 1):
+        time.sleep(0.4)
+        r2 = SESSION.get(VANOISE_API.format(cid), timeout=15)
+        if r2.status_code != 200:
+            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
+            continue
+        s = r2.json()
+        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
+        dep  = (s.get("departure") or "").strip()
+        arr  = (s.get("arrival")   or "").strip()
+        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{s.get('ascent')}m/{s.get('descent')}m")
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       dep,
+            "end_name":         arr,
+            "via":              None,
+            "dist_km":          dist,
+            "elev_up":          s.get("ascent"),
+            "elev_down":        abs(s["descent"]) if s.get("descent") else None,
+            "duration_hrs":     s.get("duration"),
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      f"https://rando.vanoise.com/fr/trek/{cid}",
+        })
+
+    if not stages:
+        print("  ERROR: no stages scraped")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":    15,
+        "route_type":  "regional",
+        "land":        "fr-hike",
+        "name":        "Tour des glaciers de la Vanoise",
+        "description": None,
+        "start":       stages[0]["start_name"],
+        "end":         stages[-1]["end_name"],
+        "total_km":    total_km,
+        "stages":      stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -1625,6 +1753,8 @@ TRAILS = {
     "ith-hils":           scrape_ith_hils,
     "gr54":               scrape_gr54,
     "alpi-marittime":     scrape_alpi_marittime,
+    "alto-tanaro":        scrape_alto_tanaro,
+    "vanoise":            scrape_vanoise,
 }
 
 

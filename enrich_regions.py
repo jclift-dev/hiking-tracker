@@ -74,6 +74,12 @@ ROUTE_DEFAULTS = {
         (9,  11, "fr", "fr-07"),   # Ardèche
         (12, None, "fr", "fr-30"), # Gard
     ],
+    ("it-hike", 44): [                                   # Alto Tanaro Tour (circular, Ligurian Alps, Cuneo)
+        (1, None, "it", "it-cn"),  # Cuneo province, Piedmont
+    ],
+    ("fr-hike", 15): [                                   # Tour des glaciers de la Vanoise (circular, Savoie)
+        (1, None, "fr", "fr-73"),  # Savoie
+    ],
     ("eu-hike", 7):  [                                   # Grande traversée Alpi Marittime (Col de Larche → Grimaldi)
         (1,  1,  "fr", "fr-04"),   # Alpes-de-Haute-Provence: Col de Larche
         (2,  13, "it", "it-cn"),   # Cuneo / Piedmont: Maritime Alps
