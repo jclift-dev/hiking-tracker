@@ -232,6 +232,7 @@ TRAILS = [
     (8463196,  "nl-hike", 11, "national", "Grenslandpad"),
     (2801085,  "nl-hike", 12, "national", "Marskramerpad"),
     (6662765,  "nl-hike", 13, "national", "Groot Frieslandpad"),
+    (1982909,  "nl-hike", 14, "national", "E11 Netherlands"),
 
     # Belgium (be-hike)
     (18632711, "be-hike", 1, "national", "Via Brabantica"),
@@ -281,10 +282,15 @@ TRAILS = [
     # Lithuania (lt-hike — add to Supabase CHECK before --import)
     (6519670,  "lt-hike", 1, "national", "E11 Lithuania"),
 
+    # Latvia (lv-hike — add to Supabase CHECK before --import)
+    (13239065, "lv-hike", 1, "national", "Ezertaka"),
+    (11116577, "lv-hike", 2, "national", "E11 Mežtaka"),
+
     # Estonia (ee-hike — add to Supabase CHECK before --import)
     (9645763,  "ee-hike", 1, "national", "Euroopa matkarada E9"),
     (13182780, "ee-hike", 2, "national", "Peraküla-Aegviidu-Ähijärve haru"),
     (15843108, "ee-hike", 3, "national", "Camino Estonia"),
+    (11346181, "ee-hike", 4, "national", "E11 Metsa Matkarada"),
 
     # Europe — multi-country long-distance routes (eu-hike)
     (20014200, "eu-hike", 1, "national", "Via Alpina"),
