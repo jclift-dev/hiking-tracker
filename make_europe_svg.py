@@ -36,7 +36,7 @@ NE_URL = (
 # Countries to include by ISO A2 code
 INCLUDE_COUNTRIES = {
     "GB", "FR", "DE", "AT", "IT", "ES", "IE", "CH", "SI", "MC", "LI", "PT",
-    "HU", "CZ", "NL", "BE", "SE", "NO", "EE",
+    "HU", "CZ", "NL", "BE", "SE", "NO", "EE", "HR", "SK", "DK",
 }
 
 # SVG viewport — equirectangular projection

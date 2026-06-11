@@ -123,6 +123,17 @@ TRAILS = [
     (18138429, "de-hike", 46, "national", "Lahn-Camino - Jakobsweg"),
     (19221478, "de-hike", 47, "national", "Ulrikaweg"),
     (2153742,  "de-hike", 48, "national", "Kammweg Erzgebirge-Vogtland"),
+    (7458271,  "de-hike", 60, "national", "Westerwaldsteig"),
+    (3535507,  "de-hike", 61, "national", "Bergischer Panoramasteig"),
+    (31758,    "de-hike", 62, "national", "X19 Schlösserweg"),
+    (66159,    "de-hike", 63, "national", "Ederhöhenweg"),
+    (227175,   "de-hike", 64, "national", "Herkulesweg"),
+    (69496,    "de-hike", 65, "national", "X22 Kurkölner Weg"),
+    (91600,    "de-hike", 66, "national", "Sieghöhenweg"),
+    (91604,    "de-hike", 67, "national", "X12 Richard-Schirrmann-Weg"),
+    (121147,   "de-hike", 68, "national", "Straße der Arbeit"),
+    (299338,   "de-hike", 69, "national", "X11 Lenne-Sieg-Weg"),
+    (31656,    "de-hike", 70, "national", "X30 Neandertalweg"),
 
     # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
@@ -262,6 +273,10 @@ TRAILS = [
     (7078769,  "no-hike", 11, "national", "Ryger"),
     (14771926, "no-hike", 12, "national", "Saga"),
     (14769822, "no-hike", 13, "national", "Massiv Trail"),
+
+    # Denmark (dk-hike — add to Supabase CHECK before --import)
+    (1792585,  "dk-hike", 1, "national", "Hærvejen"),
+    (1202410,  "dk-hike", 2, "national", "Øhavsstien"),
 
     # Estonia (ee-hike — add to Supabase CHECK before --import)
     (9645763,  "ee-hike", 1, "national", "Euroopa matkarada E9"),
