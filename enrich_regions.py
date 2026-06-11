@@ -74,6 +74,11 @@ ROUTE_DEFAULTS = {
         (9,  11, "fr", "fr-07"),   # Ardèche
         (12, None, "fr", "fr-30"), # Gard
     ],
+    ("eu-hike", 7):  [                                   # Grande traversée Alpi Marittime (Col de Larche → Grimaldi)
+        (1,  1,  "fr", "fr-04"),   # Alpes-de-Haute-Provence: Col de Larche
+        (2,  13, "it", "it-cn"),   # Cuneo / Piedmont: Maritime Alps
+        (14, None, "it", "it-im"), # Imperia / Liguria: towards the Mediterranean
+    ],
     ("fr-hike", 14): [                                   # GR54 Tour de l'Oisans (circular)
         (1,  2,  "fr", "fr-38"),   # Isère: Bourg d'Oisans → Mizoën
         (3,  9,  "fr", "fr-05"),   # Hautes-Alpes: Villar d'Arène → Valgaudemar

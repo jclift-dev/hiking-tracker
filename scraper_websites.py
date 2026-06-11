@@ -22,6 +22,7 @@ Trails:
   Vulkanring Vogelsberg        (de-hike, route_id=58)  vogelsberg-touristik.de  [hardcoded]
   Camino Espiritual del Sur    (es-hike, route_id=12)  caminoespiritualdelsur.com
   GR54 Tour de l'Oisans       (fr-hike, route_id=14)  geotrek-admin.ecrins-parcnational.fr
+  Grande traversée Alpi Marittime (eu-hike, route_id=7) adminrando.marittimemercantour.eu
 
 Usage:
   python3 scraper_websites.py
@@ -1463,6 +1464,77 @@ def scrape_espiritual():
 GR54_API     = "https://geotrek-admin.ecrins-parcnational.fr/api/v2/trek/{}/?format=json&language=fr"
 GR54_PARENT  = 937571
 
+# ---------------------------------------------------------------------------
+# Grande traversée Alpi Marittime — adminrando.marittimemercantour.eu
+# ---------------------------------------------------------------------------
+# Cross-border FR/IT trail, Col de Larche → Grimaldi (Mediterranean coast).
+# Public Geotrek API from the Mercantour/Alpi Marittime cross-border park.
+
+ALPI_MARITTIME_API    = "https://adminrando.marittimemercantour.eu/api/v2/trek/{}/?format=json&language=fr"
+ALPI_MARITTIME_PARENT = 169810
+
+
+def scrape_alpi_marittime():
+    print("Grande traversée Alpi Marittime — Geotrek API (Mercantour/Marittime)")
+    r = SESSION.get(ALPI_MARITTIME_API.format(ALPI_MARITTIME_PARENT), timeout=15)
+    if r.status_code != 200:
+        print(f"  ERROR: parent fetch returned {r.status_code}")
+        return None
+    parent = r.json()
+    child_ids = parent.get("children", [])
+    if not child_ids:
+        print("  ERROR: no children found on parent trek")
+        return None
+
+    stages = []
+    for nr, cid in enumerate(child_ids, 1):
+        time.sleep(0.4)
+        r2 = SESSION.get(ALPI_MARITTIME_API.format(cid), timeout=15)
+        if r2.status_code != 200:
+            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
+            continue
+        s = r2.json()
+        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
+        asc  = s.get("ascent")
+        desc = s.get("descent")
+        dur  = s.get("duration")
+        dep  = (s.get("departure") or "").strip()
+        arr  = (s.get("arrival")   or "").strip()
+        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{asc}m/{desc}m")
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       dep,
+            "end_name":         arr,
+            "via":              None,
+            "dist_km":          dist,
+            "elev_up":          asc,
+            "elev_down":        abs(desc) if desc else None,
+            "duration_hrs":     dur,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      f"https://rando.marittimemercantour.eu/trek/{cid}",
+        })
+
+    if not stages:
+        print("  ERROR: no stages scraped")
+        return None
+
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":    7,
+        "route_type":  "international",
+        "land":        "eu-hike",
+        "name":        "Grande traversée Alpi Marittime",
+        "description": None,
+        "start":       stages[0]["start_name"],
+        "end":         stages[-1]["end_name"],
+        "total_km":    total_km,
+        "stages":      stages,
+    }
+
 
 def scrape_gr54():
     print("GR54 Tour de l'Oisans et Écrins — Geotrek API")
@@ -1552,6 +1624,7 @@ TRAILS = {
     "c2c":                scrape_c2c,
     "ith-hils":           scrape_ith_hils,
     "gr54":               scrape_gr54,
+    "alpi-marittime":     scrape_alpi_marittime,
 }
 
 
