@@ -74,6 +74,11 @@ ROUTE_DEFAULTS = {
         (9,  11, "fr", "fr-07"),   # Ardèche
         (12, None, "fr", "fr-30"), # Gard
     ],
+    ("fr-hike", 14): [                                   # GR54 Tour de l'Oisans (circular)
+        (1,  2,  "fr", "fr-38"),   # Isère: Bourg d'Oisans → Mizoën
+        (3,  9,  "fr", "fr-05"),   # Hautes-Alpes: Villar d'Arène → Valgaudemar
+        (10, None, "fr", "fr-38"), # Isère: Valjouffrey → Bourg d'Oisans
+    ],
     # Italy — uses ISO 3166-2 province codes
     ("it-hike", 1):  [                                   # Alta Via 1
         (1,  5,  "it", "it-bz"),   # South Tyrol / Bolzano province
