@@ -320,6 +320,5 @@ All served via `adminrando.*` backends; slug used with `--only` flag.
 
 ## Pending tasks
 
-- **Westweg user_state alignment** — stages 5–9 renumbered when OSM replaced Schwarzwaldverein version. Any user completions for old stages 5–9 now map to wrong stages.
 - **Sauerland-Waldroute** — 19 full stages on sauerland-waldroute.de but only 7 in static HTML (rest JS-rendered). Consider Playwright scrape.
 - **`discover_trails.py --recheck-large-stages`** — run to get real day-stage counts for multi-section candidates.
