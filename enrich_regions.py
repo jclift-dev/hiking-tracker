@@ -43,6 +43,7 @@ EU_LANDS = {
     "eu-hike", "fr-hike", "de-hike", "it-hike", "es-hike", "ie-hike", "uk",
     "pt-hike", "at-hike", "hu-hike", "cz-hike", "si-hike",
     "nl-hike", "be-hike", "se-hike", "no-hike", "ee-hike",
+    "hr-hike", "sk-hike", "dk-hike", "lt-hike", "lv-hike",
 }
 
 # ---------------------------------------------------------------------------

@@ -75,6 +75,7 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 | `hr-hike`  | Croatia        | Hiking   |
 | `ee-hike`  | Estonia        | Hiking   |
 | `sk-hike`  | Slovakia       | Hiking   |
+| `lv-hike`  | Latvia         | Hiking   |
 | `eu-hike`  | Europe (multi) | Hiking   |
 
 ## Supabase credentials
@@ -95,10 +96,10 @@ Update both tables' constraints before importing any new land value:
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike','sk-hike'));
+  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('ch-hike','ch-cycle','uk','fr-hike','de-hike','it-hike','es-hike','ie-hike','pt-hike','eu-hike','at-hike','hu-hike','cz-hike','si-hike','nl-hike','be-hike','se-hike','no-hike','ee-hike','hr-hike','sk-hike'));
+  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk'));
 ```
 
 ## Viewing the web app
