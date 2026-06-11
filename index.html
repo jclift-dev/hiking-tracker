@@ -573,6 +573,7 @@
     .header-user { display: none; }
     /* Header inner */
     .header-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .header-left { width: 100%; }
     .header-right { width: 100%; }
     .header-stats { flex-direction: row; align-items: flex-end; text-align: left; gap: 0; }
     .header-stat { padding: 0.25rem 0.75rem; border-left: 1px solid rgba(255,255,255,0.1); }
@@ -769,6 +770,7 @@
   /* ── Country pill scroll strip ──────────────────────────────── */
   #country-pills {
     overflow-x: auto; flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch; touch-action: pan-x;
     scrollbar-width: none; -ms-overflow-style: none;
     /* remove pill container shape so it flows edge-to-edge */
     background: transparent; padding: 0; border-radius: 0; gap: 4px;

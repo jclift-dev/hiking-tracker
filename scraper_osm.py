@@ -153,6 +153,8 @@ TRAILS = [
     # (18021078, "es-hike", ?) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
     (1181120,  "es-hike", 9,  "national", "Camí dels bons homes"),
     (6390970,  "es-hike", 10, "national", "Gran Senda del Guadalhorce"),
+    # Basque section (Irún→Cantabria) unmapped in OSM — those stages missing until OSM is updated
+    (19001007, "es-hike", 14, "national", "Camino del Norte"),
     # Spain — famous day hikes
     (4678863,  "es-hike", 13, "regional", "Caminito del Rey"),
 
@@ -331,7 +333,7 @@ TRAILS = [
 # Deferred — level-2 descent still too coarse, no viable day stages:
 #   GR34 Chemin des Douaniers    (7790332)   — 2 sections × ~1000 km
 #   GR5  Grande Traversée Alpes  (18308154)  — 1 section × 293 km
-#   Camino del Norte             (19001007)  — 1 section × 69 km
+#   Camino del Norte             (19001007)  — imported as es-hike 14; Basque section flat (missing ~13 stages)
 #   GR10 Pyrenean Traverse       (France)    — no clean parent relation identified
 #   Camino Francés               (2163573)   — flat, 1 child × 163 km
 #   Alta Via 2                   (404914)    — 0 subroutes (flat)
@@ -911,6 +913,12 @@ def process_trail(osm_id, land, route_id, route_type, display_name,
                     if grandchildren:
                         print(f"{len(grandchildren)} stages found")
                         expanded.extend(grandchildren)
+                        continue
+                    # Fallback: subroutes dict lists day-stage relations not in route.main
+                    fallback_ids = list(sub.get("subroutes", {}).keys())
+                    if fallback_ids:
+                        print(f"{len(fallback_ids)} stages via subroutes fallback")
+                        expanded.extend({"id": int(k)} for k in fallback_ids)
                         continue
                     print("no day stages, keeping as section")
                 expanded.append(c)
