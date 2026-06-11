@@ -74,16 +74,38 @@ ROUTE_DEFAULTS = {
         (9,  11, "fr", "fr-07"),   # Ardèche
         (12, None, "fr", "fr-30"), # Gard
     ],
-    ("it-hike", 44): [                                   # Alto Tanaro Tour (circular, Ligurian Alps, Cuneo)
-        (1, None, "it", "it-cn"),  # Cuneo province, Piedmont
-    ],
-    ("fr-hike", 15): [                                   # Tour des glaciers de la Vanoise (circular, Savoie)
-        (1, None, "fr", "fr-73"),  # Savoie
-    ],
+    # Mercantour/Alpi Marittime — Italian side (all in Cuneo province, Piedmont)
+    ("it-hike", 44): [(1, None, "it", "it-cn")],         # Alto Tanaro Tour
+    ("it-hike", 45): [(1, None, "it", "it-cn")],         # Alta Via dei Re
+    ("it-hike", 46): [(1, None, "it", "it-cn")],         # Grand Tour de l'Argentera et des Merveilles
+    ("it-hike", 47): [(1, None, "it", "it-cn")],         # Le trekking du loup
+    ("it-hike", 48): [(1, None, "it", "it-cn")],         # Giro del Marguareis
+    ("it-hike", 49): [(1, None, "it", "it-cn")],         # Tour du parc naturel du Marguareis
+    # Mercantour — French side
+    ("fr-hike", 25): [(1, None, "fr", "fr-06")],         # La randonnée des couleurs (Alpes-Maritimes)
+    # Vanoise — all in Savoie
+    ("fr-hike", 15): [(1, None, "fr", "fr-73")],         # Tour des glaciers de la Vanoise
+    ("fr-hike", 16): [(1, None, "fr", "fr-73")],         # Tour de la Grande Casse
+    ("fr-hike", 17): [(1, None, "fr", "fr-73")],         # Tour de Méan Martin
+    ("fr-hike", 18): [(1, None, "fr", "fr-73")],         # Tour de la Vallaisonnay
+    ("fr-hike", 19): [(1, None, "fr", "fr-73")],         # GTT3
+    ("fr-hike", 20): [(1, None, "fr", "fr-73")],         # GTT5
+    ("fr-hike", 21): [(1, None, "fr", "fr-73")],         # GTT6
+    ("fr-hike", 22): [(1, None, "fr", "fr-73")],         # GTT Tour La Plagne
+    ("fr-hike", 23): [(1, None, "fr", "fr-73")],         # Tour du Mont Pourri
+    ("fr-hike", 24): [(1, None, "fr", "fr-73")],         # GTT1
     ("eu-hike", 7):  [                                   # Grande traversée Alpi Marittime (Col de Larche → Grimaldi)
         (1,  1,  "fr", "fr-04"),   # Alpes-de-Haute-Provence: Col de Larche
         (2,  13, "it", "it-cn"),   # Cuneo / Piedmont: Maritime Alps
         (14, None, "it", "it-im"), # Imperia / Liguria: towards the Mediterranean
+    ],
+    ("eu-hike", 8):  [                                   # La boucle des 4 vallées (Pontebernardo → Pontebernardo)
+        (1,  2,  "it", "it-cn"),   # Cuneo: Pontebernardo → Col de Larche
+        (3,  None, "fr", "fr-06"), # Alpes-Maritimes: Bousieyas → back to Italy
+    ],
+    ("eu-hike", 9):  [                                   # Tour du Mont Ténibre (Refuge Talarico circular)
+        (1,  2,  "fr", "fr-06"),   # Alpes-Maritimes: crosses to French side
+        (3,  None, "it", "it-cn"), # Cuneo: back on Italian side
     ],
     ("fr-hike", 14): [                                   # GR54 Tour de l'Oisans (circular)
         (1,  2,  "fr", "fr-38"),   # Isère: Bourg d'Oisans → Mizoën

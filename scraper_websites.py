@@ -1458,273 +1458,194 @@ def scrape_espiritual():
 
 
 # ---------------------------------------------------------------------------
-# GR54 Tour de l'Oisans et Écrins — geotrek-admin.ecrins-parcnational.fr
+# Geotrek helper — shared by all Geotrek-based scrapers
 # ---------------------------------------------------------------------------
-# Public Geotrek API. Parent trek 937571 lists 13 child IDs in ranked order.
-# Each child trek has departure, arrival, length_2d (m), ascent, descent, duration (h).
+# Three public Geotrek API instances:
+#   Écrins:               geotrek-admin.ecrins-parcnational.fr
+#   Mercantour/Marittime: adminrando.marittimemercantour.eu
+#   Vanoise:              adminrando.vanoise.com
 
-GR54_API     = "https://geotrek-admin.ecrins-parcnational.fr/api/v2/trek/{}/?format=json&language=fr"
-GR54_PARENT  = 937571
-
-# ---------------------------------------------------------------------------
-# Grande traversée Alpi Marittime — adminrando.marittimemercantour.eu
-# ---------------------------------------------------------------------------
-# Cross-border FR/IT trail, Col de Larche → Grimaldi (Mediterranean coast).
-# Public Geotrek API from the Mercantour/Alpi Marittime cross-border park.
-
-ALPI_MARITTIME_API    = "https://adminrando.marittimemercantour.eu/api/v2/trek/{}/?format=json&language=fr"
-ALPI_MARITTIME_PARENT = 169810
-
-ALTO_TANARO_API    = ALPI_MARITTIME_API
-ALTO_TANARO_PARENT = 154947
-
-VANOISE_API    = "https://adminrando.vanoise.com/api/v2/trek/{}/?format=json&language=fr"
-VANOISE_PARENT = 56199
+_ECRINS_API     = "https://geotrek-admin.ecrins-parcnational.fr/api/v2/trek/{}/?format=json&language=fr"
+_MERCANTOUR_API = "https://adminrando.marittimemercantour.eu/api/v2/trek/{}/?format=json&language=fr"
+_VANOISE_API    = "https://adminrando.vanoise.com/api/v2/trek/{}/?format=json&language=fr"
 
 
-def scrape_alpi_marittime():
-    print("Grande traversée Alpi Marittime — Geotrek API (Mercantour/Marittime)")
-    r = SESSION.get(ALPI_MARITTIME_API.format(ALPI_MARITTIME_PARENT), timeout=15)
+def _scrape_geotrek(api_tmpl, parent_id, source_tmpl):
+    """Fetch all child stages from a Geotrek parent trek. Returns stage list or None."""
+    r = SESSION.get(api_tmpl.format(parent_id), timeout=15)
     if r.status_code != 200:
         print(f"  ERROR: parent fetch returned {r.status_code}")
         return None
-    parent = r.json()
-    child_ids = parent.get("children", [])
+    child_ids = r.json().get("children", [])
     if not child_ids:
         print("  ERROR: no children found on parent trek")
         return None
-
     stages = []
     for nr, cid in enumerate(child_ids, 1):
         time.sleep(0.4)
-        r2 = SESSION.get(ALPI_MARITTIME_API.format(cid), timeout=15)
+        r2 = SESSION.get(api_tmpl.format(cid), timeout=15)
         if r2.status_code != 200:
             print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
             continue
         s = r2.json()
         dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
-        asc  = s.get("ascent")
-        desc = s.get("descent")
-        dur  = s.get("duration")
         dep  = (s.get("departure") or "").strip()
         arr  = (s.get("arrival")   or "").strip()
-        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{asc}m/{desc}m")
+        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{s.get('ascent')}m/{s.get('descent')}m")
         stages.append({
             "stage_nr":         nr,
             "start_name":       dep,
             "end_name":         arr,
             "via":              None,
             "dist_km":          dist,
-            "elev_up":          asc,
-            "elev_down":        abs(desc) if desc else None,
-            "duration_hrs":     dur,
+            "elev_up":          s.get("ascent"),
+            "elev_down":        abs(s["descent"]) if s.get("descent") else None,
+            "duration_hrs":     s.get("duration"),
             "difficulty":       None,
             "description":      None,
             "arrival_stations": [],
             "sbb_times":        {},
-            "_source_url":      f"https://rando.marittimemercantour.eu/trek/{cid}",
+            "_source_url":      source_tmpl.format(cid),
         })
+    return stages or None
 
+
+def _geotrek_route(api_tmpl, parent_id, source_tmpl, route_id, land, name,
+                   route_type="regional", extra=None):
+    print(f"{name} — Geotrek API")
+    stages = _scrape_geotrek(api_tmpl, parent_id, source_tmpl)
     if not stages:
-        print("  ERROR: no stages scraped")
         return None
-
     total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
     print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":    7,
-        "route_type":  "international",
-        "land":        "eu-hike",
-        "name":        "Grande traversée Alpi Marittime",
+    route = {
+        "route_id":    route_id,
+        "route_type":  route_type,
+        "land":        land,
+        "name":        name,
         "description": None,
         "start":       stages[0]["start_name"],
         "end":         stages[-1]["end_name"],
         "total_km":    total_km,
         "stages":      stages,
     }
+    if extra:
+        route.update(extra)
+    return route
 
 
+# Écrins
 def scrape_gr54():
-    print("GR54 Tour de l'Oisans et Écrins — Geotrek API")
-    r = SESSION.get(GR54_API.format(GR54_PARENT), timeout=15)
-    if r.status_code != 200:
-        print(f"  ERROR: parent fetch returned {r.status_code}")
-        return None
-    parent = r.json()
-    child_ids = parent.get("children", [])
-    if not child_ids:
-        print("  ERROR: no children found on parent trek")
-        return None
+    return _geotrek_route(_ECRINS_API, 937571,
+        "https://www.grand-tour-ecrins.fr/trek/{}",
+        14, "fr-hike", "GR54 Tour de l'Oisans et Écrins",
+        route_type="national", extra={"_osm_id": 2909096})
 
-    stages = []
-    for nr, cid in enumerate(child_ids, 1):
-        time.sleep(0.4)
-        r2 = SESSION.get(GR54_API.format(cid), timeout=15)
-        if r2.status_code != 200:
-            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
-            continue
-        s = r2.json()
-        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
-        asc  = s.get("ascent")
-        desc = s.get("descent")
-        dur  = s.get("duration")
-        dep  = (s.get("departure") or "").strip()
-        arr  = (s.get("arrival")   or "").strip()
-        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{asc}m/{desc}m")
-        stages.append({
-            "stage_nr":         nr,
-            "start_name":       dep,
-            "end_name":         arr,
-            "via":              None,
-            "dist_km":          dist,
-            "elev_up":          asc,
-            "elev_down":        abs(desc) if desc else None,
-            "duration_hrs":     dur,
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      f"https://www.grand-tour-ecrins.fr/trek/{cid}",
-        })
+# Mercantour / Alpi Marittime — cross-border FR/IT
+def scrape_alpi_marittime():
+    return _geotrek_route(_MERCANTOUR_API, 169810,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        7, "eu-hike", "Grande traversée Alpi Marittime",
+        route_type="international")
 
-    if not stages:
-        print("  ERROR: no stages scraped")
-        return None
+def scrape_boucle_4_vallees():
+    return _geotrek_route(_MERCANTOUR_API, 169700,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        8, "eu-hike", "La boucle des 4 vallées",
+        route_type="international")
 
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":    14,
-        "route_type":  "national",
-        "land":        "fr-hike",
-        "name":        "GR54 Tour de l'Oisans et Écrins",
-        "description": None,
-        "start":       stages[0]["start_name"],
-        "end":         stages[-1]["end_name"],
-        "total_km":    total_km,
-        "_osm_id":     2909096,
-        "stages":      stages,
-    }
+def scrape_mont_tenibre():
+    return _geotrek_route(_MERCANTOUR_API, 165534,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        9, "eu-hike", "Tour du Mont Ténibre")
 
-
-# ---------------------------------------------------------------------------
-# Alto Tanaro Tour — adminrando.marittimemercantour.eu (same instance as Alpi Marittime)
-# ---------------------------------------------------------------------------
-# 9-stage circular tour in the Ligurian Alps, Cuneo province, Piedmont.
-
+# Mercantour / Alpi Marittime — Italian side (Cuneo/Piedmont)
 def scrape_alto_tanaro():
-    print("Alto Tanaro Tour — Geotrek API (Mercantour/Marittime)")
-    r = SESSION.get(ALTO_TANARO_API.format(ALTO_TANARO_PARENT), timeout=15)
-    if r.status_code != 200:
-        print(f"  ERROR: parent fetch returned {r.status_code}")
-        return None
-    parent = r.json()
-    child_ids = parent.get("children", [])
+    return _geotrek_route(_MERCANTOUR_API, 154947,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        44, "it-hike", "Alto Tanaro Tour")
 
-    stages = []
-    for nr, cid in enumerate(child_ids, 1):
-        time.sleep(0.4)
-        r2 = SESSION.get(ALTO_TANARO_API.format(cid), timeout=15)
-        if r2.status_code != 200:
-            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
-            continue
-        s = r2.json()
-        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
-        dep  = (s.get("departure") or "").strip()
-        arr  = (s.get("arrival")   or "").strip()
-        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{s.get('ascent')}m/{s.get('descent')}m")
-        stages.append({
-            "stage_nr":         nr,
-            "start_name":       dep,
-            "end_name":         arr,
-            "via":              None,
-            "dist_km":          dist,
-            "elev_up":          s.get("ascent"),
-            "elev_down":        abs(s["descent"]) if s.get("descent") else None,
-            "duration_hrs":     s.get("duration"),
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      f"https://rando.marittimemercantour.eu/trek/{cid}",
-        })
+def scrape_alta_via_dei_re():
+    return _geotrek_route(_MERCANTOUR_API, 154943,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        45, "it-hike", "Alta Via dei Re")
 
-    if not stages:
-        print("  ERROR: no stages scraped")
-        return None
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":    44,
-        "route_type":  "regional",
-        "land":        "it-hike",
-        "name":        "Alto Tanaro Tour",
-        "description": None,
-        "start":       stages[0]["start_name"],
-        "end":         stages[-1]["end_name"],
-        "total_km":    total_km,
-        "stages":      stages,
-    }
+def scrape_argentera():
+    return _geotrek_route(_MERCANTOUR_API, 167486,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        46, "it-hike", "Grand Tour de l'Argentera et des Merveilles")
 
+def scrape_trekking_du_loup():
+    return _geotrek_route(_MERCANTOUR_API, 169693,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        47, "it-hike", "Le trekking du loup")
 
-# ---------------------------------------------------------------------------
-# Tour des glaciers de la Vanoise — adminrando.vanoise.com
-# ---------------------------------------------------------------------------
-# 7-stage circular tour in the Vanoise national park, Savoie, France.
+def scrape_giro_marguareis():
+    return _geotrek_route(_MERCANTOUR_API, 154945,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        48, "it-hike", "Giro del Marguareis")
 
+def scrape_tour_marguareis():
+    return _geotrek_route(_MERCANTOUR_API, 167509,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        49, "it-hike", "Tour du parc naturel du Marguareis")
+
+# Mercantour — French side (Alpes-Maritimes)
+def scrape_randonnee_couleurs():
+    return _geotrek_route(_MERCANTOUR_API, 165899,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        25, "fr-hike", "La randonnée des couleurs")
+
+# Vanoise (all Savoie, fr-73)
 def scrape_vanoise():
-    print("Tour des glaciers de la Vanoise — Geotrek API (Vanoise)")
-    r = SESSION.get(VANOISE_API.format(VANOISE_PARENT), timeout=15)
-    if r.status_code != 200:
-        print(f"  ERROR: parent fetch returned {r.status_code}")
-        return None
-    parent = r.json()
-    child_ids = parent.get("children", [])
+    return _geotrek_route(_VANOISE_API, 56199,
+        "https://rando.vanoise.com/fr/trek/{}",
+        15, "fr-hike", "Tour des glaciers de la Vanoise")
 
-    stages = []
-    for nr, cid in enumerate(child_ids, 1):
-        time.sleep(0.4)
-        r2 = SESSION.get(VANOISE_API.format(cid), timeout=15)
-        if r2.status_code != 200:
-            print(f"  Stage {nr} (id={cid}): HTTP {r2.status_code} — skipped")
-            continue
-        s = r2.json()
-        dist = round(s["length_2d"] / 1000, 1) if s.get("length_2d") else None
-        dep  = (s.get("departure") or "").strip()
-        arr  = (s.get("arrival")   or "").strip()
-        print(f"  Stage {nr:2d}  {dep} → {arr}  {dist}km  +{s.get('ascent')}m/{s.get('descent')}m")
-        stages.append({
-            "stage_nr":         nr,
-            "start_name":       dep,
-            "end_name":         arr,
-            "via":              None,
-            "dist_km":          dist,
-            "elev_up":          s.get("ascent"),
-            "elev_down":        abs(s["descent"]) if s.get("descent") else None,
-            "duration_hrs":     s.get("duration"),
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      f"https://rando.vanoise.com/fr/trek/{cid}",
-        })
+def scrape_grande_casse():
+    return _geotrek_route(_VANOISE_API, 56302,
+        "https://rando.vanoise.com/fr/trek/{}",
+        16, "fr-hike", "Tour de la Grande Casse")
 
-    if not stages:
-        print("  ERROR: no stages scraped")
-        return None
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":    15,
-        "route_type":  "regional",
-        "land":        "fr-hike",
-        "name":        "Tour des glaciers de la Vanoise",
-        "description": None,
-        "start":       stages[0]["start_name"],
-        "end":         stages[-1]["end_name"],
-        "total_km":    total_km,
-        "stages":      stages,
-    }
+def scrape_mean_martin():
+    return _geotrek_route(_VANOISE_API, 56297,
+        "https://rando.vanoise.com/fr/trek/{}",
+        17, "fr-hike", "Tour de Méan Martin")
+
+def scrape_vallaisonnay():
+    return _geotrek_route(_VANOISE_API, 62072,
+        "https://rando.vanoise.com/fr/trek/{}",
+        18, "fr-hike", "Tour de la Vallaisonnay")
+
+def scrape_gtt3():
+    return _geotrek_route(_VANOISE_API, 54825,
+        "https://rando.vanoise.com/fr/trek/{}",
+        19, "fr-hike", "Grand Tour de Tarentaise - Beaufortain à Val d'Isère")
+
+def scrape_gtt5():
+    return _geotrek_route(_VANOISE_API, 54829,
+        "https://rando.vanoise.com/fr/trek/{}",
+        20, "fr-hike", "Grand Tour de Tarentaise - Traversée des 3 Vallées")
+
+def scrape_gtt6():
+    return _geotrek_route(_VANOISE_API, 54831,
+        "https://rando.vanoise.com/fr/trek/{}",
+        21, "fr-hike", "Grand Tour de Tarentaise - Massif de la Lauzière")
+
+def scrape_tour_la_plagne():
+    return _geotrek_route(_VANOISE_API, 56350,
+        "https://rando.vanoise.com/fr/trek/{}",
+        22, "fr-hike", "Grand Tour de Tarentaise - La Plagne")
+
+def scrape_mont_pourri():
+    return _geotrek_route(_VANOISE_API, 56511,
+        "https://rando.vanoise.com/fr/trek/{}",
+        23, "fr-hike", "Tour du Mont Pourri")
+
+def scrape_gtt1():
+    return _geotrek_route(_VANOISE_API, 54821,
+        "https://rando.vanoise.com/fr/trek/{}",
+        24, "fr-hike", "Grand Tour de Tarentaise - Beaufortain-Mont-Blanc")
 
 
 # ---------------------------------------------------------------------------
@@ -1753,8 +1674,25 @@ TRAILS = {
     "ith-hils":           scrape_ith_hils,
     "gr54":               scrape_gr54,
     "alpi-marittime":     scrape_alpi_marittime,
+    "boucle-4-vallees":   scrape_boucle_4_vallees,
+    "mont-tenibre":       scrape_mont_tenibre,
     "alto-tanaro":        scrape_alto_tanaro,
+    "alta-via-dei-re":    scrape_alta_via_dei_re,
+    "argentera":          scrape_argentera,
+    "trekking-du-loup":   scrape_trekking_du_loup,
+    "giro-marguareis":    scrape_giro_marguareis,
+    "tour-marguareis":    scrape_tour_marguareis,
+    "randonnee-couleurs": scrape_randonnee_couleurs,
     "vanoise":            scrape_vanoise,
+    "grande-casse":       scrape_grande_casse,
+    "mean-martin":        scrape_mean_martin,
+    "vallaisonnay":       scrape_vallaisonnay,
+    "gtt3":               scrape_gtt3,
+    "gtt5":               scrape_gtt5,
+    "gtt6":               scrape_gtt6,
+    "tour-la-plagne":     scrape_tour_la_plagne,
+    "mont-pourri":        scrape_mont_pourri,
+    "gtt1":               scrape_gtt1,
 }
 
 
