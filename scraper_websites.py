@@ -18,6 +18,9 @@ Trails:
   Grande Rota Peneda-Gerês     (pt-hike, route_id=2)   walkingpenedageres.pt
   Camino Portugués             (pt-hike, route_id=3)   pilgrim.es
   SNP Trail                    (sk-hike, route_id=1)   snptrail.com  [hardcoded — multi-page]
+  Kammweg Erzgebirge-Vogtland  (de-hike, route_id=48)  erzgebirge-tourismus.de  [hardcoded — overwrites 3 OSM sections]
+  Vulkanring Vogelsberg        (de-hike, route_id=58)  vogelsberg-touristik.de  [hardcoded]
+  Camino Espiritual del Sur    (es-hike, route_id=12)  caminoespiritualdelsur.com
 
 Usage:
   python3 scraper_websites.py
@@ -1099,6 +1102,358 @@ def scrape_snp():
 
 
 # ---------------------------------------------------------------------------
+# Coast to Coast Walk — hardcoded (Wainwright guidebook staging, 2nd ed.)
+# ---------------------------------------------------------------------------
+# 14 stages, 306 km. St Bees (Cumbria) → Robin Hood's Bay (North Yorkshire).
+# Distances converted from official miles; elevation backfill via OSM/OTD later.
+
+C2C_URL = "https://www.nationaltrail.co.uk/en_GB/trails/coast-to-coast/"
+C2C_STAGES = [
+    ( 1, "St Bees",           "Ennerdale Bridge",  23.3),
+    ( 2, "Ennerdale Bridge",  "Rosthwaite",        23.3),
+    ( 3, "Rosthwaite",        "Grasmere",          14.5),
+    ( 4, "Grasmere",          "Patterdale",        13.7),
+    ( 5, "Patterdale",        "Shap",              25.7),
+    ( 6, "Shap",              "Kirkby Stephen",    32.2),
+    ( 7, "Kirkby Stephen",    "Keld",              19.3),
+    ( 8, "Keld",              "Reeth",             17.7),
+    ( 9, "Reeth",             "Richmond",          17.3),
+    (10, "Richmond",          "Danby Wiske",       22.5),
+    (11, "Danby Wiske",       "Ingleby Cross",     14.5),
+    (12, "Ingleby Cross",     "Clay Bank Top",     19.3),
+    (13, "Clay Bank Top",     "Glaisdale",         19.3),
+    (14, "Glaisdale",         "Robin Hood's Bay",  32.2),
+]
+
+
+def scrape_c2c():
+    print("Coast to Coast Walk — hardcoded (Wainwright guidebook staging)")
+    stages = []
+    for nr, start, end, km in C2C_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      C2C_URL,
+        })
+        print(f"  Stage {nr:2d}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   15,
+        "route_type": "national",
+        "land":       "uk",
+        "name":       "Coast to Coast Walk",
+        "description": (
+            "The Coast to Coast Walk traverses northern England from St Bees on the "
+            "Irish Sea coast to Robin Hood's Bay on the North Sea, passing through "
+            "three national parks: the Lake District, the Yorkshire Dales, and the "
+            "North York Moors. Devised by Alfred Wainwright and designated a National "
+            "Trail in 2024, it covers 306 km (190 miles) of dramatically varied terrain."
+        ),
+        "start":      "St Bees",
+        "end":        "Robin Hood's Bay",
+        "total_km":   306,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Kammweg Erzgebirge-Vogtland — hardcoded (erzgebirge-tourismus.de)
+# ---------------------------------------------------------------------------
+# 17 stages, ~285 km. Geising → Blankenstein.
+# Overwrites the 3 coarse OSM sections already in route_id=48.
+# Stages 1–14 from erzgebirge-tourismus.de; 15–17 from komoot/trail sources.
+
+KAMMWEG_URL = "https://www.erzgebirge-tourismus.de/en/summer/hiking/kammweg-erzgebirge-vogtland/"
+KAMMWEG_STAGES = [
+    ( 1, "Geising",                "Holzhau",                  24.5),
+    ( 2, "Holzhau",                "Sayda",                    12.4),
+    ( 3, "Sayda",                  "Seiffen",                   9.6),
+    ( 4, "Seiffen",                "Olbernhau",                11.3),
+    ( 5, "Olbernhau",              "Kühnhaide",                20.7),
+    ( 6, "Kühnhaide",              "Satzung",                  14.7),
+    ( 7, "Satzung",                "Bärenstein",               22.7),
+    ( 8, "Bärenstein",             "Oberwiesenthal",           17.1),
+    ( 9, "Oberwiesenthal",         "Breitenbrunn",             18.1),
+    (10, "Breitenbrunn",           "Johanngeorgenstadt",       14.5),
+    (11, "Johanngeorgenstadt",     "Weitersglashütte",         10.6),
+    (12, "Weitersglashütte",       "Mühlleithen",              13.8),
+    (13, "Mühlleithen",            "Schöneck",                 14.8),
+    (14, "Schöneck",               "Eichigt",                  24.7),
+    (15, "Eichigt",                "Tirpersdorf",              20.8),
+    (16, "Tirpersdorf",            "Hof",                      23.2),
+    (17, "Hof",                    "Blankenstein",             13.1),
+]
+
+
+def scrape_kammweg():
+    print("Kammweg Erzgebirge-Vogtland — hardcoded (replaces 3 OSM sections)")
+    stages = []
+    for nr, start, end, km in KAMMWEG_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      KAMMWEG_URL,
+        })
+        print(f"  Etappe {nr:2d}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   48,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "Kammweg Erzgebirge-Vogtland",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Vulkanring Vogelsberg — hardcoded (fernwege.de / vogelsberg-touristik.de)
+# ---------------------------------------------------------------------------
+# 6 stages, 117.7 km, circular from Laubach.
+
+VULKANRING_URL = "https://www.vogelsberg-touristik.de/vulkanring"
+VULKANRING_STAGES = [
+    (1, "Laubach",       "Eichelsdorf",  18.6,  481, -522),
+    (2, "Eichelsdorf",   "Burkhards",    17.0,  495, -282),
+    (3, "Burkhards",     "Herchenhain",  16.0,  629, -324),
+    (4, "Herchenhain",   "Herbstein",    20.1,  340, -583),
+    (5, "Herbstein",     "Ulrichstein",  23.2,  713, -587),
+    (6, "Ulrichstein",   "Laubach",      22.8,  414, -774),
+]
+
+
+def scrape_vulkanring():
+    print("Vulkanring Vogelsberg — hardcoded (vogelsberg-touristik.de)")
+    stages = []
+    for nr, start, end, km, up, down in VULKANRING_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          up,
+            "elev_down":        down,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      VULKANRING_URL,
+        })
+        print(f"  Etappe {nr}  {start} → {end} ({km} km, +{up}/-{abs(down)}m)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   58,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "Vulkanring Vogelsberg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Ith-Hils-Wanderweg — ith-hils-weg.de
+# ---------------------------------------------------------------------------
+# 7 stages, 107.8 km total. Circular: Coppenbrügge → … → Coppenbrügge.
+# Lower Saxony (Weserbergland/Leinebergland). de-hike, route_id=59.
+ITH_HILS_URL = "https://www.ith-hils-weg.de/seite/538519/etappen.html"
+ITH_HILS_STAGES = [
+    (1, "Coppenbrügge",    "Humboldtsee",    18.9),
+    (2, "Humboldtsee",     "Eschershausen",  17.3),
+    (3, "Eschershausen",   "Grünenplan",     13.0),
+    (4, "Grünenplan",      "Delligsen",      14.0),
+    (5, "Delligsen",       "Duingen",        18.8),
+    (6, "Duingen",         "Salzhemmendorf", 15.7),
+    (7, "Salzhemmendorf",  "Coppenbrügge",   10.1),
+]
+
+
+def scrape_ith_hils():
+    print("Ith-Hils-Wanderweg — hardcoded (ith-hils-weg.de)")
+    stages = []
+    for nr, start, end, km in ITH_HILS_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      ITH_HILS_URL,
+        })
+        print(f"  Etappe {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   59,
+        "route_type": "national",
+        "land":       "de-hike",
+        "name":       "Ith-Hils-Wanderweg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Camino Espiritual del Sur — caminoespiritualdelsur.com
+# ---------------------------------------------------------------------------
+# 14 stages, ~318 km. Guadix (Granada) → Caravaca de la Cruz (Murcia).
+# WordPress static site. Distance (km) and elevation gain (m) on each stage page.
+
+ESPIRITUAL_BASE = "https://www.caminoespiritualdelsur.com"
+ESPIRITUAL_SLUGS = [
+    # (nr, slug, start_name, end_name)
+    (1,  "guadix-fonelas",                       "Guadix",                "Fonelas"),
+    (2,  "fonelas-balneario_de_alicun",           "Fonelas",               "Balneario de Alicún"),
+    (3,  "balneario-de-alucun-gorafe",            "Balneario de Alicún",   "Gorafe"),
+    (4,  "gorafe-freila",                         "Gorafe",                "Freila"),
+    (5,  "freila-baza",                           "Freila",                "Baza"),
+    (6,  "baza-zujar",                            "Baza",                  "Zújar"),
+    (7,  "zujar-benamaurel",                      "Zújar",                 "Benamaurel"),
+    (8,  "benamaurel-cullar",                     "Benamaurel",            "Cúllar"),
+    (9,  "cullar-orce",                           "Cúllar",                "Orce"),
+    (10, "orce-huescar",                          "Orce",                  "Huéscar"),
+    (11, "huescar-puebla-d-fadrique",             "Huéscar",               "Puebla de Don Fadrique"),
+    (12, "puebla-d-fadrique-canada-de-la-cruz",   "Puebla de Don Fadrique","Cañada de la Cruz"),
+    (13, "canada-de-la-cruz-archivel",            "Cañada de la Cruz",     "Archivel"),
+    (14, "archivel-caravaca",                     "Archivel",              "Caravaca de la Cruz"),
+]
+
+ESPIRITUAL_KM_RE  = re.compile(r'(\d+(?:[.,]\d+)?)\s*km', re.IGNORECASE)
+ESPIRITUAL_ELV_RE = re.compile(r'(\d+(?:[.,]\d+)?)\s*m(?:\b|etros?)', re.IGNORECASE)
+ESPIRITUAL_DUR_RE = re.compile(r'(\d+)\s*h(?:oras?)?\s*(?:y\s*)?(\d+)?\s*(?:min(?:utos?)?)?', re.IGNORECASE)
+ESPIRITUAL_NAME_RE = re.compile(
+    r'Etapa\s+\d+[:\s]+([A-Za-záéíóúüñÁÉÍÓÚÜÑ\s\.\-]+?)\s*[-–]\s*([A-Za-záéíóúüñÁÉÍÓÚÜÑ\s\.\-]+?)(?=\s*\d|\s*<|\s*Dist|\Z)',
+    re.IGNORECASE,
+)
+
+
+def _parse_espiritual_stage(nr, slug, start_name, end_name):
+    url = f"{ESPIRITUAL_BASE}/trazado-principal/{slug}/"
+    time.sleep(DELAY)
+    html = fetch(url)
+    if not html:
+        print(f"  Stage {nr}: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+    text = re.sub(r'\s+', ' ', text)
+
+    # Distance: first km value in page (usually the stage distance)
+    km = None
+    for m in ESPIRITUAL_KM_RE.finditer(text):
+        val = parse_km(m.group(1))
+        if val and 5 <= val <= 60:
+            km = val
+            break
+
+    # Elevation gain: look for metre value near "Altura" or "altura"
+    elev_up = None
+    for m in re.finditer(r'[Aa]ltura[^\d]{0,20}(\d+)', text):
+        elev_up = int(m.group(1))
+        break
+    if elev_up is None:
+        for m in re.finditer(r'(\d{2,4})\s*m\b', text):
+            val = int(m.group(1))
+            if 50 <= val <= 2000:
+                elev_up = val
+                break
+
+    # Duration
+    dur = None
+    m_dur = ESPIRITUAL_DUR_RE.search(text)
+    if m_dur:
+        h = int(m_dur.group(1))
+        mins = int(m_dur.group(2)) if m_dur.group(2) else 0
+        dur = round(h + mins / 60, 2) if h < 20 else None
+
+    print(f"  Etapa {nr:2d}  {start_name} → {end_name} ({km} km, +{elev_up}m, {dur}h)")
+    return {
+        "stage_nr":         nr,
+        "start_name":       start_name,
+        "end_name":         end_name,
+        "via":              None,
+        "dist_km":          km,
+        "elev_up":          elev_up,
+        "elev_down":        None,
+        "duration_hrs":     dur,
+        "difficulty":       None,
+        "description":      None,
+        "arrival_stations": [],
+        "sbb_times":        {},
+        "_source_url":      url,
+    }
+
+
+def scrape_espiritual():
+    print("Camino Espiritual del Sur — scraping caminoespiritualdelsur.com")
+    stages = []
+    for nr, slug, start_name, end_name in ESPIRITUAL_SLUGS:
+        stage = _parse_espiritual_stage(nr, slug, start_name, end_name)
+        if stage:
+            stages.append(stage)
+
+    stages.sort(key=lambda s: s["stage_nr"])
+    if not stages:
+        print("  ERROR: no stages found")
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   12,
+        "route_type": "national",
+        "land":       "es-hike",
+        "name":       "Camino Espiritual del Sur",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -1117,6 +1472,11 @@ TRAILS = {
     "peneda":             scrape_peneda,
     "camino-portugues":   scrape_camino_portugues,
     "snp":                scrape_snp,
+    "kammweg":            scrape_kammweg,
+    "vulkanring":         scrape_vulkanring,
+    "espiritual":         scrape_espiritual,
+    "c2c":                scrape_c2c,
+    "ith-hils":           scrape_ith_hils,
 }
 
 

@@ -149,6 +149,12 @@ TRAILS = [
     (7011030,  "it-hike", 10, "national", "Sentiero Italia - Sardegna"),
     (9898948,  "it-hike", 11, "national", "Alta Via n. 2 della Valle d'Aosta"),
     (12116509, "it-hike", 12, "national", "Magna Via Francigena"),
+    (12104446, "it-hike", 14, "national", "Il Cammino di Dante"),
+    (17916506, "it-hike", 15, "national", "Basilicata Coast to Coast"),
+    (10323589, "it-hike", 16, "national", "Grande Circuito della Romagna"),
+    (5804593,  "it-hike", 17, "national", "Sentiero Balcone Mediterraneo"),
+    (5330693,  "it-hike", 18, "national", "Sentiero delle Foreste Sacre"),
+    (18187153, "it-hike", 19, "national", "Sentiero dei Celti e dei Liguri"),
 
     # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),
@@ -449,8 +455,8 @@ def reverse_geocode(lat, lng):
 
 
 def is_code_name(name):
-    """True when name looks like a route reference code (e.g. 'Via Alpina Red R3')."""
-    return bool(re.match(r"^.+\s+R\d+$", name or ""))
+    """True when name looks like a route reference code (e.g. 'Via Alpina Red R3', 'Sentiero Balcone T1')."""
+    return bool(re.match(r"^.+\s+[RT]\d+$", name or ""))
 
 
 def backfill_stage_names():
