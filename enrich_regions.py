@@ -83,6 +83,7 @@ ROUTE_DEFAULTS = {
     ("it-hike", 49): [(1, None, "it", "it-cn")],         # Tour du parc naturel du Marguareis
     # Mercantour — French side
     ("fr-hike", 25): [(1, None, "fr", "fr-06")],         # La randonnée des couleurs (Alpes-Maritimes)
+    ("fr-hike", 26): [(1, None, "fr", "fr-06")],         # Le sentier d'Azur (Alpes-Maritimes)
     # Vanoise — all in Savoie
     ("fr-hike", 15): [(1, None, "fr", "fr-73")],         # Tour des glaciers de la Vanoise
     ("fr-hike", 16): [(1, None, "fr", "fr-73")],         # Tour de la Grande Casse
@@ -94,6 +95,7 @@ ROUTE_DEFAULTS = {
     ("fr-hike", 22): [(1, None, "fr", "fr-73")],         # GTT Tour La Plagne
     ("fr-hike", 23): [(1, None, "fr", "fr-73")],         # Tour du Mont Pourri
     ("fr-hike", 24): [(1, None, "fr", "fr-73")],         # GTT1
+    ("fr-hike", 27): [(1, None, "fr", "fr-73")],         # Tour de la Pointe de l'Échelle (Savoie)
     ("eu-hike", 7):  [                                   # Grande traversée Alpi Marittime (Col de Larche → Grimaldi)
         (1,  1,  "fr", "fr-04"),   # Alpes-de-Haute-Provence: Col de Larche
         (2,  13, "it", "it-cn"),   # Cuneo / Piedmont: Maritime Alps
@@ -107,6 +109,16 @@ ROUTE_DEFAULTS = {
         (1,  2,  "fr", "fr-06"),   # Alpes-Maritimes: crosses to French side
         (3,  None, "it", "it-cn"), # Cuneo: back on Italian side
     ],
+    ("eu-hike", 10): [                                   # Sur l'Alta Via Ligure (Menton → Imperia)
+        (1,  1,  "fr", "fr-06"),   # Alpes-Maritimes: Menton start
+        (2,  None, "it", "it-im"), # Imperia / Liguria: Italian Riviera
+    ],
+    ("eu-hike", 11): [                                   # Tour franco-italien du Mont Gramondo (alternates FR/IT)
+        (1,  1,  "fr", "fr-06"),   # Alpes-Maritimes
+        (2,  2,  "it", "it-im"),   # Imperia
+        (3,  None, "fr", "fr-06"), # Alpes-Maritimes
+    ],
+    ("it-hike", 50): [(1, None, "it", "it-im")],         # Les plus beaux villages Ligures (Imperia)
     ("fr-hike", 14): [                                   # GR54 Tour de l'Oisans (circular)
         (1,  2,  "fr", "fr-38"),   # Isère: Bourg d'Oisans → Mizoën
         (3,  9,  "fr", "fr-05"),   # Hautes-Alpes: Villar d'Arène → Valgaudemar

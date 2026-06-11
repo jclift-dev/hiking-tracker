@@ -1596,6 +1596,28 @@ def scrape_randonnee_couleurs():
         "https://rando.marittimemercantour.eu/trek/{}",
         25, "fr-hike", "La randonnée des couleurs")
 
+def scrape_sentier_azur():
+    return _geotrek_route(_MERCANTOUR_API, 167525,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        26, "fr-hike", "Le sentier d'Azur")
+
+# Mercantour / Alpi Marittime — cross-border (3-stage)
+def scrape_alta_via_ligure():
+    return _geotrek_route(_MERCANTOUR_API, 168820,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        10, "eu-hike", "Sur l'Alta Via Ligure")
+
+def scrape_mont_gramondo():
+    return _geotrek_route(_MERCANTOUR_API, 168858,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        11, "eu-hike", "Tour franco-italien du Mont Gramondo")
+
+# Mercantour / Alpi Marittime — Italian side Liguria (Imperia)
+def scrape_villages_ligures():
+    return _geotrek_route(_MERCANTOUR_API, 169726,
+        "https://rando.marittimemercantour.eu/trek/{}",
+        50, "it-hike", "Les plus beaux villages Ligures")
+
 # Vanoise (all Savoie, fr-73)
 def scrape_vanoise():
     return _geotrek_route(_VANOISE_API, 56199,
@@ -1647,6 +1669,11 @@ def scrape_gtt1():
         "https://rando.vanoise.com/fr/trek/{}",
         24, "fr-hike", "Grand Tour de Tarentaise - Beaufortain-Mont-Blanc")
 
+def scrape_pointe_echelle():
+    return _geotrek_route(_VANOISE_API, 56196,
+        "https://rando.vanoise.com/fr/trek/{}",
+        27, "fr-hike", "Tour de la Pointe de l'Échelle")
+
 
 # ---------------------------------------------------------------------------
 # Trail registry
@@ -1693,6 +1720,11 @@ TRAILS = {
     "tour-la-plagne":     scrape_tour_la_plagne,
     "mont-pourri":        scrape_mont_pourri,
     "gtt1":               scrape_gtt1,
+    "pointe-echelle":     scrape_pointe_echelle,
+    "sentier-azur":       scrape_sentier_azur,
+    "alta-via-ligure":    scrape_alta_via_ligure,
+    "mont-gramondo":      scrape_mont_gramondo,
+    "villages-ligures":   scrape_villages_ligures,
 }
 
 

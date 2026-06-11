@@ -95,6 +95,9 @@ TRAILS = [
     (38791,    "uk",      7,  "national", "Hadrian's Wall Path"),
     (77964,    "uk",      8,  "national", "Pembrokeshire Coast Path"),
     (9327615,  "uk",      9,  "national", "Cape Wrath Trail"),
+    # UK — famous day hikes
+    (4004229,  "uk",      16, "regional", "Ben Nevis"),
+    (4004200,  "uk",      17, "regional", "Snowdon Ranger Path"),
 
     # France
     (8386002,  "fr-hike", 4, "national", "Haute Randonnée Pyrénéenne"),
@@ -147,6 +150,8 @@ TRAILS = [
     # (18021078, "es-hike", ?) — Camino Vasco del Interior: all sub-routes are named Variante; 1 main section (203 km), no day stages
     (1181120,  "es-hike", 9,  "national", "Camí dels bons homes"),
     (6390970,  "es-hike", 10, "national", "Gran Senda del Guadalhorce"),
+    # Spain — famous day hikes
+    (4678863,  "es-hike", 13, "regional", "Caminito del Rey"),
 
     # Italy
     (3477430,  "it-hike", 2, "national", "Sentiero della Pace"),
@@ -190,6 +195,8 @@ TRAILS = [
     (11685878, "it-hike", 41, "national", "Via della Costa"),
     (12221576, "it-hike", 42, "national", "Via Francesca della Sambuca"),
     (7450464,  "it-hike", 43, "national", "ViaSett"),
+    # Italy — famous day hikes
+    (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
 
     # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),
@@ -274,6 +281,11 @@ TRAILS = [
     (7078769,  "no-hike", 11, "national", "Ryger"),
     (14771926, "no-hike", 12, "national", "Saga"),
     (14769822, "no-hike", 13, "national", "Massiv Trail"),
+    # Norway — famous day hikes
+    (4270259,  "no-hike", 14, "regional", "Preikestolen"),
+    (4270209,  "no-hike", 15, "regional", "Trolltunga"),
+    (1661032,  "no-hike", 16, "regional", "Kjerag og Kjeragbolten"),
+    (1417687,  "no-hike", 17, "regional", "Besseggen"),
 
     # Denmark (dk-hike — add to Supabase CHECK before --import)
     (1792585,  "dk-hike", 1, "national", "Hærvejen"),
@@ -302,6 +314,8 @@ TRAILS = [
     # France — new
     (16234318, "fr-hike", 12, "national", "L'Echappée Jurassienne"),
     (17667253, "fr-hike", 13, "national", "Grand Tour de la Gervanne"),
+    # France — famous day hikes
+    (7428864,  "fr-hike", 28, "regional", "Tour du Lac Blanc"),
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
