@@ -137,6 +137,9 @@ TRAILS = [
     (121147,   "de-hike", 68, "national", "Straße der Arbeit"),
     (299338,   "de-hike", 69, "national", "X11 Lenne-Sieg-Weg"),
     (31656,    "de-hike", 70, "national", "X30 Neandertalweg"),
+    # Germany — famous day hikes
+    (13035701, "de-hike", 71, "regional", "Drachenfels"),
+    (7565504,  "de-hike", 72, "regional", "Rundweg Kehlstein"),
 
     # Spain
     (8865914,  "es-hike", 1, "national", "Senda Pirenaica (GR11)"),
@@ -197,6 +200,7 @@ TRAILS = [
     (7450464,  "it-hike", 43, "national", "ViaSett"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
+    (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
 
     # Ireland (ie-hike)
     (2740,     "ie-hike", 1, "national", "Wicklow Way"),
@@ -224,6 +228,7 @@ TRAILS = [
 
     # Slovenia (si-hike — add to Supabase CHECK before --import)
     (10909145, "si-hike", 1, "national", "Julius Kugy Alpine Trail"),
+    (19446539, "si-hike", 2, "regional", "Triglav"),
 
     # Netherlands (nl-hike)
     (312993,   "nl-hike", 1, "national", "Pieterpad deel 1"),
@@ -286,6 +291,7 @@ TRAILS = [
     (4270209,  "no-hike", 15, "regional", "Trolltunga"),
     (1661032,  "no-hike", 16, "regional", "Kjerag og Kjeragbolten"),
     (1417687,  "no-hike", 17, "regional", "Besseggen"),
+    (4173881,  "no-hike", 18, "regional", "Trollstigen"),
 
     # Denmark (dk-hike — add to Supabase CHECK before --import)
     (1792585,  "dk-hike", 1, "national", "Hærvejen"),
@@ -316,6 +322,7 @@ TRAILS = [
     (17667253, "fr-hike", 13, "national", "Grand Tour de la Gervanne"),
     # France — famous day hikes
     (7428864,  "fr-hike", 28, "regional", "Tour du Lac Blanc"),
+    (11340787, "fr-hike", 29, "regional", "Le Puy de Dôme"),
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
