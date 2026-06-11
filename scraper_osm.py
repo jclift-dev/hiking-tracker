@@ -278,6 +278,9 @@ TRAILS = [
     (1792585,  "dk-hike", 1, "national", "Hærvejen"),
     (1202410,  "dk-hike", 2, "national", "Øhavsstien"),
 
+    # Lithuania (lt-hike — add to Supabase CHECK before --import)
+    (6519670,  "lt-hike", 1, "national", "E11 Lithuania"),
+
     # Estonia (ee-hike — add to Supabase CHECK before --import)
     (9645763,  "ee-hike", 1, "national", "Euroopa matkarada E9"),
     (13182780, "ee-hike", 2, "national", "Peraküla-Aegviidu-Ähijärve haru"),
@@ -288,6 +291,7 @@ TRAILS = [
     (3176522,  "eu-hike", 2, "national", "Alpe Adria Trail"),
     (6436417,  "eu-hike", 3, "national", "Tour du Mont Blanc"),
     (16127693, "eu-hike", 4, "national", "Sultan's Trail"),
+    (2437984,  "eu-hike", 6, "national", "Nordkalottruta"),
 
     # France — new
     (16234318, "fr-hike", 12, "national", "L'Echappée Jurassienne"),
