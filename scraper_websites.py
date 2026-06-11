@@ -19,6 +19,7 @@ Trails:
   Camino Portugués             (pt-hike, route_id=3)   pilgrim.es
   SNP Trail                    (sk-hike, route_id=1)   snptrail.com  [hardcoded — multi-page]
   Kammweg Erzgebirge-Vogtland  (de-hike, route_id=48)  erzgebirge-tourismus.de  [hardcoded — overwrites 3 OSM sections]
+  High Scardus Trail           (eu-hike, route_id=12)  high-scardus-trail.com  MK/XK/AL, 20 hiking stages
   Vulkanring Vogelsberg        (de-hike, route_id=58)  vogelsberg-touristik.de  [hardcoded]
   Camino Espiritual del Sur    (es-hike, route_id=12)  caminoespiritualdelsur.com
   GR54 Tour de l'Oisans       (fr-hike, route_id=14)  geotrek-admin.ecrins-parcnational.fr
@@ -213,45 +214,44 @@ def scrape_italiac2c():
 # ---------------------------------------------------------------------------
 # Sauerland-Waldroute — sauerland-waldroute.de
 # ---------------------------------------------------------------------------
-# Stage listing at /de/tourenplanung/wandern-in-etappen
-# Format: "Sauerland-Waldroute - Etappe N: Start - End"  (partial km in context)
+# 19 stages, ~237 km, circular from Iserlohn.
+# Stages 1–7 = common trunk; 8–13 = North loop; 14–19 = South loop.
 # Overwrites the 3 coarse OSM sections already in route_id=44.
 
 SAUERLAND_URL = "https://www.sauerland-waldroute.de/de/tourenplanung/wandern-in-etappen"
-SAUERLAND_RE = re.compile(
-    r'Etappe\s+(\d+):\s*([^-\n]+?)\s+-\s+([^\n]+)',
-    re.IGNORECASE,
-)
+SAUERLAND_STAGES = [
+    ( 1, "Iserlohn",               "Stephanopeler Tal",     13.0),
+    ( 2, "Stephanopeler Tal",      "Volkringhausen",        12.5),
+    ( 3, "Volkringhausen",         "Sundern-Amecke",        13.0),
+    ( 4, "Sundern-Amecke",         "Arnsberg Schlossberg",  20.1),
+    ( 5, "Arnsberg Schlossberg",   "Torhaus Möhnesee",      11.5),
+    ( 6, "Torhaus Möhnesee",       "Neuhaus",                6.3),
+    ( 7, "Neuhaus",                "Hirschberg",            20.4),
+    ( 8, "Hirschberg",             "Bilsteintal",            2.8),
+    ( 9, "Bilsteintal",            "Kallenhardt",           13.8),
+    (10, "Kallenhardt",            "Bibertal",               5.3),
+    (11, "Bibertal",               "Ringelstein",           11.5),
+    (12, "Büren-Ringelstein",      "Brilon-Alme",           12.1),
+    (13, "Brilon-Alme",            "Marsberg",              26.1),
+    (14, "Marsberg",               "Diemeltalsperre",       22.3),
+    (15, "Diemeltalsperre",        "Petersborn",            16.7),
+    (16, "Petersborn",             "Langer Berg",            6.1),
+    (17, "Langer Berg",            "Föckinghausen",         17.7),
+    (18, "Föckinghausen",          "Eversberg",              6.1),
+    (19, "Eversberg",              "Bilsteintal",            9.9),
+]
 
 
 def scrape_sauerland():
-    print(f"Fetching {SAUERLAND_URL} ...")
-    html = fetch(SAUERLAND_URL)
-    if not html:
-        print("  ERROR: fetch failed")
-        return None
-
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text("\n")
-
-    seen = set()
+    print("Sauerland-Waldroute — hardcoded (replaces 3 OSM sections)")
     stages = []
-    for m in SAUERLAND_RE.finditer(text):
-        nr = int(m.group(1))
-        if nr in seen:
-            continue
-        seen.add(nr)
-        start = m.group(2).strip()
-        end = m.group(3).strip()
-        # Look for km near this match
-        context = text[m.start():m.start() + 400]
-        km_m = re.search(r'(\d+[\.,]\d*)\s*km', context, re.I)
+    for nr, start, end, km in SAUERLAND_STAGES:
         stages.append({
             "stage_nr":         nr,
             "start_name":       start,
             "end_name":         end,
             "via":              None,
-            "dist_km":          parse_km(km_m.group(1)) if km_m else None,
+            "dist_km":          km,
             "elev_up":          None,
             "elev_down":        None,
             "duration_hrs":     None,
@@ -261,15 +261,9 @@ def scrape_sauerland():
             "sbb_times":        {},
             "_source_url":      SAUERLAND_URL,
         })
-
-    stages.sort(key=lambda s: s["stage_nr"])
-    if len(stages) < 5:
-        print(f"  WARNING: only {len(stages)} stages found (expected 19) — JS-rendered content missing")
-        if not stages:
-            return None
-
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, ~{total_km} km total (partial km data)")
+        print(f"  Etappe {nr:2d}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
     return {
         "route_id":   44,
         "route_type": "national",
@@ -278,7 +272,7 @@ def scrape_sauerland():
         "description": None,
         "start":      stages[0]["start_name"],
         "end":        stages[-1]["end_name"],
-        "total_km":   244.7,
+        "total_km":   total_km,
         "stages":     stages,
     }
 
@@ -1676,6 +1670,96 @@ def scrape_pointe_echelle():
 
 
 # ---------------------------------------------------------------------------
+# High Scardus Trail — high-scardus-trail.com
+# ---------------------------------------------------------------------------
+# 20 hiking stages (stages 15 and 20 are bus transfers, excluded), ~190 km.
+# Crosses North Macedonia (MK), Kosovo (XK), Albania (AL). → eu-hike 12.
+# Stage pages: /en/tour/hiking-trail/high-scardus-trail-stage-NN-<slug>/<id>/
+
+HST_BASE = "https://www.high-scardus-trail.com"
+HST_STAGES = [
+    ( 1, "Staro Selo",              "Mountain Hut Ljuboten",   f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-01-staro-selo-mountain-hut-ljuboten/65666968/"),
+    ( 2, "Mountain Hut Ljuboten",   "Brezovica",               f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-02-mountain-hut-ljuboten-brezovica/65669459/"),
+    ( 3, "Brezovica",               "Prevalla",                f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-03-brezovica-prevalla/65673318/"),
+    ( 4, "Prevalla",                "Gornje Ljubinje",         f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-04-prevalla-gornje-ljubinje/65835558/"),
+    ( 5, "Gornje Ljubinje",         "Kobilica Hut",            f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-05-gornje-ljubinje-kobilica-hut-vejce/66049838/"),
+    ( 6, "Kobilica Hut",            "Veshala",                 f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-06-kobilica-hut-vejce-veshala-bozovce/65975107/"),
+    ( 7, "Veshala",                 "Brod",                    f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-07-veshala-bozovce-brod/66215597/"),
+    ( 8, "Brod",                    "Restelica",               f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-08-brod-restelica/66215632/"),
+    ( 9, "Restelica",               "Strezimir",               f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-09-restelica-strezimir/66215711/"),
+    (10, "Strezimir",               "Radomirë",                f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-10-strezimir-radomire/66215678/"),
+    (11, "Radomirë",                "Grama",                   f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-11-radomire-grama/66215751/"),
+    (12, "Grama",                   "Rabdisht",                f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-12-grama-rabdisht/66215780/"),
+    (13, "Rabdisht",                "Stanet e Hinoskes",       f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-13-rabdisht-stanet-e-hinoskes/66215806/"),
+    (14, "Stanet e Hinoskes",       "Bitushe",                 f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-14-stanet-e-hinoskes-bitushe-modric/66215813/"),
+    (15, "Bitushe",                 "Jablanica",               f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-16-modric-jablanica/66215823/"),
+    (16, "Jablanica",               "Stebleve",                f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-17-jablanica-stebleve/66215834/"),
+    (17, "Stebleve",                "Qafa e Kryqit",           f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-18-stebleve-qafa-e-kryqit/66215841/"),
+    (18, "Qafa e Kryqit",           "Vevcani",                 f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-19-qafa-e-kryqit-vevcani-velestovo/66215855/"),
+    (19, "Vevcani",                 "Mountain Hut Spiridon",   f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-21-velestovo-mountain-hut-spiridon/66215863/"),
+    (20, "Mountain Hut Spiridon",   "Sveti Naum",              f"{HST_BASE}/en/tour/hiking-trail/high-scardus-trail-stage-22-mountain-hut-spiridon-sveti-naum/66215882/"),
+]
+
+_HST_DIST_RE   = re.compile(r'Distance\s*([\d.]+)\s*km',              re.I)
+_HST_ASCENT_RE = re.compile(r'Ascent\s*([\d,]+)\s*m',                 re.I)
+_HST_DESC_RE   = re.compile(r'Descent\s*([\d,]+)\s*m',                re.I)
+
+
+def _hst_parse_m(s):
+    return int(s.replace(",", "")) if s else None
+
+
+def scrape_high_scardus():
+    print("High Scardus Trail (MK/XK/AL) — fetching 20 stage pages ...")
+    stages = []
+    for nr, start, end, url in HST_STAGES:
+        time.sleep(DELAY)
+        html = fetch(url)
+        if not html:
+            print(f"  stage {nr}: fetch failed — using None for stats")
+            dist_km = elev_up = elev_down = None
+        else:
+            soup = BeautifulSoup(html, "html.parser")
+            text = soup.get_text(" ")
+            dm = _HST_DIST_RE.search(text)
+            am = _HST_ASCENT_RE.search(text)
+            ddm = _HST_DESC_RE.search(text)
+            dist_km  = float(dm.group(1))  if dm  else None
+            elev_up  = _hst_parse_m(am.group(1))  if am  else None
+            elev_down = _hst_parse_m(ddm.group(1)) if ddm else None
+        print(f"  Stage {nr:2d}  {start} → {end}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          dist_km,
+            "elev_up":          elev_up,
+            "elev_down":        elev_down,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      url,
+        })
+
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   12,
+        "route_type": "national",
+        "land":       "eu-hike",
+        "name":       "High Scardus Trail",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -1725,6 +1809,7 @@ TRAILS = {
     "alta-via-ligure":    scrape_alta_via_ligure,
     "mont-gramondo":      scrape_mont_gramondo,
     "villages-ligures":   scrape_villages_ligures,
+    "high-scardus":       scrape_high_scardus,
 }
 
 

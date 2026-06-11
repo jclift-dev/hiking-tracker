@@ -169,7 +169,14 @@
       "WebFetch(domain:www.tapir-store.de)",
       "WebFetch(domain:www.kelten-erlebnisweg.de)",
       "WebFetch(domain:www.ith-hils-weg.de)",
-      "Bash(awk '{print $2, $10, $11, $12}')"
+      "Bash(awk '{print $2, $10, $11, $12}')",
+      "WebFetch(domain:www.sauerland-waldroute.de)",
+      "WebFetch(domain:high-scardus-trail.com)",
+      "WebFetch(domain:www.high-scardus-trail.com)",
+      "Bash(sed -n '2778,2782p' /Users/jamie/hiking-tracker/index.html)",
+      "Bash(sed -n '3567,3572p' /Users/jamie/hiking-tracker/index.html)",
+      "Bash(node *)",
+      "Bash(awk '{print \"still running, pid=\" $2}')"
     ]
   }
 }

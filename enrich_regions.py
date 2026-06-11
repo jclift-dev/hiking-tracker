@@ -119,6 +119,14 @@ ROUTE_DEFAULTS = {
         (2,  2,  "it", "it-im"),   # Imperia
         (3,  None, "fr", "fr-06"), # Alpes-Maritimes
     ],
+    ("eu-hike", 12): [                                   # High Scardus Trail (MK/XK/AL — Šar Planina)
+        (1,  1,  "mk", "mk"),   # Staro Selo → Ljuboten: North Macedonia start
+        (2,  9,  "xk", "xk"),   # Kosovo section (Brezovica, Prevalla, Restelica…)
+        (10, 13, "al", "al"),   # Albania section (Radomirë → Stanet e Hinoskes)
+        (14, 15, "mk", "mk"),   # North Macedonia (Bitushe area)
+        (16, 17, "al", "al"),   # Albania (Jablanica → Qafa e Kryqit)
+        (18, None, "mk", "mk"), # North Macedonia (Vevcani → Sveti Naum)
+    ],
     ("it-hike", 50): [(1, None, "it", "it-im")],         # Les plus beaux villages Ligures (Imperia)
     ("fr-hike", 14): [                                   # GR54 Tour de l'Oisans (circular)
         (1,  2,  "fr", "fr-38"),   # Isère: Bourg d'Oisans → Mizoën

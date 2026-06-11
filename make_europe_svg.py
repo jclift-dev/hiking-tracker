@@ -38,6 +38,7 @@ INCLUDE_COUNTRIES = {
     "GB", "FR", "DE", "AT", "IT", "ES", "IE", "CH", "SI", "MC", "LI", "PT",
     "HU", "CZ", "NL", "BE", "SE", "NO", "EE", "HR", "SK", "DK",
     "RS", "BG", "GR", "TR", "LT", "LV",
+    "MK", "XK", "AL",  # High Scardus Trail countries
 }
 
 # SVG viewport — equirectangular projection
@@ -47,11 +48,11 @@ SVG_W, SVG_H = 1100, 920
 
 # Minimum area (in SVG px²) to include a polygon (filters tiny islands/enclaves).
 MIN_AREA_PX2 = 20.0
-ALWAYS_INCLUDE = {"MC", "LI", "SI"}  # country codes exempt from min-area filter
+ALWAYS_INCLUDE = {"MC", "LI", "SI", "MK", "XK", "AL"}  # country codes exempt from min-area filter
 
 # Douglas-Peucker epsilon in SVG px units.
 # Higher = more simplification (fewer points).
-DP_EPSILON = 1.5
+DP_EPSILON = 0.3
 
 
 # ---------------------------------------------------------------------------
@@ -147,6 +148,14 @@ def make_code(props):
         return "ch"
     if iso_a2 == "SI":
         return "si"
+
+    # Merge municipality-level detail to single country polygon
+    if iso_a2 == "MK":
+        return "mk"
+    if iso_a2 == "XK":
+        return "xk"
+    if iso_a2 == "AL":
+        return "al"
 
     # Ireland: map county → province
     if iso_a2 == "IE":

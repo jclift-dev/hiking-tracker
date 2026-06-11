@@ -328,6 +328,8 @@ TRAILS = [
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
+
+    # Serbia — E4 (9928151) has 14 coarse sections (67–151 km each), no day-stage level
 ]
 
 # Deferred — level-2 descent still too coarse, no viable day stages:
