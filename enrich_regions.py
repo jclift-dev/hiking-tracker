@@ -194,6 +194,28 @@ ROUTE_DEFAULTS = {
     ("de-hike", 29): [(1, None, "de", "de-bw")],  # Schwarzwald-Nordrandweg
     ("de-hike", 30): [(1, None, "de", "de-bw")],  # Wasserweltensteig
     ("de-hike", 31): [(1, None, "de", "de-bw")],  # Hotzenwald-Querweg
+    # Spain — gronze.com routes (no OSM IDs); uses ISO 3166-2 autonomous-community codes
+    ("es-hike", 15): [                                   # Camino Francés (SJdPP → Santiago)
+        (1,  6,  "es", "es-na"),   # Navarra: Roncesvalles → Los Arcos
+        (7,  9,  "es", "es-ri"),   # La Rioja: Logroño → Santo Domingo de la Calzada
+        (10, 26, "es", "es-cl"),   # Castilla y León: Belorado → Villafranca del Bierzo
+        (27, None, "es", "es-ga"), # Galicia: O Cebreiro → Santiago
+    ],
+    ("es-hike", 16): [                                   # Via de la Plata / Camino Sanabrés (Sevilla → Santiago)
+        (1,  3,  "es", "es-an"),   # Andalucía: Sevilla → Almadén de la Plata
+        (4,  15, "es", "es-ex"),   # Extremadura: Monesterio → Aldeanueva del Camino
+        (16, 28, "es", "es-cl"),   # Castilla y León: Béjar → Puebla de Sanabria
+        (29, None, "es", "es-ga"), # Galicia: A Gudiña → Santiago
+    ],
+    ("es-hike", 17): [(1, None, "es", "es-ga")],         # Camino Inglés (all Galicia: A Coruña province)
+    ("es-hike", 18): [                                   # Camino de Invierno (Ponferrada → Outeiro)
+        (1, 1,    "es", "es-cl"),  # Castilla y León: Ponferrada → Médulas (León province)
+        (2, None, "es", "es-ga"),  # Galicia: O Barco de Valdeorras → Outeiro
+    ],
+    ("es-hike", 19): [                                   # Camino Salvador (León → Grado)
+        (1, 2,    "es", "es-cl"),  # Castilla y León: León → Poladura de la Tercia
+        (3, None, "es", "es-as"),  # Asturias: Pajares → Grado
+    ],
 }
 
 

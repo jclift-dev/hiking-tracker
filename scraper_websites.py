@@ -26,6 +26,11 @@ Trails:
   Grande traversée Alpi Marittime (eu-hike, route_id=7) adminrando.marittimemercantour.eu
   Alto Tanaro Tour             (it-hike, route_id=44)  adminrando.marittimemercantour.eu
   Tour des glaciers de la Vanoise (fr-hike, route_id=15) adminrando.vanoise.com
+  Camino Francés               (es-hike, route_id=15)  gronze.com  33 stages, SJdPP→Santiago
+  Via de la Plata              (es-hike, route_id=16)  gronze.com  37 stages, Sevilla→Santiago (Sanabrés branch)
+  Camino Inglés                (es-hike, route_id=17)  gronze.com  7 stages (Ferrol+A Coruña branches + shared trunk)
+  Camino de Invierno           (es-hike, route_id=18)  gronze.com  11 stages, Ponferrada→Outeiro de Rei
+  Camino Salvador              (es-hike, route_id=19)  gronze.com  7 stages, León→Grado
 
 Usage:
   python3 scraper_websites.py
@@ -1760,6 +1765,295 @@ def scrape_high_scardus():
 
 
 # ---------------------------------------------------------------------------
+# gronze.com — shared helper for Spanish Camino routes
+# ---------------------------------------------------------------------------
+# Stage page format (stats inline text):
+#   "Distancia: X,X km Desnivel: X.XXX m X.XXX m Duración: X h [Y min]"
+#   H1: "Etapa N[A]?:StartName - EndName[ (variant)]"
+# Spanish number conventions: comma = decimal sep; dot = thousands sep.
+# gronze.com requires full browser Accept headers (blocks HikingTracker UA).
+
+GRONZE_BASE = "https://www.gronze.com"
+_GRONZE_HEADERS = {
+    "User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "identity",
+}
+_GRONZE_DIST_RE = re.compile(r'Distancia:[\s\xa0]+([\d,.]+)\s*km',                     re.I)
+_GRONZE_ELEV_RE = re.compile(r'Desnivel:[\s\xa0]+([\d,.]+)[\s\xa0]*m[\s\xa0]+([\d,.]+)[\s\xa0]*m', re.I)
+_GRONZE_H1_RE   = re.compile(r'Etapa\s+[\d]+[A-Za-z]?:\s*(.+?)\s+-\s+(.+?)(?:\s*\(.*\))?\s*$')
+
+
+def _gronze_fetch(path):
+    url = GRONZE_BASE + path if path.startswith('/') else path
+    try:
+        r = SESSION.get(url, headers=_GRONZE_HEADERS, timeout=20)
+        return r.text if r.status_code == 200 else None
+    except Exception as e:
+        print(f"  fetch error: {e}")
+        return None
+
+
+def _gronze_elev(s):
+    """'1.419' (Spanish thousands sep) → 1419."""
+    return int(s.replace('.', '').replace(',', '')) if s else None
+
+
+def _gronze_parse_stage(nr, path):
+    time.sleep(DELAY)
+    html = _gronze_fetch(path)
+    if not html:
+        print(f"  stage {nr}: fetch failed")
+        return None
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    start_name = end_name = None
+    h1 = soup.find('h1')
+    if h1:
+        h1_clean = re.sub(r'\s*\(.*\)\s*$', '', h1.get_text(strip=True))
+        m = _GRONZE_H1_RE.match(h1_clean)
+        if m:
+            start_name = m.group(1).strip()
+            end_name   = m.group(2).strip()
+
+    dist_km = elev_up = elev_down = None
+    for node in soup.find_all(string=re.compile('Distancia', re.I)):
+        container = node.parent
+        for _ in range(5):
+            container = container.parent
+            ctext = container.get_text(' ', strip=True)
+            if 'Desnivel' in ctext:
+                dm = _GRONZE_DIST_RE.search(ctext)
+                em = _GRONZE_ELEV_RE.search(ctext)
+                if dm:
+                    dist_km  = parse_km(dm.group(1))
+                if em:
+                    elev_up  = _gronze_elev(em.group(1))
+                    elev_down = _gronze_elev(em.group(2))
+                break
+        if dist_km is not None:
+            break
+
+    print(f"  Stage {nr:2d}  {start_name} → {end_name}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
+    return {"start_name": start_name, "end_name": end_name,
+            "dist_km": dist_km, "elev_up": elev_up, "elev_down": elev_down}
+
+
+def _gronze_route(paths, route_id, land, name, route_type="national"):
+    stages = []
+    for nr, path in enumerate(paths, 1):
+        data = _gronze_parse_stage(nr, path)
+        if not data:
+            continue
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       data["start_name"] or f"Stage {nr} start",
+            "end_name":         data["end_name"]   or f"Stage {nr} end",
+            "via":              None,
+            "dist_km":          data["dist_km"],
+            "elev_up":          data["elev_up"],
+            "elev_down":        data["elev_down"],
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      GRONZE_BASE + path,
+        })
+    if not stages:
+        return None
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":    route_id,
+        "route_type":  route_type,
+        "land":        land,
+        "name":        name,
+        "description": None,
+        "start":       stages[0]["start_name"],
+        "end":         stages[-1]["end_name"],
+        "total_km":    total_km,
+        "stages":      stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Camino Francés — gronze.com/camino-frances
+# ---------------------------------------------------------------------------
+# 33 stages, ~791 km. Saint-Jean-Pied-de-Port → Santiago de Compostela.
+# Napoleon route at start; San Martín del Camino branch (not Villar de
+# Mazarife); direct Triacastela→Sarria (not via Samos).
+
+_CF_PATHS = [
+    "/etapa/saint-jean-pied-port-donibane-garazi/roncesvalles-orreaga",
+    "/etapa/roncesvalles-orreaga/zubiri",
+    "/etapa/zubiri/pamplona-iruna",
+    "/etapa/pamplona-iruna/puente-reina-gares",
+    "/etapa/puente-reina-gares/estella-lizarra",
+    "/etapa/estella-lizarra/arcos",
+    "/etapa/arcos/logrono",
+    "/etapa/logrono/najera",
+    "/etapa/najera/santo-domingo-calzada",
+    "/etapa/santo-domingo-calzada/belorado",
+    "/etapa/belorado/san-juan-ortega",
+    "/etapa/san-juan-ortega/burgos",
+    "/etapa/burgos/hornillos-camino",
+    "/etapa/hornillos-camino/castrojeriz",
+    "/etapa/castrojeriz/fromista",
+    "/etapa/fromista/carrion-condes",
+    "/etapa/carrion-condes/terradillos-templarios",
+    "/etapa/terradillos-templarios/bercianos-real-camino",
+    "/etapa/bercianos-real-camino/mansilla-mulas",
+    "/etapa/mansilla-mulas/leon",
+    "/etapa/leon/san-martin-camino",
+    "/etapa/san-martin-camino/astorga",
+    "/etapa/astorga/foncebadon",
+    "/etapa/foncebadon/ponferrada",
+    "/etapa/ponferrada/villafranca-bierzo",
+    "/etapa/villafranca-bierzo/cebreiro",
+    "/etapa/cebreiro/triacastela",
+    "/etapa/triacastela/sarria",
+    "/etapa/sarria/portomarin",
+    "/etapa/portomarin/palas-rei",
+    "/etapa/palas-rei/arzua",
+    "/etapa/arzua/pedrouzo-pino",
+    "/etapa/pedrouzo-pino/santiago-compostela",
+]
+
+
+def scrape_camino_frances():
+    print("Camino Francés — gronze.com (33 stages)")
+    return _gronze_route(_CF_PATHS, 15, "es-hike", "Camino Francés", "international")
+
+
+# ---------------------------------------------------------------------------
+# Via de la Plata — gronze.com/via-plata
+# ---------------------------------------------------------------------------
+# 37 stages. Sevilla → Santiago de Compostela via the Sanabrés (western)
+# branch. Canonical trunk: Sevilla→Granja de Moreruela (23s), then Tábara→
+# Puebla de Sanabria→A Gudiña→Laza→Ourense→Santiago (14s).
+# Skipped: Benavente branch (joins Camino Francés at Astorga) and the
+# Verín alternative north of A Gudiña.
+
+_VDP_PATHS = [
+    "/etapa/sevilla/guillena",
+    "/etapa/guillena/castilblanco-arroyos",
+    "/etapa/castilblanco-arroyos/almaden-plata",
+    "/etapa/almaden-plata/monesterio",
+    "/etapa/monesterio/fuente-cantos",
+    "/etapa/fuente-cantos/zafra",
+    "/etapa/zafra/villafranca-barros",
+    "/etapa/villafranca-barros/torremejia",
+    "/etapa/torremejia/merida",
+    "/etapa/merida/alcuescar",
+    "/etapa/alcuescar/caceres",
+    "/etapa/caceres/embalse-alcantara",
+    "/etapa/embalse-alcantara/grimaldo",
+    "/etapa/grimaldo/carcaboso",
+    "/etapa/carcaboso/aldeanueva-camino",
+    "/etapa/aldeanueva-camino/calzada-bejar",
+    "/etapa/calzada-bejar/fuenterroble-salvatierra",
+    "/etapa/fuenterroble-salvatierra/san-pedro-rozados",
+    "/etapa/san-pedro-rozados/salamanca",
+    "/etapa/salamanca/cubo-vino",
+    "/etapa/cubo-vino/zamora",
+    "/etapa/zamora/montamarta",
+    "/etapa/montamarta/granja-moreruela",
+    "/etapa/granja-moreruela/tabara",
+    "/etapa/tabara/santa-marta-tera",
+    "/etapa/santa-marta-tera/mombuey",
+    "/etapa/mombuey/puebla-sanabria",
+    "/etapa/puebla-sanabria/lubian",
+    "/etapa/lubian/gudina",
+    "/etapa/gudina/laza",
+    "/etapa/laza/xunqueira-ambia",
+    "/etapa/xunqueira-ambia/ourense",
+    "/etapa/ourense/cea",
+    "/etapa/cea/castro-dozon",
+    "/etapa/castro-dozon/silleda",
+    "/etapa/silleda/outeiro-vedra",
+    "/etapa/outeiro-vedra/santiago-compostela",
+]
+
+
+def scrape_via_plata():
+    print("Via de la Plata — gronze.com (37 stages, Sanabrés branch)")
+    return _gronze_route(_VDP_PATHS, 16, "es-hike", "Via de la Plata", "national")
+
+
+# ---------------------------------------------------------------------------
+# Camino Inglés — gronze.com/camino-ingles
+# ---------------------------------------------------------------------------
+# 7 stages. Two starting branches (A Coruña 2s, Ferrol 3s) converge at
+# Hospital de Bruma, then 2 shared stages to Santiago de Compostela.
+# Stages 1–2: A Coruña branch. Stages 3–5: Ferrol branch. Stages 6–7: shared.
+
+_CI_PATHS = [
+    "/etapa/coruna/sergude",
+    "/etapa/sergude/hospital-bruma",
+    "/etapa/ferrol/pontedeume",
+    "/etapa/pontedeume/betanzos",
+    "/etapa/betanzos/hospital-bruma",
+    "/etapa/hospital-bruma/sigueiro",
+    "/etapa/sigueiro/santiago-compostela",
+]
+
+
+def scrape_camino_ingles():
+    print("Camino Inglés — gronze.com (7 stages)")
+    return _gronze_route(_CI_PATHS, 17, "es-hike", "Camino Inglés", "national")
+
+
+# ---------------------------------------------------------------------------
+# Camino de Invierno — gronze.com/camino-invierno
+# ---------------------------------------------------------------------------
+# 11 stages. Ponferrada → Outeiro de Rei (near Santiago). 268 km.
+
+_CINV_PATHS = [
+    "/etapa/ponferrada/medulas",
+    "/etapa/medulas/xagoaza",
+    "/etapa/barco-valdeorras/rua-valdeorras",
+    "/etapa/rua-valdeorroas/quiroga",
+    "/etapa/quiroga/pobra-do-brollon",
+    "/etapa/pobra-do-brollon/monforte-lemos",
+    "/etapa/monforte-lemos/chantada",
+    "/etapa/chantada/rodeiro",
+    "/etapa/rodeiro/lalin",
+    "/etapa/lalin/silleda",
+    "/etapa/silleda/outeiro-vedra",
+]
+
+
+def scrape_camino_invierno():
+    print("Camino de Invierno — gronze.com (11 stages)")
+    return _gronze_route(_CINV_PATHS, 18, "es-hike", "Camino de Invierno", "national")
+
+
+# ---------------------------------------------------------------------------
+# Camino Salvador — gronze.com/camino-salvador
+# ---------------------------------------------------------------------------
+# 7 stages. León → Grado (Asturias). 163 km.
+# Connects the Camino Francés (León) to the Camino Primitivo (Oviedo/Grado).
+
+_CS_PATHS = [
+    "/etapa/leon/robla",
+    "/etapa/robla/poladura-tercia",
+    "/etapa/poladura-tercia/pajares",
+    "/etapa/pajares/pola-lena",
+    "/etapa/pola-lena/mieres",
+    "/etapa/mieres/oviedo",
+    "/etapa/oviedo/grado",
+]
+
+
+def scrape_camino_salvador():
+    print("Camino Salvador — gronze.com (7 stages)")
+    return _gronze_route(_CS_PATHS, 19, "es-hike", "Camino Salvador", "national")
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -1810,6 +2104,11 @@ TRAILS = {
     "mont-gramondo":      scrape_mont_gramondo,
     "villages-ligures":   scrape_villages_ligures,
     "high-scardus":       scrape_high_scardus,
+    "camino-frances":     scrape_camino_frances,
+    "via-plata":          scrape_via_plata,
+    "camino-ingles":      scrape_camino_ingles,
+    "camino-invierno":    scrape_camino_invierno,
+    "camino-salvador":    scrape_camino_salvador,
 }
 
 

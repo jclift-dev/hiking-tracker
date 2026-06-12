@@ -12,7 +12,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `fr-hike`  | France         | Hiking   | GR20 (1,16s), GR65 (2,32s), GR70 (3,13s), HRP (4,41s), Voie de Tours (5,15s), Du Jura à la Méditerranée (6,36s), La Routo (7,7s), Huguenots en Cévennes (8,24s), Via Arverna (9,22s), GR300 (10,19s), Sentier Cathare (11,13s), L'Echappée Jurassienne (12,5s), Grand Tour de la Gervanne (13,7s), GR54 (14,13s,Geotrek), Vanoise tours ×10 (15-24,Geotrek), La randonnée des couleurs (25,7s,Geotrek), Le sentier d'Azur (26,3s,Geotrek), Tour de la Pointe de l'Échelle (27,3s,Geotrek), Tour du Lac Blanc (28,1s), Le Puy de Dôme (29,1s) |
 | `it-hike`  | Italy          | Hiking   | Alta Via 1 (1,11s), Italia C2C (13,18s,website), OSM routes 2-12+14-43 (Sentiero della Pace, Cammino Celeste, GTA, etc.), Mercantour/Alpi Marittime Geotrek ×6 (44-49, Cuneo/Piedmont), Les plus beaux villages Ligures (50,3s,Geotrek,Imperia), Tre Cime di Lavaredo (51,1s), Stromboli Volcano Trail (52,1s) |
 | `de-hike`  | Germany        | Hiking   | 72 routes — Malerweg (2,8s), Schwarzwaldverein ×22 (10-31), Goldsteig ×2 (3-4), Heidschnuckenweg (5), Lutherweg (6), Rheinburgenweg (7), Märchenlandweg (8), ViaJacobi (9), Rheinsteig (32), Albverein ×10 (33-41,52), Lahnwanderweg (42), Hünenweg (43), Sauerland-Waldroute (44,19s,website), Paul-Gerhardt-Weg (45), Lahn-Camino (46), Ulrikaweg (47), Kammweg (48,17s,website), Eifelsteig (49,website), Linksrheinischer Jakobsweg (50,website), WestfalenWanderWeg (51,website), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Vulkanring Vogelsberg (58), Ith-Hils-Wanderweg (59), Westerwaldsteig (60), Bergischer Panoramasteig (61), X19 Schlösserweg (62), Ederhöhenweg (63), Herkulesweg (64), X22 Kurkölner Weg (65), Sieghöhenweg (66), X12 Richard-Schirrmann-Weg (67), Straße der Arbeit (68), X11 Lenne-Sieg-Weg (69), X30 Neandertalweg (70), Drachenfels (71,1s), Rundweg Kehlstein (72,1s) |
-| `es-hike`  | Spain          | Hiking   | GR11 (1,37s), Camino Primitivo (2,11s), GR221 (3,8s), GR7 (4,41s), Sulayr (5,19s), GR109 (6,27s), Camí del Llobregat (7,9s), Sendero de la Alpujarra (8,12s), Camí dels bons homes (9,5s), Gran Senda del Guadalhorce (10,4s), Camino de la Frontera (11,14s,website), Camino Espiritual del Sur (12,14s,website), Caminito del Rey (13,1s), Camino del Norte (14,22s,OSM) |
+| `es-hike`  | Spain          | Hiking   | GR11 (1,37s), Camino Primitivo (2,11s), GR221 (3,8s), GR7 (4,41s), Sulayr (5,19s), GR109 (6,27s), Camí del Llobregat (7,9s), Sendero de la Alpujarra (8,12s), Camí dels bons homes (9,5s), Gran Senda del Guadalhorce (10,4s), Camino de la Frontera (11,14s,website), Camino Espiritual del Sur (12,14s,website), Caminito del Rey (13,1s), Camino del Norte (14,22s,OSM), Camino Francés (15,33s,gronze), Via de la Plata (16,37s,gronze), Camino Inglés (17,7s,gronze), Camino de Invierno (18,11s,gronze), Camino Salvador (19,7s,gronze) |
 | `ie-hike`  | Ireland        | Hiking   | Wicklow Way, Kerry Way, Dingle Way, Causeway Coast Way, Beara Way, Western Way (all OSM single-stage) |
 | `pt-hike`  | Portugal       | Hiking   | Rota Vicentina Trilho dos Pescadores (1,13s,OSM), Grande Rota Peneda-Gerês (2,19s,website), Camino Portugués (3,25s,website,Lisboa→Santiago) |
 | `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (1,17s), BergeSeen Trail (2,23s), Panoramaweg Südalpen (3,20s) |
@@ -240,6 +240,11 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | de-59    | Ith-Hils-Wanderweg | `de-hike` | 7 | ith-hils.de (hardcoded) |
 | es-11    | Camino de la Frontera | `es-hike` | 14 | caminodelafrontera.es (hardcoded) |
 | es-12    | Camino Espiritual del Sur | `es-hike` | 14 | caminoespiritualdelsur.com (live scraper) |
+| es-15    | Camino Francés | `es-hike` | 33 | gronze.com (SJdPP→Santiago, Napoleon route) |
+| es-16    | Via de la Plata | `es-hike` | 37 | gronze.com (Sevilla→Santiago, Sanabrés branch) |
+| es-17    | Camino Inglés | `es-hike` | 7 | gronze.com (Ferrol+A Coruña branches + shared trunk) |
+| es-18    | Camino de Invierno | `es-hike` | 11 | gronze.com (Ponferrada→Outeiro de Rei) |
+| es-19    | Camino Salvador | `es-hike` | 7 | gronze.com (León→Grado) |
 | it-13    | Italia Coast to Coast | `it-hike` | 18 | italiacoast2coast.it |
 | pt-2     | Grande Rota Peneda-Gerês | `pt-hike` | 19 | walkingpenedageres.pt |
 | pt-3     | Camino Portugués | `pt-hike` | 25 | pilgrim.es (Lisboa→Santiago) |
@@ -317,8 +322,9 @@ All served via `adminrando.*` backends; slug used with `--only` flag.
 | Trail | Land | Notes |
 |---|---|---|
 | More famous day hikes | various | Zugspitze, Galdhøpiggen, Reinebringen (Lofoten) — check OSM |
-| Camino del Norte | `es-hike` | Check OSM structure |
-| Via de la Plata | `es-hike` | Check OSM structure |
+| Camino Mozárabe | `es-hike` | 37 stages from multiple starting points (Málaga/Almería/Granada/Jaén) — complex branching on gronze.com |
+| Camino de Levante | `es-hike` | 28 stages Valencia→Zamora on gronze.com — joins Via de la Plata |
+| Via Francigena | `eu-hike` | 51 stages Lausanne→Rome (CH/IT section) on gronze.com — would be eu-hike 13 |
 | More Geotrek instances | `fr-hike` | Pyrénées NP, Cévennes NP APIs not yet found |
 | Ireland update | `ie-hike` | All 6 routes are flat single-stage OSM — re-check if day stages added |
 
