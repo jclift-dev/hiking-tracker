@@ -31,6 +31,26 @@ Trails:
   Camino Inglés                (es-hike, route_id=17)  gronze.com  7 stages (Ferrol+A Coruña branches + shared trunk)
   Camino de Invierno           (es-hike, route_id=18)  gronze.com  11 stages, Ponferrada→Outeiro de Rei
   Camino Salvador              (es-hike, route_id=19)  gronze.com  7 stages, León→Grado
+  Fisterra y Muxía             (es-hike, route_id=20)  gronze.com  7 stages, Santiago→Fisterra/Muxía
+  Camino Aragonés              (es-hike, route_id=21)  gronze.com  7 stages, Somport→Estella
+  Camino de Madrid             (es-hike, route_id=22)  gronze.com  14 stages, Madrid→Sahagún
+  Camino Vasco del Litoral     (es-hike, route_id=23)  gronze.com  16 stages, Irun→Burgos/Belorado
+  Camino del Ebro              (es-hike, route_id=24)  gronze.com  18 stages, Deltebre→Nájera
+  Camino Vadiniense            (es-hike, route_id=25)  gronze.com  11 stages, San Vicente de la Barquera→León
+  Ría de Muros-Noia            (es-hike, route_id=26)  gronze.com  5 stages
+  Camino de Baztán             (es-hike, route_id=27)  gronze.com  6 stages, Bayonne→Puente la Reina
+  Camino Catalán               (es-hike, route_id=28)  gronze.com  27 stages, Barcelona→Jaca
+  Camino Olvidado              (es-hike, route_id=29)  gronze.com  28 stages, Bilbao→O Cebreiro
+  Camino de Levante            (es-hike, route_id=30)  gronze.com  29 stages, Valencia→Zamora
+  Ruta de la Lana              (es-hike, route_id=31)  gronze.com  30 stages, Alicante→Burgos
+  Camino Mozárabe              (es-hike, route_id=32)  gronze.com  38 stages, multiple southern starts→Mérida
+  Camino Portugués da Costa    (pt-hike, route_id=4)   gronze.com  13 stages, Porto→Pontevedra
+  Camino de Vézelay            (fr-hike, route_id=30)  gronze.com  51 stages, Vézelay→Saint-Jean-Pied-de-Port
+  Via Gebennensis              (eu-hike, route_id=13)  gronze.com  17 stages, Geneva→Le Puy-en-Velay (CH/FR)
+  Camino de Arles              (eu-hike, route_id=14)  gronze.com  34 stages, Arles→Jaca (FR/ES)
+  Camino del Piamonte          (eu-hike, route_id=15)  gronze.com  23 stages, Carcassonne→Roncesvalles (FR/ES)
+  Via Francígena               (eu-hike, route_id=16)  gronze.com  51 stages, Lausanne→Rome (CH/IT)
+  Camino di San Francesco      (it-hike, route_id=53)  gronze.com  23 stages, Roma→La Verna
 
 Usage:
   python3 scraper_websites.py
@@ -1819,21 +1839,28 @@ def _gronze_parse_stage(nr, path):
             end_name   = m.group(2).strip()
 
     dist_km = elev_up = elev_down = None
+    # Search distance independently — some pages have no Desnivel
     for node in soup.find_all(string=re.compile('Distancia', re.I)):
-        container = node.parent
+        c = node.parent
         for _ in range(5):
-            container = container.parent
-            ctext = container.get_text(' ', strip=True)
-            if 'Desnivel' in ctext:
-                dm = _GRONZE_DIST_RE.search(ctext)
-                em = _GRONZE_ELEV_RE.search(ctext)
-                if dm:
-                    dist_km  = parse_km(dm.group(1))
-                if em:
-                    elev_up  = _gronze_elev(em.group(1))
-                    elev_down = _gronze_elev(em.group(2))
+            dm = _GRONZE_DIST_RE.search(c.get_text(' ', strip=True))
+            if dm:
+                dist_km = parse_km(dm.group(1))
                 break
+            c = c.parent
         if dist_km is not None:
+            break
+    # Search elevation independently
+    for node in soup.find_all(string=re.compile('Desnivel', re.I)):
+        c = node.parent
+        for _ in range(5):
+            em = _GRONZE_ELEV_RE.search(c.get_text(' ', strip=True))
+            if em:
+                elev_up   = _gronze_elev(em.group(1))
+                elev_down = _gronze_elev(em.group(2))
+                break
+            c = c.parent
+        if elev_up is not None:
             break
 
     print(f"  Stage {nr:2d}  {start_name} → {end_name}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
@@ -2054,6 +2081,626 @@ def scrape_camino_salvador():
 
 
 # ---------------------------------------------------------------------------
+# gronze.com — additional routes (es-hike 20–32, pt-hike 4, fr-hike 30,
+#              eu-hike 13–16, it-hike 53)
+# All use _gronze_route(). Branching routes include all listed stages.
+# ---------------------------------------------------------------------------
+
+# es-hike 20 — Fisterra y Muxía (Santiago→Fisterra/Muxía, 7 stages)
+_FISTERRA_PATHS = [
+    "/etapa/santiago-compostela/negreira",
+    "/etapa/negreira/olveiroa",
+    "/etapa/olveiroa/corcubion",
+    "/etapa/corcubion/fisterra",
+    "/etapa/olveiroa/muxia",
+    "/etapa/muxia/fisterra",
+    "/etapa/fisterra/faro-finisterre",
+]
+
+# es-hike 21 — Camino Aragonés (Somport→Estella, 7 stages; skip Atarés alt)
+_ARAGONES_PATHS = [
+    "/etapa/somport/jaca",
+    "/etapa/jaca/arres",
+    "/etapa/arres/ruesta",
+    "/etapa/ruesta/sanguesa",
+    "/etapa/sanguesa/monreal",
+    "/etapa/monreal/puente-reina-gares",
+    "/etapa/puente-reina-gares/estella-lizarra",
+]
+
+# es-hike 22 — Camino de Madrid (Madrid→Sahagún, 14 stages)
+_MADRID_PATHS = [
+    "/etapa/madrid/tres-cantos",
+    "/etapa/tres-cantos/manzanares-real",
+    "/etapa/manzanares-real/cercedilla",
+    "/etapa/cercedilla/segovia",
+    "/etapa/segovia/santa-maria-real-nieva",
+    "/etapa/santa-maria-real-nieva/coca",
+    "/etapa/coca/alcazaren",
+    "/etapa/alcazaren/valladolid",
+    "/etapa/puente-duero/penaflor-hornija",
+    "/etapa/penaflor-hornija/medina-rioseco",
+    "/etapa/medina-rioseco/cuenca-campos",
+    "/etapa/cuenca-campos/santervas-campos",
+    "/etapa/santervas-campos/sahagun",
+    "/etapa/terradillos-templarios/bercianos-real-camino",
+]
+
+# es-hike 23 — Camino Vasco del Litoral (Irun→Burgos/Belorado, 16 stages)
+_VASCO_PATHS = [
+    "/etapa/irun/hernani",
+    "/etapa/hernani/tolosa",
+    "/etapa/tolosa/beasain",
+    "/etapa/beasain/zegama",
+    "/etapa/zegama/salvatierra-agurain",
+    "/etapa/salvatierra-agurain/vitoria-gasteiz",
+    "/etapa/vitoria-gasteiz/puebla-arganzon",
+    "/etapa/puebla-arganzon/haro",
+    "/etapa/haro/santo-domingo-calzada",
+    "/etapa/santo-domingo-calzada/belorado",
+    "/etapa/puebla-arganzon/miranda-ebro",
+    "/etapa/miranda-ebro/pancorbo",
+    "/etapa/pancorbo/briviesca",
+    "/etapa/briviesca/monasterio-rodilla",
+    "/etapa/monasterio-rodilla/burgos",
+    "/etapa/burgos/hornillos-camino",
+]
+
+# es-hike 24 — Camino del Ebro (Deltebre→Nájera, 18 stages)
+_EBRO_PATHS = [
+    "/etapa/deltebre/rapita",
+    "/etapa/rapita/tortosa",
+    "/etapa/tortosa/xerta",
+    "/etapa/xerta/gandesa",
+    "/etapa/gandesa/fabara",
+    "/etapa/fabara/caspe",
+    "/etapa/caspe/escatron",
+    "/etapa/escatron/quinto",
+    "/etapa/quinto/burgo-ebro",
+    "/etapa/burgo-ebro/zaragoza",
+    "/etapa/zaragoza/alagon",
+    "/etapa/alagon/gallur",
+    "/etapa/gallur/tudela",
+    "/etapa/tudela/alfaro",
+    "/etapa/alfaro/calahorra",
+    "/etapa/calahorra/alcanadre",
+    "/etapa/alcanadre/logrono",
+    "/etapa/logrono/najera",
+]
+
+# es-hike 25 — Camino Vadiniense (San Vicente de la Barquera→León, 11 stages)
+_VADINIENSE_PATHS = [
+    "/etapa/san-vicente-barquera/cades",
+    "/etapa/cades/cicera",
+    "/etapa/cicera/potes",
+    "/etapa/potes/espinama",
+    "/etapa/espinama/portilla-reina",
+    "/etapa/portilla-reina/riano",
+    "/etapa/riano/cremenes",
+    "/etapa/cremenes/cistierna",
+    "/etapa/cistierna/gradefes",
+    "/etapa/gradefes/puente-villarente",
+    "/etapa/mansilla-mulas/leon",
+]
+
+# es-hike 26 — Ría de Muros-Noia (5 stages)
+_RIA_MUROS_PATHS = [
+    "/etapa/muros/cruceiro-roo",
+    "/etapa/cruceiro-roo/noia",
+    "/etapa/porto-do-son/noia",
+    "/etapa/noia/calle-urdilde",
+    "/etapa/calle-urdilde/santiago-compostela",
+]
+
+# es-hike 27 — Camino de Baztán (Bayonne→Puente la Reina, 6 stages; FR+ES)
+_BAZTAN_PATHS = [
+    "/etapa/bayonne-baiona/espelette",
+    "/etapa/souraide-zuraide/amaiur-maya",
+    "/etapa/amaiur-maya/berroeta",
+    "/etapa/berroeta/olague",
+    "/etapa/olague/pamplona-iruna",
+    "/etapa/pamplona-iruna/puente-reina-gares",
+]
+
+# es-hike 28 — Camino Catalán (Barcelona→Jaca, 27 stages incl. both BCN starts
+#              and both Tàrrega→Zaragoza and Tàrrega→Huesca branches)
+_CATALAN_PATHS = [
+    "/etapa/barcelona/sant-cugat-valles",
+    "/etapa/sant-cugat-valles/esparreguera",
+    "/etapa/barcelona/molins-rei",
+    "/etapa/molins-rei/esparreguera",
+    "/etapa/esparreguera/monestir-montserrat",
+    "/etapa/monestir-montserrat/igualada",
+    "/etapa/igualada/panadella",
+    "/etapa/panadella/tarrega",
+    "/etapa/tarrega/palau-danglesola",
+    "/etapa/palau-danglesola/lleida",
+    "/etapa/lleida/fraga",
+    "/etapa/fraga/candasnos",
+    "/etapa/candasnos/bujaraloz",
+    "/etapa/bujaraloz/pina-ebro",
+    "/etapa/pina-ebro/burgo-ebro",
+    "/etapa/burgo-ebro/zaragoza",
+    "/etapa/tarrega/linyola",
+    "/etapa/linyola/algerri",
+    "/etapa/algerri/tamarite-litera",
+    "/etapa/tamarite-litera/monzon",
+    "/etapa/monzon/berbegal",
+    "/etapa/berbegal/pueyo-fananas",
+    "/etapa/pueyo-fananas/huesca",
+    "/etapa/huesca/bolea",
+    "/etapa/bolea/pena-estacion",
+    "/etapa/pena-estacion/santa-cilia",
+    "/etapa/jaca/arres",
+]
+
+# es-hike 29 — Camino Olvidado (Bilbao→O Cebreiro, 28 stages incl. branch alt.)
+_OLVIDADO_PATHS = [
+    "/etapa/bilbao-bilbo/mimetiz-zalla",
+    "/etapa/mimetiz-zalla/villasana-mena",
+    "/etapa/villasana-mena/espinosa-monteros",
+    "/etapa/espinosa-monteros/santelices",
+    "/etapa/santelices/arija",
+    "/etapa/arija/olea",
+    "/etapa/olea/aguilar-campoo",
+    "/etapa/aguilar-campoo/cervera-pisuerga",
+    "/etapa/cervera-pisuerga/tarilonte-pena",
+    "/etapa/tarilonte-pena/guardo",
+    "/etapa/guardo/puente-almuhey",
+    "/etapa/guardo/caminayo/puente-almuhey",
+    "/etapa/puente-almuhey/cistierna",
+    "/etapa/cistierna/bonar",
+    "/etapa/bonar/robles-valcueva",
+    "/etapa/robles-valcueva/robla",
+    "/etapa/robla/magdalena-leon",
+    "/etapa/bonar/vegacervera",
+    "/etapa/vegacervera/pola-gordon",
+    "/etapa/pola-gordon/magdalena-leon",
+    "/etapa/magdalena-leon/riello",
+    "/etapa/riello/fasgar",
+    "/etapa/fasgar/iguena",
+    "/etapa/iguena/labaniego",
+    "/etapa/labaniego/congosto",
+    "/etapa/congosto/cabanas-raras",
+    "/etapa/cabanas-raras/villafranca-bierzo",
+    "/etapa/villafranca-bierzo/cebreiro",
+]
+
+# es-hike 30 — Camino de Levante (Valencia→Zamora, 29 stages)
+_LEVANTE_PATHS = [
+    "/etapa/valencia/algemesi",
+    "/etapa/algemesi/xativa",
+    "/etapa/xativa/moixent",
+    "/etapa/moixent/font-figuera",
+    "/etapa/font-figuera/almansa",
+    "/etapa/almansa/higueruela",
+    "/etapa/higueruela/chinchilla-montearagon",
+    "/etapa/chinchilla-montearagon/albacete",
+    "/etapa/albacete/roda",
+    "/etapa/roda/san-clemente-cuenca",
+    "/etapa/san-clemente-cuenca/pedroneras",
+    "/etapa/pedroneras/toboso",
+    "/etapa/toboso/villa-don-fadrique",
+    "/etapa/villa-don-fadrique/tembleque",
+    "/etapa/tembleque/mora-toledo",
+    "/etapa/mora-toledo/toledo",
+    "/etapa/toledo/torrijos",
+    "/etapa/torrijos/escalona",
+    "/etapa/escalona/san-martin-valdeiglesias",
+    "/etapa/san-martin-valdeiglesias/cebreros",
+    "/etapa/cebreros/san-bartolome-pinares",
+    "/etapa/san-bartolome-pinares/avila",
+    "/etapa/avila/gotarrendura",
+    "/etapa/gotarrendura/arevalo",
+    "/etapa/arevalo/medina-campo",
+    "/etapa/medina-campo/siete-iglesias-trabancos",
+    "/etapa/siete-iglesias-trabancos/toro",
+    "/etapa/toro/zamora",
+    "/etapa/zamora/montamarta",
+]
+
+# es-hike 31 — Ruta de la Lana (Alicante→Burgos, 30 stages; Sigüenza variant incl.)
+_RUTA_LANA_PATHS = [
+    "/etapa/alicante/orito",
+    "/etapa/orito/petrer",
+    "/etapa/petrer/villena",
+    "/etapa/villena/caudete",
+    "/etapa/caudete/almansa",
+    "/etapa/almansa/alpera",
+    "/etapa/alpera/alatoz",
+    "/etapa/alatoz/casas-ibanez",
+    "/etapa/casas-ibanez/villarta",
+    "/etapa/villarta/campillo-altobuey",
+    "/etapa/campillo-altobuey/monteagudo-salinas",
+    "/etapa/monteagudo-salinas/fuentes-cuenca",
+    "/etapa/fuentes-cuenca/cuenca",
+    "/etapa/cuenca/villar-domingo-garcia",
+    "/etapa/villar-domingo-garcia/villaconejos-trabaque",
+    "/etapa/villaconejos-trabaque/salmeron-guadalajara",
+    "/etapa/salmeron-guadalajara/viana-mondejar",
+    "/etapa/viana-mondejar/cifuentes",
+    "/etapa/cifuentes/mandayona",
+    "/etapa/mandayona/atienza",
+    "/etapa/mandayona/siguenza",
+    "/etapa/siguenza/atienza",
+    "/etapa/atienza/retortillo-soria",
+    "/etapa/retortillo-soria/fresno-caracena",
+    "/etapa/fresno-caracena/san-esteban-gormaz",
+    "/etapa/san-esteban-gormaz/quintanarraya",
+    "/etapa/quintanarraya/santo-domingo-silos",
+    "/etapa/santo-domingo-silos/mecerreyes",
+    "/etapa/mecerreyes/burgos",
+    "/etapa/burgos/hornillos-camino",
+]
+
+# es-hike 32 — Camino Mozárabe (multiple southern starts→Mérida, 38 stages)
+_MOZARABE_PATHS = [
+    "/etapa/malaga/almogia",
+    "/etapa/almogia/villanueva-concepcion",
+    "/etapa/villanueva-concepcion/antequera",
+    "/etapa/antequera/villanueva-algaidas",
+    "/etapa/villanueva-algaidas/encinas-reales",
+    "/etapa/encinas-reales/lucena",
+    "/etapa/lucena/dona-mencia",
+    "/etapa/dona-mencia/baena",
+    "/etapa/almeria/rioja-almeria",
+    "/etapa/rioja-almeria/alboloduy",
+    "/etapa/alboloduy/abla",
+    "/etapa/abla/hueneja",
+    "/etapa/hueneja/alquife",
+    "/etapa/alquife/guadix",
+    "/etapa/guadix/peza",
+    "/etapa/peza/quentar",
+    "/etapa/quentar/granada",
+    "/etapa/granada/pinos-puente",
+    "/etapa/pinos-puente/moclin",
+    "/etapa/moclin/alcala-real",
+    "/etapa/alcala-real/alcaudete",
+    "/etapa/jaen/martos",
+    "/etapa/martos/alcaudete",
+    "/etapa/alcaudete/baena",
+    "/etapa/baena/castro-rio",
+    "/etapa/castro-rio/santa-cruz-cordoba",
+    "/etapa/santa-cruz-cordoba/cordoba",
+    "/etapa/cordoba/cerro-muriano",
+    "/etapa/cerro-muriano/villaharta",
+    "/etapa/villaharta/alcaracejos",
+    "/etapa/alcaracejos/hinojosa-duque",
+    "/etapa/hinojosa-duque/monterrubio-serena",
+    "/etapa/monterrubio-serena/castuera",
+    "/etapa/castuera/campanario",
+    "/etapa/campanario/don-benito",
+    "/etapa/don-benito/torrefresneda",
+    "/etapa/torrefresneda/merida",
+    "/etapa/merida/alcuescar",
+]
+
+# pt-hike 4 — Camino Portugués da Costa (Porto→Pontevedra, 13 stages; incl. branches)
+_COSTA_PATHS = [
+    "/etapa/porto/labruge",
+    "/etapa/labruge/povoa-varzim",
+    "/etapa/povoa-varzim/marinhas",
+    "/etapa/marinhas/viana-do-castelo",
+    "/etapa/viana-do-castelo/caminha",
+    "/etapa/caminha/porto-mougas",
+    "/etapa/porto-mougas/ramallosa",
+    "/etapa/caminha/tui",
+    "/etapa/tui/redondela",
+    "/etapa/ramallosa/vigo",
+    "/etapa/ramallosa/san-miguel-oia/vigo",
+    "/etapa/vigo/redondela",
+    "/etapa/redondela/pontevedra",
+]
+
+# fr-hike 30 — Camino de Vézelay (Vézelay→Saint-Jean-Pied-de-Port, 51 stages)
+# Main Berry branch (via Bourges/Argenton) + shared Limoges/Périgueux section +
+# Bazas branch to Saint-Jean-Pied-de-Port. Alternative Nevers branch included.
+# Incomplete Aiguillon branch (Bergerac→Eauze) excluded.
+_VEZELAY_PATHS = [
+    "/etapa/vezelay/saint-germain-des-bois-nievre",
+    "/etapa/saint-germain-des-bois-nievre/champlemy",
+    "/etapa/champlemy/charite-sur-loire",
+    "/etapa/charite-sur-loire/baugy",
+    "/etapa/baugy/bourges",
+    "/etapa/bourges/charost",
+    "/etapa/charost/neuvy-pailloux",
+    "/etapa/neuvy-pailloux/chateauroux",
+    "/etapa/chateauroux/velles",
+    "/etapa/velles/argenton-sur-creuse",
+    "/etapa/argenton-sur-creuse/gargilesse",
+    "/etapa/vezelay/anthien",
+    "/etapa/anthien/saint-reverien",
+    "/etapa/saint-reverien/premery",
+    "/etapa/premery/nevers",
+    "/etapa/nevers/saint-pierre-le-moutier",
+    "/etapa/saint-pierre-le-moutier/lurcy-levis",
+    "/etapa/lurcy-levis/ainay-le-chateau",
+    "/etapa/ainay-le-chateau/saint-amand-montrond",
+    "/etapa/saint-amand-montrond/le-chatelet-cher",
+    "/etapa/le-chatelet-cher/chatre",
+    "/etapa/chatre/neuvy-saint-sepulchre",
+    "/etapa/neuvy-saint-sepulchre/gargilesse",
+    "/etapa/gargilesse/crozant",
+    "/etapa/crozant/souterraine",
+    "/etapa/souterraine/benevent-labbaye",
+    "/etapa/benevent-labbaye/le-pont-du-dognon",
+    "/etapa/le-pont-du-dognon/saint-leonard-noblat",
+    "/etapa/saint-leonard-noblat/limoges",
+    "/etapa/limoges/les-cars",
+    "/etapa/les-cars/coquille",
+    "/etapa/coquille/thiviers",
+    "/etapa/thiviers/sorges",
+    "/etapa/sorges/perigueux",
+    "/etapa/perigueux/douville",
+    "/etapa/douville/bergerac",
+    "/etapa/bergerac/sainte-foy-grande",
+    "/etapa/sainte-foy-grande/saint-ferme",
+    "/etapa/saint-ferme/reole",
+    "/etapa/reole/auros",
+    "/etapa/auros/bazas",
+    "/etapa/bazas/captieux",
+    "/etapa/captieux/roquefort-landas",
+    "/etapa/roquefort-landas/mont-marsan",
+    "/etapa/mont-marsan/saint-sever",
+    "/etapa/saint-sever/hagetmau",
+    "/etapa/hagetmau/sault-navailles",
+    "/etapa/sault-navailles/orthez",
+    "/etapa/orthez/sauveterre-bearn",
+    "/etapa/sauveterre-bearn/ostabat",
+    "/etapa/ostabat/saint-jean-pied-port-donibane-garazi",
+]
+
+# eu-hike 13 — Via Gebennensis (Geneva→Le Puy-en-Velay, 17 stages; CH/FR)
+_GEBENNENSIS_PATHS = [
+    "/etapa/geneve/col-du-mont-sion",
+    "/etapa/col-du-mont-sion/frangy",
+    "/etapa/frangy/serrieres-en-chautagne",
+    "/etapa/serrieres-en-chautagne/yenne",
+    "/etapa/yenne/saint-genix-sur-guiers",
+    "/etapa/saint-genix-sur-guiers/le-pin-isere",
+    "/etapa/le-pin-isere/cote-saint-andre",
+    "/etapa/cote-saint-andre/revel-tourdan",
+    "/etapa/revel-tourdan/saint-romain-surieu",
+    "/etapa/saint-romain-surieu/chavanay",
+    "/etapa/chavanay/bourg-argental",
+    "/etapa/bourg-argental/les-setoux",
+    "/etapa/les-setoux/montfaucon-en-velay",
+    "/etapa/montfaucon-en-velay/araules",
+    "/etapa/araules/saint-julien-chapteuil",
+    "/etapa/saint-julien-chapteuil/le-puy-en-velay",
+    "/etapa/le-puy-en-velay/saint-privat-dallier",
+]
+
+# eu-hike 14 — Camino de Arles (Arles→Jaca, 34 stages; FR/ES)
+_ARLES_PATHS = [
+    "/etapa/arles/saint-gilles-gard",
+    "/etapa/saint-gilles-gard/gallargues-le-montueux",
+    "/etapa/gallargues-le-montueux/vendargues",
+    "/etapa/vendargues/montpellier",
+    "/etapa/montpellier/montarnaud",
+    "/etapa/montarnaud/saint-guilhem-le-desert",
+    "/etapa/saint-guilhem-le-desert/saint-jean-blaquiere",
+    "/etapa/saint-jean-blaquiere/lodeve",
+    "/etapa/lodeve/lunas",
+    "/etapa/lunas/saint-gervais-sur-mare",
+    "/etapa/saint-gervais-sur-mare/murat-sur-vebre",
+    "/etapa/murat-sur-vebre/salvetat-sur-agout",
+    "/etapa/salvetat-sur-agout/angles-tarn",
+    "/etapa/angles-tarn/boissezon",
+    "/etapa/boissezon/castres",
+    "/etapa/castres/dourgne",
+    "/etapa/dourgne/les-casses",
+    "/etapa/les-casses/avignonet-lauragais",
+    "/etapa/avignonet-lauragais/baziege",
+    "/etapa/baziege/toulouse",
+    "/etapa/toulouse/leguevin",
+    "/etapa/leguevin/giscaro",
+    "/etapa/giscaro/lisle-arne",
+    "/etapa/lisle-arne/auch",
+    "/etapa/auch/lisle-noe",
+    "/etapa/lisle-noe/marciac",
+    "/etapa/marciac/vidouze",
+    "/etapa/vidouze/morlaas",
+    "/etapa/morlaas/lescar",
+    "/etapa/lescar/oloron-sainte-marie",
+    "/etapa/oloron-sainte-marie/sarrance",
+    "/etapa/sarrance/borce",
+    "/etapa/borce/somport",
+    "/etapa/somport/jaca",
+]
+
+# eu-hike 15 — Camino del Piamonte (Carcassonne→Roncesvalles, 23 stages; FR/ES)
+_PIAMONTE_PATHS = [
+    "/etapa/carcassonne/arzens",
+    "/etapa/arzens/fanjeaux",
+    "/etapa/fanjeaux/mirepoix",
+    "/etapa/mirepoix/pamiers",
+    "/etapa/pamiers/le-mas-dazil",
+    "/etapa/le-mas-dazil/saint-lizier",
+    "/etapa/saint-lizier/castillon-en-couserans",
+    "/etapa/castillon-en-couserans/portet-daspet",
+    "/etapa/portet-daspet/juzet-dizaut",
+    "/etapa/juzet-dizaut/saint-bertrand-comminges",
+    "/etapa/saint-bertrand-comminges/montserie",
+    "/etapa/montserie/bourg-bigorre",
+    "/etapa/bourg-bigorre/bagneres-bigorre",
+    "/etapa/bagneres-bigorre/germs-sur-loussouet",
+    "/etapa/germs-sur-loussouet/lourdes",
+    "/etapa/lourdes/asson",
+    "/etapa/asson/arudy",
+    "/etapa/arudy/oloron-sainte-marie",
+    "/etapa/oloron-sainte-marie/lhopital-saint-blaise",
+    "/etapa/lhopital-saint-blaise/mauleon-licharre",
+    "/etapa/mauleon-licharre/saint-just-ibarre",
+    "/etapa/saint-just-ibarre/saint-jean-pied-port-donibane-garazi",
+    "/etapa/saint-jean-pied-port-donibane-garazi/roncesvalles-orreaga",
+]
+
+# eu-hike 16 — Via Francígena (Lausanne→Roma, 51 stages; CH/IT)
+_FRANCIGENA_PATHS = [
+    "/etapa/lausanne/vevey",
+    "/etapa/vevey/aigle",
+    "/etapa/aigle/saint-maurice-valais",
+    "/etapa/saint-maurice-valais/martigny",
+    "/etapa/martigny/orsieres",
+    "/etapa/orsieres/bourg-saint-pierre",
+    "/etapa/bourg-saint-pierre/col-du-grand-saint-bernard",
+    "/etapa/col-du-grand-saint-bernard/etroubles",
+    "/etapa/etroubles/aosta",
+    "/etapa/aosta/chatillon-italia",
+    "/etapa/chatillon-italia/verres",
+    "/etapa/verres/pont-saint-martin",
+    "/etapa/pont-saint-martin/ivrea",
+    "/etapa/ivrea/viverone",
+    "/etapa/viverone/santhia",
+    "/etapa/santhia/vercelli",
+    "/etapa/vercelli/robbio",
+    "/etapa/robbio/tromello",
+    "/etapa/tromello/pavia",
+    "/etapa/pavia/belgioioso",
+    "/etapa/belgioioso/orio-litta",
+    "/etapa/orio-litta/piacenza",
+    "/etapa/piacenza/fiorenzuola-darda",
+    "/etapa/fiorenzuola-darda/fidenza",
+    "/etapa/fidenza/medesano",
+    "/etapa/medesano/sivizzano",
+    "/etapa/sivizzano/berceto",
+    "/etapa/berceto/pontremoli",
+    "/etapa/pontremoli/aulla",
+    "/etapa/aulla/sarzana",
+    "/etapa/sarzana/massa",
+    "/etapa/massa/camaiore",
+    "/etapa/camaiore/lucca",
+    "/etapa/lucca/altopascio",
+    "/etapa/altopascio/san-miniato",
+    "/etapa/san-miniato/gambassi-terme",
+    "/etapa/gambassi-terme/san-gimignano",
+    "/etapa/san-gimignano/monteriggioni",
+    "/etapa/monteriggioni/siena",
+    "/etapa/siena/ponte-darbia",
+    "/etapa/ponte-darbia/san-quirico-dorcia",
+    "/etapa/san-quirico-dorcia/radicofani",
+    "/etapa/radicofani/acquapendente",
+    "/etapa/acquapendente/bolsena",
+    "/etapa/bolsena/montefiascone",
+    "/etapa/montefiascone/viterbo",
+    "/etapa/viterbo/vetralla",
+    "/etapa/vetralla/sutri",
+    "/etapa/sutri/campagnano-di-roma",
+    "/etapa/campagnano-di-roma/storta",
+    "/etapa/storta/roma",
+]
+
+# it-hike 53 — Camino di San Francesco (Roma→La Verna, 23 stages)
+_SAN_FRANCESCO_PATHS = [
+    "/etapa/roma/monte-sacro",
+    "/etapa/monte-sacro/monterotondo",
+    "/etapa/monterotondo/ponticelli-di-scandriglia",
+    "/etapa/ponticelli-di-scandriglia/poggio-san-lorenzo",
+    "/etapa/poggio-san-lorenzo/rieti",
+    "/etapa/rieti/poggio-bustone",
+    "/etapa/poggio-bustone/piediluco",
+    "/etapa/piediluco/ferentillo",
+    "/etapa/ferentillo/spoleto",
+    "/etapa/spoleto/poreta",
+    "/etapa/poreta/trevi",
+    "/etapa/trevi/spello",
+    "/etapa/spello/assisi",
+    "/etapa/assisi/valfabbrica",
+    "/etapa/valfabbrica/san-pietro-vigneto",
+    "/etapa/san-pietro-vigneto/gubbio",
+    "/etapa/gubbio/pietralunga",
+    "/etapa/pietralunga/citta-di-castello",
+    "/etapa/citta-di-castello/citerna",
+    "/etapa/citerna/sansepolcro",
+    "/etapa/sansepolcro/pian-della-capanna",
+    "/etapa/pian-della-capanna/pieve-santo-stefano",
+    "/etapa/pieve-santo-stefano/verna",
+]
+
+
+def scrape_fisterra():
+    print("Fisterra y Muxía — gronze.com (7 stages)")
+    return _gronze_route(_FISTERRA_PATHS, 20, "es-hike", "Fisterra y Muxía")
+
+def scrape_aragones():
+    print("Camino Aragonés — gronze.com (7 stages)")
+    return _gronze_route(_ARAGONES_PATHS, 21, "es-hike", "Camino Aragonés")
+
+def scrape_camino_madrid():
+    print("Camino de Madrid — gronze.com (14 stages)")
+    return _gronze_route(_MADRID_PATHS, 22, "es-hike", "Camino de Madrid")
+
+def scrape_camino_vasco():
+    print("Camino Vasco del Litoral — gronze.com (16 stages)")
+    return _gronze_route(_VASCO_PATHS, 23, "es-hike", "Camino Vasco del Litoral")
+
+def scrape_camino_ebro():
+    print("Camino del Ebro — gronze.com (18 stages)")
+    return _gronze_route(_EBRO_PATHS, 24, "es-hike", "Camino del Ebro")
+
+def scrape_camino_vadiniense():
+    print("Camino Vadiniense — gronze.com (11 stages)")
+    return _gronze_route(_VADINIENSE_PATHS, 25, "es-hike", "Camino Vadiniense")
+
+def scrape_ria_muros():
+    print("Ría de Muros-Noia — gronze.com (5 stages)")
+    return _gronze_route(_RIA_MUROS_PATHS, 26, "es-hike", "Ría de Muros-Noia")
+
+def scrape_camino_baztan():
+    print("Camino de Baztán — gronze.com (6 stages, FR+ES)")
+    return _gronze_route(_BAZTAN_PATHS, 27, "es-hike", "Camino de Baztán", "international")
+
+def scrape_camino_catalan():
+    print("Camino Catalán — gronze.com (27 stages)")
+    return _gronze_route(_CATALAN_PATHS, 28, "es-hike", "Camino Catalán")
+
+def scrape_camino_olvidado():
+    print("Camino Olvidado — gronze.com (28 stages)")
+    return _gronze_route(_OLVIDADO_PATHS, 29, "es-hike", "Camino Olvidado")
+
+def scrape_camino_levante():
+    print("Camino de Levante — gronze.com (29 stages)")
+    return _gronze_route(_LEVANTE_PATHS, 30, "es-hike", "Camino de Levante")
+
+def scrape_ruta_lana():
+    print("Ruta de la Lana — gronze.com (30 stages)")
+    return _gronze_route(_RUTA_LANA_PATHS, 31, "es-hike", "Ruta de la Lana")
+
+def scrape_camino_mozarabe():
+    print("Camino Mozárabe — gronze.com (38 stages, multiple starts)")
+    return _gronze_route(_MOZARABE_PATHS, 32, "es-hike", "Camino Mozárabe")
+
+def scrape_camino_portugues_costa():
+    print("Camino Portugués da Costa — gronze.com (13 stages)")
+    return _gronze_route(_COSTA_PATHS, 4, "pt-hike", "Camino Portugués da Costa", "international")
+
+def scrape_camino_vezelay():
+    print("Camino de Vézelay — gronze.com (51 stages)")
+    return _gronze_route(_VEZELAY_PATHS, 30, "fr-hike", "Camino de Vézelay", "national")
+
+def scrape_via_gebennensis():
+    print("Via Gebennensis — gronze.com (17 stages, CH/FR)")
+    return _gronze_route(_GEBENNENSIS_PATHS, 13, "eu-hike", "Via Gebennensis", "international")
+
+def scrape_camino_arles():
+    print("Camino de Arles — gronze.com (34 stages, FR/ES)")
+    return _gronze_route(_ARLES_PATHS, 14, "eu-hike", "Camino de Arles", "international")
+
+def scrape_camino_piamonte():
+    print("Camino del Piamonte — gronze.com (23 stages, FR/ES)")
+    return _gronze_route(_PIAMONTE_PATHS, 15, "eu-hike", "Camino del Piamonte", "international")
+
+def scrape_via_francigena():
+    print("Via Francígena — gronze.com (51 stages, CH/IT)")
+    return _gronze_route(_FRANCIGENA_PATHS, 16, "eu-hike", "Via Francígena", "international")
+
+def scrape_camino_san_francesco():
+    print("Camino di San Francesco — gronze.com (23 stages)")
+    return _gronze_route(_SAN_FRANCESCO_PATHS, 53, "it-hike", "Camino di San Francesco")
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -2109,6 +2756,26 @@ TRAILS = {
     "camino-ingles":      scrape_camino_ingles,
     "camino-invierno":    scrape_camino_invierno,
     "camino-salvador":    scrape_camino_salvador,
+    "fisterra":               scrape_fisterra,
+    "aragones":               scrape_aragones,
+    "camino-madrid":          scrape_camino_madrid,
+    "camino-vasco":           scrape_camino_vasco,
+    "camino-ebro":            scrape_camino_ebro,
+    "camino-vadiniense":      scrape_camino_vadiniense,
+    "ria-muros":              scrape_ria_muros,
+    "camino-baztan":          scrape_camino_baztan,
+    "camino-catalan":         scrape_camino_catalan,
+    "camino-olvidado":        scrape_camino_olvidado,
+    "camino-levante":         scrape_camino_levante,
+    "ruta-lana":              scrape_ruta_lana,
+    "camino-mozarabe":        scrape_camino_mozarabe,
+    "camino-portugues-costa": scrape_camino_portugues_costa,
+    "camino-vezelay":         scrape_camino_vezelay,
+    "via-gebennensis":        scrape_via_gebennensis,
+    "camino-arles":           scrape_camino_arles,
+    "camino-piamonte":        scrape_camino_piamonte,
+    "via-francigena":         scrape_via_francigena,
+    "camino-san-francesco":   scrape_camino_san_francesco,
 }
 
 

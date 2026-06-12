@@ -216,6 +216,107 @@ ROUTE_DEFAULTS = {
         (1, 2,    "es", "es-cl"),  # Castilla y León: León → Poladura de la Tercia
         (3, None, "es", "es-as"),  # Asturias: Pajares → Grado
     ],
+    ("es-hike", 20): [(1, None, "es", "es-ga")],         # Camino de Fisterra (Santiago → Faro de Fisterra, all Galicia)
+    ("es-hike", 21): [                                   # Camino Aragonés (Somport → Estella, 7 stages)
+        (1, 3, "es", "es-ar"),   # Aragón: Somport → Ruesta
+        (4, None, "es", "es-na"), # Navarra: Sangüesa → Estella
+    ],
+    ("es-hike", 22): [                                   # Camino de Madrid (Madrid → Sahagún, 14 stages)
+        (1, 3,    "es", "es-md"),  # Comunidad de Madrid: Madrid → Cercedilla
+        (4, None, "es", "es-cl"),  # Castilla y León: Segovia → Sahagún
+    ],
+    ("es-hike", 23): [                                   # Camino Vasco (Irun → Burgos, 16 stages)
+        (1, 6,    "es", "es-pv"),  # País Vasco: Irun → Vitoria-Gasteiz
+        (7, None, "es", "es-cl"),  # Castilla y León: Puebla de Arganzón → Burgos/Belorado
+    ],
+    ("es-hike", 24): [                                   # Camino del Ebro (Deltebre → Nájera, 18 stages)
+        (1,  4,  "es", "es-ct"),   # Cataluña: Deltebre → Gandesa
+        (5,  12, "es", "es-ar"),   # Aragón: Fabara → Gallur
+        (13, 13, "es", "es-na"),   # Navarra: Gallur → Tudela
+        (14, None, "es", "es-ri"), # La Rioja: Alfaro → Nájera
+    ],
+    ("es-hike", 25): [                                   # Camino Vadiniense (San Vicente → León, 11 stages)
+        (1, 4,    "es", "es-cb"),  # Cantabria: San Vicente → Potes/Espinama
+        (5, None, "es", "es-cl"),  # Castilla y León: Portilla de la Reina → León
+    ],
+    ("es-hike", 26): [(1, None, "es", "es-ga")],         # Ría de Muros-Noia (all Galicia)
+    ("es-hike", 27): [                                   # Camino Baztán (Bayonne → Puente la Reina, 6 stages)
+        (1, 2, "fr", "fr-64"),   # Pyrénées-Atlantiques: Bayonne → Amaiur-Maya
+        (3, None, "es", "es-na"), # Navarra: Berroeta → Puente la Reina
+    ],
+    ("es-hike", 28): [                                   # Camino Catalán (Barcelona → Jaca, 27 stages)
+        (1,  10, "es", "es-ct"),   # Cataluña: Barcelona → Lleida
+        (11, None, "es", "es-ar"), # Aragón: Fraga → Jaca
+    ],
+    ("es-hike", 29): [                                   # Camino Olvidado (Bilbao → O Cebreiro, 28 stages)
+        (1,  2,  "es", "es-pv"),   # País Vasco: Bilbao → Mimetiz/Zalla
+        (3,  27, "es", "es-cl"),   # Castilla y León: Villasana de Mena → Villafranca del Bierzo
+        (28, None, "es", "es-ga"), # Galicia: O Cebreiro
+    ],
+    ("es-hike", 30): [                                   # Camino de Levante (Valencia → Zamora, 29 stages)
+        (1,  4,  "es", "es-vc"),   # Comunitat Valenciana: Valencia → Font de la Figuera
+        (5,  18, "es", "es-cm"),   # Castilla-La Mancha: Almansa → Escalona/Toledo
+        (19, None, "es", "es-cl"), # Castilla y León: San Martín de Valdeiglesias → Zamora
+    ],
+    ("es-hike", 31): [                                   # Ruta de la Lana (Alicante → Burgos, 30 stages)
+        (1,  3,  "es", "es-vc"),   # Comunitat Valenciana: Alicante → Villena
+        (4,  22, "es", "es-cm"),   # Castilla-La Mancha: Caudete → Sigüenza/Atienza
+        (23, None, "es", "es-cl"), # Castilla y León: Soria → Burgos
+    ],
+    ("es-hike", 32): [                                   # Camino Mozárabe (multi-start → Mérida, 38 stages)
+        (1,  31, "es", "es-an"),   # Andalucía: all southern branches → Córdoba
+        (32, None, "es", "es-ex"), # Extremadura: Monterrubio → Mérida/Alcuéscar
+    ],
+    ("pt-hike", 4): [                                    # Camino Portugués da Costa (Porto → Pontevedra, 13 stages)
+        (1,  2,  "pt", "pt-13"),   # Porto district: Porto → Póvoa de Varzim
+        (3,  4,  "pt", "pt-03"),   # Braga district: Marinhas → Viana do Castelo
+        (5,  5,  "pt", "pt-16"),   # Viana do Castelo district: Viana → Caminha
+        (6,  None, "es", "es-ga"), # Galicia (Spain): A Guarda → Pontevedra
+    ],
+    ("fr-hike", 30): [                                   # Camino de Vézelay (Vézelay → Saint-Jean-Pied-de-Port, 51 stages)
+        (1,  11, "fr", "fr-89"),   # Yonne/Nièvre/Berry: Vézelay → Argenton
+        (12, 23, "fr", "fr-58"),   # Nièvre/Cher/Creuse: Nevers branch → Gargilesse
+        (24, 30, "fr", "fr-87"),   # Haute-Vienne: Crozant → Limoges
+        (31, 37, "fr", "fr-24"),   # Dordogne: Coquille → Bergerac
+        (38, 44, "fr", "fr-33"),   # Gironde/Landes: Sainte-Foy → Bazas → Captieux
+        (45, None, "fr", "fr-64"), # Pyrénées-Atlantiques: Roquefort → Saint-Jean-Pied-de-Port
+    ],
+    ("eu-hike", 13): [                                   # Via Gebennensis (Geneva → Le Puy, 17 stages; CH/FR)
+        (1,  1,  "ch", "ch-ge"),   # Geneva canton: start
+        (2,  9,  "fr", "fr-74"),   # Haute-Savoie / Ain / Isère: Frangy → Saint-Romain
+        (10, None, "fr", "fr-42"), # Loire / Haute-Loire: Chavanay → Le Puy
+    ],
+    ("eu-hike", 14): [                                   # Camino de Arles (Arles → Jaca, 34 stages; FR/ES)
+        (1,  5,  "fr", "fr-30"),   # Gard/Hérault: Arles → Montpellier
+        (6,  14, "fr", "fr-34"),   # Hérault/Aveyron/Tarn: Saint-Guilhem → Castres
+        (15, 20, "fr", "fr-81"),   # Tarn / Haute-Garonne: Dourgne → Toulouse
+        (21, 28, "fr", "fr-32"),   # Gers: Léguevin → Morlaàs
+        (29, 33, "fr", "fr-64"),   # Pyrénées-Atlantiques: Lescar → Somport
+        (34, None, "es", "es-ar"), # Aragón: Somport → Jaca
+    ],
+    ("eu-hike", 15): [                                   # Camino del Piamonte (Carcassonne → Roncesvalles, 23 stages; FR/ES)
+        (1,  7,  "fr", "fr-11"),   # Aude/Ariège: Carcassonne → Saint-Lizier
+        (8,  14, "fr", "fr-09"),   # Ariège/Haute-Garonne: Castillon → Bagnères
+        (15, 22, "fr", "fr-65"),   # Hautes-Pyrénées/Pyrénées-Atlantiques: Lourdes → Saint-Jean-Pied-de-Port
+        (23, None, "es", "es-na"), # Navarra: Saint-Jean-Pied-de-Port → Roncesvalles
+    ],
+    ("eu-hike", 16): [                                   # Via Francígena (Lausanne → Roma, 51 stages; CH/IT)
+        (1,  2,  "ch", "ch-vd"),   # Vaud: Lausanne → Vevey → Aigle
+        (3,  7,  "ch", "ch-vs"),   # Valais: Saint-Maurice → Grand-Saint-Bernard
+        (8,  12, "it", "it-ao"),   # Valle d'Aosta: Étroubles → Pont-Saint-Martin
+        (13, 21, "it", "it-to"),   # Piedmont: Ivrea → Pavia
+        (22, 27, "it", "it-pc"),   # Emilia-Romagna: Piacenza → Berceto
+        (28, 33, "it", "it-ms"),   # Tuscany (Massa-Carrara / Liguria): Pontremoli → Lucca
+        (34, 42, "it", "it-si"),   # Tuscany: Altopascio → Siena
+        (43, None, "it", "it-vt"), # Lazio: Acquapendente → Roma
+    ],
+    ("it-hike", 53): [                                   # Camino di San Francesco (Roma → La Verna, 23 stages)
+        (1,  2,  "it", "it-rm"),   # Roma province: Roma → Monterotondo
+        (3,  7,  "it", "it-ri"),   # Rieti province: Ponticelli → Piediluco
+        (8,  14, "it", "it-tr"),   # Terni province (Umbria): Ferentillo → Assisi
+        (15, 19, "it", "it-pg"),   # Perugia province (Umbria): Valfabbrica → Città di Castello
+        (20, None, "it", "it-ar"), # Arezzo province (Tuscany): Citerna → La Verna
+    ],
 }
 
 
