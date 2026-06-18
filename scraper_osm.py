@@ -201,6 +201,7 @@ TRAILS = [
     (12221576, "it-hike", 42, "national", "Via Francesca della Sambuca"),
     (7450464,  "it-hike", 43, "national", "ViaSett"),
     (16133891, "it-hike", 55, "national", "Dolomites World Heritage Geotrail"),
+    (14888098, "it-hike", 56, "national", "Via Normanna"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
     (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
@@ -235,6 +236,7 @@ TRAILS = [
     # Slovenia (si-hike — add to Supabase CHECK before --import)
     (10909145, "si-hike", 1, "national", "Julius Kugy Alpine Trail"),
     (19446539, "si-hike", 2, "regional", "Triglav"),
+    (1658429,  "si-hike", 3, "national", "Pot kurirjev in vezistov NOV"),
 
     # Netherlands (nl-hike)
     (312993,   "nl-hike", 1, "national", "Pieterpad deel 1"),
@@ -253,6 +255,7 @@ TRAILS = [
     (1982909,  "nl-hike", 14, "continental", "E11 Netherlands"),
     (13202508, "nl-hike", 15, "national", "Ons Kloosterpad"),
     (8273240,  "nl-hike", 16, "national", "Romeinse Limespad"),
+    (5404951,  "nl-hike", 17, "national", "Airbornepad Market Garden"),
 
     # Belgium (be-hike)
     (18632711, "be-hike", 1, "national", "Via Brabantica"),
@@ -284,6 +287,8 @@ TRAILS = [
     (17368380, "se-hike", 24, "national", "Upplandsleden"),
     (13439996, "se-hike", 25, "national", "Lapplandsleden"),
     (1513909,  "se-hike", 26, "national", "Höglandsleden"),
+    (197845,   "se-hike", 27, "national", "Sörmlandsleden"),
+    (222406,   "se-hike", 28, "national", "Östgötaleden"),
 
     # Norway (no-hike)
     (14772115, "no-hike", 1, "national", "Fjordruta på Nordmøre"),
