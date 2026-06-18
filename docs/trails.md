@@ -396,6 +396,8 @@ Routes that are live in the app but have some oversized stages (50+ km) because 
 | E4 Greece Central | OSM 2376427 — flat, 1 child (983 ways) |
 | Lycian Way | Turkey; OSM 51855 flat (44 raw ways). cultureroutesinturkey.com has no per-stage pages |
 | St. Paul's Trail | Turkey; OSM 569620 flat (64 raw ways). No per-stage pages found |
+| Via Alpina Purple | OSM 271352, 67 stages SI→DE — **abandoned by via-alpina.org in 2024**, do not scrape |
+| Via Alpina Blue | OSM 2389235, 61 stages — **abandoned by via-alpina.org in 2024**, do not scrape |
 | Via Dinarica (White Trail) | OSM 4690755, flat — no day-stage subroutes |
 | Georg-Fahrbach-Weg | Flat OSM (4 coarse sections) |
 | Ruta del Ter | Flat OSM (4 coarse sections, ~55km each) |
