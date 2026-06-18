@@ -374,6 +374,14 @@ All served via `adminrando.*` backends; slug used with `--only` flag.
 | gtt1 | fr-24 | `fr-hike` | 5 | Grand Tour de Tarentaise - Beaufortain-Mont-Blanc |
 | pointe-echelle | fr-27 | `fr-hike` | 3 | Tour de la Pointe de l'Échelle |
 
+## Needs OSM stage cleanup
+
+Routes that are live in the app but have some oversized stages (50+ km) because OSM doesn't yet have a complete day-stage breakdown for those sections. The well-defined parts are already useful — the long stages can be fixed later by improving OSM data and re-running `--refresh-trail <osm_id>`.
+
+| Trail | Land | OSM ID | Issue |
+|-------|------|--------|-------|
+| Chemin du Piémont Pyrénéen | `fr-hike` | 2785399 | Stage 2 is 72.9 km (no OSM day-stage for that section) |
+
 ## Deferred (no viable day-stage subroutes in OSM)
 
 | Trail | Notes |

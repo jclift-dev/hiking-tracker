@@ -197,6 +197,8 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}`. S
 
 **Resumable:** re-running skips fully-cached trails (matched by `_osm_id` on each stage). `--refresh-trail <id>` re-fetches even if cached. Never run two scraper_osm.py processes simultaneously against hikes.json.
 
+**Oversized stages policy:** It's fine to import routes where some stages are very long (50–200+ km) — this happens when OSM has good day-stage data for part of a route but not others. Import it as-is and note it in the "needs OSM cleanup" table in `docs/trails.md`. When the OSM data is eventually improved, `--refresh-trail <osm_id>` will pick up the better stage breakdown.
+
 **Elevation:** OpenTopoData SRTM30m, 1000 req/day quota (~1 call per stage). Detects quota exhaustion and saves progress. Stage variants (OSM names containing "Variante") and micro-stages (< 1 km) are filtered automatically.
 
 **Permanent elevation gap — Scandinavian trails (287 stages as of 2026-06-18):** Subroute geometry not exposed via WT API — elevation stays `null` without a different source. Affected se-hike routes: Hälsingeleden (1), St. Olavsleden (3), Kungsleden (5), Södra Kungsleden (15), Höga Kusten-leden (19), Dalkarlsvägen (20), Solanderleden (21), Upplandsleden (24), Lapplandsleden (25). Affected no-hike routes: Fjordruta (1), Nordland (2), Lofoten (3), Jotunheimstien (4), Signatur ×4 (5-7,9), Saga (12), Massiv Trail (13), Trolltunga/Besseggen/Trollstigen (15,17,18). Count grows as new Scandinavian routes are added.
