@@ -15,7 +15,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `es-hike`  | Spain          | Hiking   | GR11 (1,37s), Camino Primitivo (2,11s), GR221 (3,8s), GR7 (4,41s), Sulayr (5,19s), GR109 (6,27s), Camí del Llobregat (7,9s), Sendero de la Alpujarra (8,12s), Camí dels bons homes (9,5s), Gran Senda del Guadalhorce (10,4s), Camino de la Frontera (11,14s,website), Camino Espiritual del Sur (12,14s,website), Caminito del Rey (13,1s), Camino del Norte (14,36s,gronze,Bayonne→Arzúa), Camino Francés (15,33s,gronze), Via de la Plata (16,37s,gronze), Camino Inglés (17,7s,gronze), Camino de Invierno (18,11s,gronze), Camino Salvador (19,7s,gronze), Fisterra y Muxía (20,7s,gronze), Camino Aragonés (21,7s,gronze,Somport→Estella), Camino de Madrid (22,14s,gronze), Camino Vasco del Litoral (23,16s,gronze,Irun→Burgos), Camino del Ebro (24,18s,gronze,Deltebre→Nájera), Camino Vadiniense (25,11s,gronze,San Vicente→León), Ría de Muros-Noia (26,5s,gronze), Camino de Baztán (27,6s,gronze,Bayonne→Puente la Reina), Camino Catalán (28,27s,gronze,Barcelona→Jaca), Camino Olvidado (29,28s,gronze,Bilbao→O Cebreiro), Camino de Levante (30,29s,gronze,Valencia→Zamora), Ruta de la Lana (31,30s,gronze,Alicante→Burgos), Camino Mozárabe (32,38s,gronze,multi-start→Mérida), Vía Augusta (33,7s,gronze,Cádiz→Sevilla), Camino Lebaniégo Castellano (34,10s,gronze,Palencia→Liébana) |
 | `ie-hike`  | Ireland        | Hiking   | Wicklow Way, Kerry Way, Dingle Way, Causeway Coast Way, Beara Way, Western Way (all OSM single-stage) |
 | `pt-hike`  | Portugal       | Hiking   | Rota Vicentina Trilho dos Pescadores (1,13s,OSM), Grande Rota Peneda-Gerês (2,19s,website), Camino Portugués (3,25s,website,Lisboa→Santiago), Camino Portugués da Costa (4,13s,gronze,Porto→Pontevedra), Camino Portugués Interior (5,14s,gronze,Coimbra→Verín) |
-| `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (1,17s), BergeSeen Trail (2,23s), Panoramaweg Südalpen (3,20s), Alpenpanorama-Weg (4,29s,OSM 3372194,Rorschach→Genève), Donausteig (5,63s,OSM 1560864,Passau→Grein) |
+| `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (1,17s), BergeSeen Trail (2,23s), Panoramaweg Südalpen (3,20s), Donausteig (5,63s,OSM 1560864,Passau→Grein) |
 | `hu-hike`  | Hungary        | Hiking   | Országos Kéktúra (1,27s,OSM) |
 | `cz-hike`  | Czech Republic | Hiking   | Via Czechia Severní (1,15s), Centrální (2,12s), Jižní (3,12s) |
 | `si-hike`  | Slovenia       | Hiking   | Julius Kugy Alpine Trail (1,30s,OSM), Triglav (2,1s) |
@@ -151,8 +151,8 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 2073724   | `at-hike` | 1        | Jakobsweg Österreich (17 stages) |
 | 18013720  | `at-hike` | 2        | BergeSeen Trail (23 stages) |
 | 2926132   | `at-hike` | 3        | Panoramaweg Südalpen (20 stages) |
-| 3372194   | `at-hike` | 4        | Alpenpanorama-Weg (29 stages, Bregenz→Genève) |
 | 1560864   | `at-hike` | 5        | Donausteig (63 stages, Passau→Grein) |
+| 3372194   | — | —        | Alpine Panorama Trail (ch-hike:3 = SchweizMobil route 3, Rorschach→Genève, entirely Swiss — do not add to at-hike) |
 | 6007494   | `hu-hike` | 1        | Országos Kéktúra (27 stages) |
 | 16828381  | `cz-hike` | 1        | Via Czechia - Severní stezka (15 stages) |
 | 16828379  | `cz-hike` | 2        | Via Czechia - Centrální stezka (12 stages) |

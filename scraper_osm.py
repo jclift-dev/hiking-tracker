@@ -219,7 +219,7 @@ TRAILS = [
     (2073724,  "at-hike", 1, "national", "Jakobsweg Österreich"),
     (18013720, "at-hike", 2, "national", "BergeSeen Trail"),
     (2926132,  "at-hike", 3, "national", "Panoramaweg Südalpen"),
-    (3372194,  "at-hike", 4, "national", "Alpenpanorama-Weg"),
+    # at-hike:4 skipped — OSM 3372194 is ch-hike:3 (Alpine Panorama Trail, Rorschach→Genève, entirely Swiss)
     (1560864,  "at-hike", 5, "national", "Donausteig"),
 
     # Hungary (hu-hike — add to Supabase CHECK before --import)
