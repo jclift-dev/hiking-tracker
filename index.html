@@ -519,6 +519,30 @@
   .sm-stage-btn { display:inline-flex; align-items:center; padding:5px 14px; font-size:12px; font-family:'Manrope',sans-serif; border:1.5px solid var(--border); border-radius:99px; color:var(--muted); text-decoration:none; transition:all 0.15s; }
   .sm-stage-btn:hover { border-color:var(--primary); color:var(--primary); }
   .stage-map { height:200px; margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
+  /* Route map modal */
+  .route-map-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .route-map-overlay.open { display: block; }
+  .route-map-panel {
+    display: none; position: fixed; z-index: 201;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: var(--surface); border-radius: var(--radius-lg);
+    width: min(720px, 95vw); box-shadow: var(--shadow-lg); flex-direction: column;
+  }
+  .route-map-panel.open { display: flex; }
+  @media (prefers-color-scheme: dark) { .route-map-panel { background: #1c1c1c; } }
+  .route-map-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.85rem 1.1rem; flex-shrink: 0; border-bottom: 1px solid var(--border);
+  }
+  .route-map-title { font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif; }
+  .route-map-close { width: 28px; height: 28px; border-radius: 7px; border: none;
+    background: var(--ghost); color: var(--muted); cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+  .route-map-close:hover { background: var(--gray-bg); color: var(--text); }
+  .route-map-container { height: clamp(300px, 55vh, 520px); border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
 
   /* Next stage highlight */
   .stage-row.next-up { background: linear-gradient(90deg, rgba(29,158,117,0.06) 0%, transparent 100%); }
@@ -1015,6 +1039,15 @@
   </div>
 
   <div id="error-area"></div>
+
+  <div class="route-map-overlay" id="route-map-overlay" onclick="closeRouteMap()"></div>
+  <div class="route-map-panel" id="route-map-panel">
+    <div class="route-map-hdr">
+      <span class="route-map-title" id="route-map-title"></span>
+      <button class="route-map-close" onclick="closeRouteMap()">✕</button>
+    </div>
+    <div id="route-map-container" class="route-map-container"></div>
+  </div>
 
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:nowrap;gap:0.5rem" id="surprise-wrap-row">
@@ -1641,6 +1674,88 @@ function sourceLabel(route) {
 }
 
 // ---------------------------------------------------------------------------
+// Route-level OSM relation IDs (for full-route map popup)
+// ---------------------------------------------------------------------------
+// Covers all routes scraped via scraper_osm.py TRAILS registry.
+// Website-only routes (gronze, Geotrek, SNP Trail, etc.) have no entry.
+const ROUTE_OSM_IDS = {
+  'uk:4':4080347,'uk:5':77976,'uk:6':65239,'uk:7':38791,'uk:8':77964,
+  'uk:9':9327615,'uk:10':12622536,'uk:11':49215,'uk:12':14421894,
+  'uk:13':3971851,'uk:14':918951,'uk:16':4004229,'uk:17':4004200,
+  'fr-hike:4':8386002,'fr-hike:6':10670467,'fr-hike:7':14234324,
+  'fr-hike:8':15006813,'fr-hike:9':3371115,'fr-hike:10':16195169,
+  'fr-hike:11':3394595,'fr-hike:12':16234318,'fr-hike:13':17667253,
+  'fr-hike:28':7428864,'fr-hike:29':11340787,
+  'de-hike:3':61185,'de-hike:4':3300718,'de-hike:5':19995501,
+  'de-hike:6':3795969,'de-hike:7':11243633,'de-hike:8':2717790,
+  'de-hike:9':2927471,'de-hike:32':2685,'de-hike:42':3718434,
+  'de-hike:43':13561380,'de-hike:44':89751,'de-hike:45':14988038,
+  'de-hike:46':18138429,'de-hike:47':19221478,'de-hike:48':2153742,
+  'de-hike:60':7458271,'de-hike:61':3535507,'de-hike:62':31758,
+  'de-hike:63':66159,'de-hike:64':227175,'de-hike:65':69496,
+  'de-hike:66':91600,'de-hike:67':91604,'de-hike:68':121147,
+  'de-hike:69':299338,'de-hike:70':31656,'de-hike:71':13035701,
+  'de-hike:72':7565504,
+  'it-hike:2':3477430,'it-hike:3':12286842,'it-hike:4':14251864,
+  'it-hike:5':16944248,'it-hike:6':15956980,'it-hike:7':358901,
+  'it-hike:8':3159979,'it-hike:9':15651288,'it-hike:10':7011030,
+  'it-hike:11':9898948,'it-hike:12':12116509,'it-hike:14':12104446,
+  'it-hike:15':17916506,'it-hike:16':10323589,'it-hike:17':5804593,
+  'it-hike:18':5330693,'it-hike:19':18187153,'it-hike:20':6032965,
+  'it-hike:21':3446664,'it-hike:22':10275750,'it-hike:23':20388719,
+  'it-hike:24':16907774,'it-hike:25':13836647,'it-hike:26':7132092,
+  'it-hike:27':15904861,'it-hike:28':15737206,'it-hike:29':7401588,
+  'it-hike:30':7220974,'it-hike:31':1706143,'it-hike:32':11156760,
+  'it-hike:33':18730553,'it-hike:34':15955535,'it-hike:35':9527949,
+  'it-hike:36':19542924,'it-hike:37':222322,'it-hike:38':12636375,
+  'it-hike:39':17654925,'it-hike:40':19561857,'it-hike:41':11685878,
+  'it-hike:42':12221576,'it-hike:43':7450464,'it-hike:51':1169757,
+  'it-hike:52':7224540,
+  'es-hike:1':8865914,'es-hike:2':19298101,'es-hike:3':16358020,
+  'es-hike:4':318027,'es-hike:5':8883098,'es-hike:6':6544796,
+  'es-hike:7':9681617,'es-hike:8':9913208,'es-hike:9':1181120,
+  'es-hike:10':6390970,'es-hike:13':4678863,
+  'ie-hike:1':2740,'ie-hike:2':183744,'ie-hike:3':21664,
+  'ie-hike:4':1085994,'ie-hike:5':2989585,'ie-hike:6':14702338,
+  'pt-hike:1':20810829,
+  'eu-hike:1':20014200,'eu-hike:2':3176522,'eu-hike:3':6436417,
+  'eu-hike:4':16127693,'eu-hike:6':2437984,
+  'at-hike:1':2073724,'at-hike:2':18013720,'at-hike:3':2926132,
+  'hu-hike:1':6007494,
+  'cz-hike:1':16828381,'cz-hike:2':16828379,'cz-hike:3':16828282,
+  'si-hike:1':10909145,'si-hike:2':19446539,
+  'nl-hike:1':312993,'nl-hike:2':156951,'nl-hike:3':1561342,
+  'nl-hike:4':9588884,'nl-hike:5':8446574,'nl-hike:6':8469244,
+  'nl-hike:7':532494,'nl-hike:8':8435936,'nl-hike:9':1537463,
+  'nl-hike:10':6715665,'nl-hike:11':8463196,'nl-hike:12':2801085,
+  'nl-hike:13':6662765,'nl-hike:14':1982909,
+  'be-hike:1':18632711,
+  'se-hike:1':7128733,'se-hike:2':280016,'se-hike:3':10524322,
+  'se-hike:4':19012437,'se-hike:5':1657661,'se-hike:6':23828,
+  'se-hike:7':415700,'se-hike:8':68019,'se-hike:9':408995,
+  'se-hike:10':399333,'se-hike:11':11583146,'se-hike:12':18194568,
+  'se-hike:13':1673983,'se-hike:14':297037,'se-hike:15':254324,
+  'se-hike:16':3199983,'se-hike:17':3649216,'se-hike:18':8436154,
+  'se-hike:19':1730468,'se-hike:20':2926839,'se-hike:21':9588658,
+  'no-hike:1':14772115,'no-hike:2':6364172,'no-hike:3':19229749,
+  'no-hike:4':5620490,'no-hike:5':14770011,'no-hike:6':14769947,
+  'no-hike:7':14772116,'no-hike:8':14772110,'no-hike:9':14772117,
+  'no-hike:10':14772111,'no-hike:11':7078769,'no-hike:12':14771926,
+  'no-hike:13':14769822,'no-hike:14':4270259,'no-hike:15':4270209,
+  'no-hike:16':1661032,'no-hike:17':1417687,'no-hike:18':4173881,
+  'dk-hike:1':1792585,'dk-hike:2':1202410,
+  'lt-hike:1':6519670,
+  'lv-hike:1':13239065,'lv-hike:2':11116577,
+  'ee-hike:1':9645763,'ee-hike:2':13182780,'ee-hike:3':15843108,
+  'ee-hike:4':11346181,
+  'hr-hike:1':14368967,
+  'ch-hike:99':20990994,
+};
+function routeOsmId(route) {
+  return ROUTE_OSM_IDS[`${route.land}:${route.route_id}`] || null;
+}
+
+// ---------------------------------------------------------------------------
 // Cross-route stage linking
 // ---------------------------------------------------------------------------
 // Most Swiss ↔ eu-hike links are now derived automatically at boot by
@@ -1801,6 +1916,63 @@ async function _initStageMap(key, osmId, el) {
   }
   const layer = L.geoJSON(geojson, { style: { color:'#e05d44', weight:3.5, opacity:0.9 } }).addTo(map);
   try { map.fitBounds(layer.getBounds(), { padding:[10,10] }); } catch(_) {}
+}
+
+// ── Route map modal ──
+let _routeMapInstance = null;
+
+function openRouteMap(land, routeId, osmId, name) {
+  document.getElementById('route-map-title').textContent = name;
+  document.getElementById('route-map-overlay').classList.add('open');
+  document.getElementById('route-map-panel').classList.add('open');
+  const container = document.getElementById('route-map-container');
+  container.innerHTML = '';
+  if (_routeMapInstance) { try { _routeMapInstance.remove(); } catch(_) {} _routeMapInstance = null; }
+  _loadLeaflet(() => _initRouteMap(osmId, container));
+}
+
+function closeRouteMap() {
+  document.getElementById('route-map-overlay').classList.remove('open');
+  document.getElementById('route-map-panel').classList.remove('open');
+  if (_routeMapInstance) { try { _routeMapInstance.remove(); } catch(_) {} _routeMapInstance = null; }
+}
+
+async function _initRouteMap(osmId, el) {
+  const map = L.map(el, { zoomControl: true, attributionControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18,
+  }).addTo(map);
+  _routeMapInstance = map;
+  let geojson = stageGeomCache.get(osmId);
+  if (!geojson) {
+    try {
+      const r = await fetch(`https://hiking.waymarkedtrails.org/api/v1/details/relation/${osmId}`);
+      if (!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      const coords = [];
+      function collectCoords(node) {
+        if (node.ways) node.ways.forEach(w => {
+          (w.geometry && w.geometry.coordinates || []).forEach(([x, y]) => {
+            const lng = x / 20037508.342789244 * 180;
+            const lat = Math.atan(Math.exp(y / 20037508.342789244 * Math.PI)) * 360 / Math.PI - 90;
+            coords.push([lng, lat]);
+          });
+        });
+        if (node.main) node.main.forEach(collectCoords);
+        if (node.appendices) node.appendices.forEach(collectCoords);
+      }
+      collectCoords(data.route || {});
+      if (!coords.length) throw new Error('no coords');
+      geojson = { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
+      stageGeomCache.set(osmId, geojson);
+    } catch(_) {
+      el.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px">Map not available</div>';
+      return;
+    }
+  }
+  const layer = L.geoJSON(geojson, { style: { color:'#e05d44', weight:3, opacity:0.85 } }).addTo(map);
+  try { map.fitBounds(layer.getBounds(), { padding:[12,12] }); } catch(_) {}
 }
 
 function updateSbbSlider() {
@@ -2694,6 +2866,7 @@ function renderRoute(route) {
         <span class="route-chevron">▾</span>
         ${doneCount < totalStages ? `<button class="mark-all-btn" onclick="markRouteComplete('${rkey}');event.stopPropagation()" title="Mark all stages complete">✓ All</button>` : `<button class="mark-all-btn mark-all-btn--undo" onclick="markRouteComplete('${rkey}',true);event.stopPropagation()" title="Unmark all stages">✕ All</button>`}
         ${(() => { const allWished = route.stages.every(s => wishlist[stageKey(route.land, route.route_id, s.stage_nr)]); return `<button class="wish-route-btn${allWished ? ' active' : ''}" onclick="wishlistRoute('${rkey}',${allWished});event.stopPropagation()" title="${allWished ? 'Remove route from wishlist' : 'Add all stages to wishlist'}">${allWished ? '♥' : '♡'} Wishlist</button>`; })()}
+        ${routeOsmId(route) ? `<button class="sm-stage-btn" style="font-size:11px;padding:4px 10px" onclick="openRouteMap('${route.land}',${route.route_id},${routeOsmId(route)},${JSON.stringify(route.name)});event.stopPropagation()" title="View full route map">🗺 Map</button>` : ''}
       </div>
     </div>
     ${renderStages(route)}
