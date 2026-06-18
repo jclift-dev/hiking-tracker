@@ -199,10 +199,7 @@ Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}`. S
 
 **Elevation:** OpenTopoData SRTM30m, 1000 req/day quota (~1 call per stage). Detects quota exhaustion and saves progress. Stage variants (OSM names containing "Variante") and micro-stages (< 1 km) are filtered automatically.
 
-**Permanent elevation gap — Scandinavian trails (236 stages):** Subroute geometry not exposed via WT API — elevation stays `null` without a different source:
-- Hälsingeleden (22, se-hike), St. Olavsleden (29, se-hike), Kungsleden (31, se-hike)
-- Skåneleden SL1–SL6 (94 stages total, se-hike)
-- Fjordruta på Nordmøre (14, no-hike), Nordland trekking trail (43, no-hike), Lofoten Long Crossing (11, no-hike)
+**Permanent elevation gap — Scandinavian trails (287 stages as of 2026-06-18):** Subroute geometry not exposed via WT API — elevation stays `null` without a different source. Affected se-hike routes: Hälsingeleden (1), St. Olavsleden (3), Kungsleden (5), Södra Kungsleden (15), Höga Kusten-leden (19), Dalkarlsvägen (20), Solanderleden (21), Upplandsleden (24), Lapplandsleden (25). Affected no-hike routes: Fjordruta (1), Nordland (2), Lofoten (3), Jotunheimstien (4), Signatur ×4 (5-7,9), Saga (12), Massiv Trail (13), Trolltunga/Besseggen/Trollstigen (15,17,18). Count grows as new Scandinavian routes are added.
 
 **Backfilling elevation for website-scraped trails:** `--backfill-elevation` also works on non-OSM stages if `_osm_id` is manually injected. Pattern: search WT by trail name (`/api/v1/list/search?query=NAME`), verify subroute count matches stage count, inject `stage["_osm_id"]` into hikes.json, run `--backfill-elevation`. Used for 4 Schwarzwaldverein trails (Schluchtensteig route_id=14, Kandelhöhenweg 15, ZweiTälerSteig 17, Murgleiter 22).
 
