@@ -9,18 +9,18 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `ch-hike`  | Switzerland    | Hiking   | SchweizMobil national/regional hiking routes (1-7, 10-99+, incl. many 1-stage loops) |
 | `ch-cycle` | Switzerland    | Cycling  | SchweizMobil national/regional cycling routes (1-7, 10-99+) |
 | `uk`       | UK             | Hiking   | SWCP (1,53s), WHW (2,8s), ODP (3,12s), Pennine Way (4,11s), South Downs Way (5,9s), Cotswold Way (6,15s), Hadrian's Wall (7,6s), Pembrokeshire (8,15s), Cape Wrath (9,8s), John O'Groats (10,14s), John Muir Way (11,10s), Skye Trail (12,7s), England Coast Path (13,44s), Ulster Way (14,14s), Coast to Coast (15,14s), Ben Nevis (16,1s), Snowdon Ranger Path (17,1s) |
-| `fr-hike`  | France         | Hiking   | GR20 (1,16s), GR65 (2,32s), GR70 (3,13s), HRP (4,41s), Camino de Tours y París (5,36s,gronze,Paris→Ostabat), Du Jura à la Méditerranée (6,36s), La Routo (7,7s), Huguenots en Cévennes (8,24s), Via Arverna (9,22s), GR300 (10,19s), Sentier Cathare (11,13s), L'Echappée Jurassienne (12,5s), Grand Tour de la Gervanne (13,7s), GR54 (14,13s,Geotrek), Vanoise tours ×10 (15-24,Geotrek), La randonnée des couleurs (25,7s,Geotrek), Le sentier d'Azur (26,3s,Geotrek), Tour de la Pointe de l'Échelle (27,3s,Geotrek), Tour du Lac Blanc (28,1s), Le Puy de Dôme (29,1s), Camino de Vézelay (30,51s,gronze,Vézelay→SJdPP), Chemin du Piémont Pyrénéen (31,26s,OSM 2785399,Carcassonne→Hendaye), Chemin de Régordane (32,8s,OSM 8289243,Le Puy-en-Velay→Nîmes) |
-| `it-hike`  | Italy          | Hiking   | Alta Via 1 (1,11s), Italia C2C (13,18s,website), OSM routes 2-12+14-43 (Sentiero della Pace, Cammino Celeste, GTA, etc.), Mercantour/Alpi Marittime Geotrek ×6 (44-49, Cuneo/Piedmont), Les plus beaux villages Ligures (50,3s,Geotrek,Imperia), Tre Cime di Lavaredo (51,1s), Stromboli Volcano Trail (52,1s), Camino di San Francesco (53,23s,gronze,Roma→La Verna), Camino San Jacopo in Toscana (54,7s,gronze,Firenze→Livorno) |
+| `fr-hike`  | France         | Hiking   | GR20 (1,16s), GR65 (2,32s), GR70 (3,13s), HRP (4,41s), Camino de Tours y París (5,36s,gronze,Paris→Ostabat), Du Jura à la Méditerranée (6,36s), La Routo (7,7s), Huguenots en Cévennes (8,24s), Via Arverna (9,22s), GR300 (10,19s), Sentier Cathare (11,13s), L'Echappée Jurassienne (12,5s), Grand Tour de la Gervanne (13,7s), GR54 (14,13s,Geotrek), Vanoise tours ×10 (15-24,Geotrek), La randonnée des couleurs (25,7s,Geotrek), Le sentier d'Azur (26,3s,Geotrek), Tour de la Pointe de l'Échelle (27,3s,Geotrek), Tour du Lac Blanc (28,1s), Le Puy de Dôme (29,1s), Camino de Vézelay (30,51s,gronze,Vézelay→SJdPP), Chemin du Piémont Pyrénéen (31,26s,OSM 2785399,Carcassonne→Hendaye), Chemin de Régordane (32,8s,OSM 8289243,Le Puy-en-Velay→Nîmes), Voie de la Pointe Saint-Mathieu (33,21s,OSM 12692749,Pointe Saint-Mathieu→Clisson), Chemin d'Amadour (34,21s,OSM 15676218,Soulac-sur-Mer→Rocamadour), Chemin des Plantagenêts (35,21s,OSM 20499402,Saint-Jean-d'Angély→Saint-James), Voie des Plantagenêts (36,18s,OSM 8375828,Mont-Saint-Michel→Aulnay), Voie du Piémont (37,28s,OSM 368453,Béziers→SJdPP) |
+| `it-hike`  | Italy          | Hiking   | Alta Via 1 (1,11s), Italia C2C (13,18s,website), OSM routes 2-12+14-43 (Sentiero della Pace, Cammino Celeste, GTA, etc.), Mercantour/Alpi Marittime Geotrek ×6 (44-49, Cuneo/Piedmont), Les plus beaux villages Ligures (50,3s,Geotrek,Imperia), Tre Cime di Lavaredo (51,1s), Stromboli Volcano Trail (52,1s), Camino di San Francesco (53,23s,gronze,Roma→La Verna), Camino San Jacopo in Toscana (54,7s,gronze,Firenze→Livorno), Dolomites World Heritage Geotrail (55,48s,OSM 16133891,San Lorenzo Dorsino→Zoppè di Cadore) |
 | `de-hike`  | Germany        | Hiking   | 73 routes — Malerweg (2,8s), Schwarzwaldverein ×22 (10-31), Goldsteig ×2 (3-4), Heidschnuckenweg (5), Lutherweg (6), Rheinburgenweg (7), Märchenlandweg (8), ViaJacobi (9), Rheinsteig (32), Albverein ×10 (33-41,52), Lahnwanderweg (42), Hünenweg (43), Sauerland-Waldroute (44,19s,website), Paul-Gerhardt-Weg (45), Lahn-Camino (46), Ulrikaweg (47), Kammweg (48,17s,website), Eifelsteig (49,website), Linksrheinischer Jakobsweg (50,website), WestfalenWanderWeg (51,website), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Vulkanring Vogelsberg (58), Ith-Hils-Wanderweg (59), Westerwaldsteig (60), Bergischer Panoramasteig (61), X19 Schlösserweg (62), Ederhöhenweg (63), Herkulesweg (64), X22 Kurkölner Weg (65), Sieghöhenweg (66), X12 Richard-Schirrmann-Weg (67), Straße der Arbeit (68), X11 Lenne-Sieg-Weg (69), X30 Neandertalweg (70), Drachenfels (71,1s), Rundweg Kehlstein (72,1s), Müritz-Nationalpark-Wanderweg (73,9s,Komoot,Waren circular) |
 | `es-hike`  | Spain          | Hiking   | GR11 (1,37s), Camino Primitivo (2,11s), GR221 (3,8s), GR7 (4,41s), Sulayr (5,19s), GR109 (6,27s), Camí del Llobregat (7,9s), Sendero de la Alpujarra (8,12s), Camí dels bons homes (9,5s), Gran Senda del Guadalhorce (10,4s), Camino de la Frontera (11,14s,website), Camino Espiritual del Sur (12,14s,website), Caminito del Rey (13,1s), Camino del Norte (14,36s,gronze,Bayonne→Arzúa), Camino Francés (15,33s,gronze), Via de la Plata (16,37s,gronze), Camino Inglés (17,7s,gronze), Camino de Invierno (18,11s,gronze), Camino Salvador (19,7s,gronze), Fisterra y Muxía (20,7s,gronze), Camino Aragonés (21,7s,gronze,Somport→Estella), Camino de Madrid (22,14s,gronze), Camino Vasco del Litoral (23,16s,gronze,Irun→Burgos), Camino del Ebro (24,18s,gronze,Deltebre→Nájera), Camino Vadiniense (25,11s,gronze,San Vicente→León), Ría de Muros-Noia (26,5s,gronze), Camino de Baztán (27,6s,gronze,Bayonne→Puente la Reina), Camino Catalán (28,27s,gronze,Barcelona→Jaca), Camino Olvidado (29,28s,gronze,Bilbao→O Cebreiro), Camino de Levante (30,29s,gronze,Valencia→Zamora), Ruta de la Lana (31,30s,gronze,Alicante→Burgos), Camino Mozárabe (32,38s,gronze,multi-start→Mérida), Vía Augusta (33,7s,gronze,Cádiz→Sevilla), Camino Lebaniégo Castellano (34,10s,gronze,Palencia→Liébana) |
 | `ie-hike`  | Ireland        | Hiking   | Wicklow Way, Kerry Way, Dingle Way, Causeway Coast Way, Beara Way, Western Way (all OSM single-stage) |
 | `pt-hike`  | Portugal       | Hiking   | Rota Vicentina Trilho dos Pescadores (1,13s,OSM), Grande Rota Peneda-Gerês (2,19s,website), Camino Portugués (3,25s,website,Lisboa→Santiago), Camino Portugués da Costa (4,13s,gronze,Porto→Pontevedra), Camino Portugués Interior (5,14s,gronze,Coimbra→Verín) |
-| `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (1,17s), BergeSeen Trail (2,23s), Panoramaweg Südalpen (3,20s), Donausteig (5,63s,OSM 1560864,Passau→Grein) |
+| `at-hike`  | Austria        | Hiking   | Jakobsweg Österreich (1,17s), BergeSeen Trail (2,23s), Panoramaweg Südalpen (3,20s), Donausteig (5,63s,OSM 1560864,Passau→Grein), Walserweg (6,19s,OSM 17036352,San Bernardino→Brand) |
 | `hu-hike`  | Hungary        | Hiking   | Országos Kéktúra (1,27s,OSM) |
 | `cz-hike`  | Czech Republic | Hiking   | Via Czechia Severní (1,15s), Centrální (2,12s), Jižní (3,12s) |
 | `si-hike`  | Slovenia       | Hiking   | Julius Kugy Alpine Trail (1,30s,OSM), Triglav (2,1s) |
-| `nl-hike`  | Netherlands    | Hiking   | Pieterpad ×2, Zuiderzeepad, Pelgrimspad ×2, Westerborkpad, Trekvogelpad, Maarten van Rossumpad, Noaberpad, Waterliniepad, Grenslandpad, Marskramerpad, Groot Frieslandpad (all OSM, routes 1-13) |
-| `be-hike`  | Belgium        | Hiking   | Via Brabantica (1,7s,OSM) |
+| `nl-hike`  | Netherlands    | Hiking   | Pieterpad ×2, Zuiderzeepad, Pelgrimspad ×2, Westerborkpad, Trekvogelpad, Maarten van Rossumpad, Noaberpad, Waterliniepad, Grenslandpad, Marskramerpad, Groot Frieslandpad (all OSM, routes 1-13), E11 Netherlands (14,continental,OSM 1982909), Ons Kloosterpad (15,15s,OSM 13202508), Romeinse Limespad (16,19s,OSM 8273240,Katwijk aan Zee→Xanten) |
+| `be-hike`  | Belgium        | Hiking   | Via Brabantica (1,7s,OSM), Camino Brabant (2,14s,OSM 13676541) |
 | `hr-hike`  | Croatia        | Hiking   | Via Apsyrtides (1,11s,OSM,Rijeka→Pula) |
 | `se-hike`  | Sweden         | Hiking   | Hälsingeleden (1,22s), Bohusleden (2,27s), St. Olavsleden (3,29s), Stockholm Archipelago Trail (4,19s), Kungsleden (5,31s), Skåneleden SL1-SL7 (6-12), Hallandsleden (13), Blekingeleden (14), Södra Kungsleden (15), Tjustleden (16), Ostkustleden (17), Ingegerdsleden (18), Höga Kusten-leden (19), Dalkarlsvägen (20), Solanderleden (21) — all OSM; Stråsjöleden (22,16s,Outdooractive,Korsholmen→Kilkoja); Smålandsleden (23,39s,OSM 7468545), Upplandsleden (24,22s,OSM 17368380), Lapplandsleden (25,6s,OSM 13439996), Höglandsleden (26,18s,OSM 1513909) |
 | `no-hike`  | Norway         | Hiking   | Fjordruta (1,14s), Nordland (2,43s), Lofoten (3,11s), Jotunheimstien (4), Signatur ×5 (5-9), Gullruta (10), Ryger (11), Saga (12), Massiv Trail (13), Preikestolen (14,1s), Trolltunga (15,1s), Kjerag og Kjeragbolten (16,1s), Besseggen (17,1s), Trollstigen (18,1s), Kyststier langs Oslofjorden (19,44s,OSM 1362633) |
@@ -62,6 +62,11 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 11340787  | `fr-hike` | 29       | Le Puy de Dôme (1 stage, day hike) |
 | 2785399   | `fr-hike` | 31       | Chemin du Piémont Pyrénéen (26 stages, Carcassonne→Hendaye) |
 | 8289243   | `fr-hike` | 32       | Chemin de Régordane (8 stages, Le Puy-en-Velay→Nîmes) |
+| 12692749  | `fr-hike` | 33       | Voie de la Pointe Saint-Mathieu (21 stages, Pointe Saint-Mathieu→Clisson) |
+| 15676218  | `fr-hike` | 34       | Chemin d'Amadour (21 stages, Soulac-sur-Mer→Rocamadour) |
+| 20499402  | `fr-hike` | 35       | Chemin des Plantagenêts (21 stages, Saint-Jean-d'Angély→Saint-James) |
+| 8375828   | `fr-hike` | 36       | Voie des Plantagenêts (18 stages, Mont-Saint-Michel→Aulnay) |
+| 368453    | `fr-hike` | 37       | Voie du Piémont (28 stages, Béziers→Saint-Jean-Pied-de-Port) |
 | 61185     | `de-hike` | 3        | Goldsteig-Südroute |
 | 3300718   | `de-hike` | 4        | Goldsteig-Nordroute |
 | 19995501  | `de-hike` | 5        | Heidschnuckenweg |
@@ -141,6 +146,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 12221576  | `it-hike` | 42       | Via Francesca della Sambuca |
 | 7450464   | `it-hike` | 43       | ViaSett |
 | 1169757   | `it-hike` | 51       | Tre Cime di Lavaredo (1 stage, day hike) |
+| 16133891  | `it-hike` | 55       | Dolomites World Heritage Geotrail (48 stages, San Lorenzo Dorsino→Zoppè di Cadore) |
 | 2740      | `ie-hike` | 1        | Wicklow Way (single stage) |
 | 183744    | `ie-hike` | 2        | The Kerry Way (single stage) |
 | 21664     | `ie-hike` | 3        | The Dingle Way (single stage) |
@@ -152,6 +158,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 18013720  | `at-hike` | 2        | BergeSeen Trail (23 stages) |
 | 2926132   | `at-hike` | 3        | Panoramaweg Südalpen (20 stages) |
 | 1560864   | `at-hike` | 5        | Donausteig (63 stages, Passau→Grein) |
+| 17036352  | `at-hike` | 6        | Walserweg (19 stages, San Bernardino→Brand) |
 | 3372194   | — | —        | Alpine Panorama Trail (ch-hike:3 = SchweizMobil route 3, Rorschach→Genève, entirely Swiss — do not add to at-hike) |
 | 6007494   | `hu-hike` | 1        | Országos Kéktúra (27 stages) |
 | 16828381  | `cz-hike` | 1        | Via Czechia - Severní stezka (15 stages) |
@@ -171,7 +178,11 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 8463196   | `nl-hike` | 11       | Grenslandpad (20 stages) |
 | 2801085   | `nl-hike` | 12       | Marskramerpad (20 stages) |
 | 6662765   | `nl-hike` | 13       | Groot Frieslandpad (23 stages) |
+| 1982909   | `nl-hike` | 14       | E11 Netherlands (continental, Vaals→Groningen) |
+| 13202508  | `nl-hike` | 15       | Ons Kloosterpad (15 stages) |
+| 8273240   | `nl-hike` | 16       | Romeinse Limespad (19 stages, Katwijk aan Zee→Xanten) |
 | 18632711  | `be-hike` | 1        | Via Brabantica (7 stages) |
+| 13676541  | `be-hike` | 2        | Camino Brabant (14 stages) |
 | 14368967  | `hr-hike` | 1        | Via Apsyrtides (11 stages, Rijeka→Pula) |
 | 7128733   | `se-hike` | 1        | Hälsingeleden (22 stages) |
 | 280016    | `se-hike` | 2        | Bohusleden (27 stages) |

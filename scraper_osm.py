@@ -200,6 +200,7 @@ TRAILS = [
     (11685878, "it-hike", 41, "national", "Via della Costa"),
     (12221576, "it-hike", 42, "national", "Via Francesca della Sambuca"),
     (7450464,  "it-hike", 43, "national", "ViaSett"),
+    (16133891, "it-hike", 55, "national", "Dolomites World Heritage Geotrail"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
     (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
@@ -221,6 +222,7 @@ TRAILS = [
     (2926132,  "at-hike", 3, "national", "Panoramaweg Südalpen"),
     # at-hike:4 skipped — OSM 3372194 is ch-hike:3 (Alpine Panorama Trail, Rorschach→Genève, entirely Swiss)
     (1560864,  "at-hike", 5, "national", "Donausteig"),
+    (17036352, "at-hike", 6, "national", "Walserweg"),
 
     # Hungary (hu-hike — add to Supabase CHECK before --import)
     (6007494,  "hu-hike", 1, "national", "Országos Kéktúra"),
@@ -249,9 +251,12 @@ TRAILS = [
     (2801085,  "nl-hike", 12, "national", "Marskramerpad"),
     (6662765,  "nl-hike", 13, "national", "Groot Frieslandpad"),
     (1982909,  "nl-hike", 14, "continental", "E11 Netherlands"),
+    (13202508, "nl-hike", 15, "national", "Ons Kloosterpad"),
+    (8273240,  "nl-hike", 16, "national", "Romeinse Limespad"),
 
     # Belgium (be-hike)
     (18632711, "be-hike", 1, "national", "Via Brabantica"),
+    (13676541, "be-hike", 2, "national", "Camino Brabant"),
 
     # Sweden (se-hike)
     (7128733,  "se-hike", 1, "national", "Hälsingeleden"),
@@ -334,6 +339,11 @@ TRAILS = [
     (11340787, "fr-hike", 29, "regional", "Le Puy de Dôme"),
     (2785399,  "fr-hike", 31, "national", "Chemin du Piémont Pyrénéen"),
     (8289243,  "fr-hike", 32, "national", "Chemin de Régordane"),
+    (12692749, "fr-hike", 33, "national", "Voie de la Pointe Saint-Mathieu"),
+    (15676218, "fr-hike", 34, "national", "Chemin d'Amadour"),
+    (20499402, "fr-hike", 35, "national", "Chemin des Plantagenêts"),
+    (8375828,  "fr-hike", 36, "national", "Voie des Plantagenêts"),
+    (368453,   "fr-hike", 37, "national", "Voie du Piémont"),
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
