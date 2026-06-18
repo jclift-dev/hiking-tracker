@@ -176,7 +176,12 @@
       "Bash(sed -n '2778,2782p' /Users/jamie/hiking-tracker/index.html)",
       "Bash(sed -n '3567,3572p' /Users/jamie/hiking-tracker/index.html)",
       "Bash(node *)",
-      "Bash(awk '{print \"still running, pid=\" $2}')"
+      "Bash(awk '{print \"still running, pid=\" $2}')",
+      "WebFetch(domain:gronze.com)",
+      "Bash(bash -c 'source .env && python3 scraper.py --import 2>&1 | tail -5')",
+      "WebFetch(domain:www.gronze.com)",
+      "Bash(grep -oE '\\\\{[^{}]{0,30}production[^{}]{0,200}\\\\}' /tmp/vf_main.js)",
+      "Bash(grep -oE '[a-zA-Z0-9-]+\\\\.[a-zA-Z]{2,}/api' /tmp/vf_main.js)"
     ]
   }
 }

@@ -1785,6 +1785,165 @@ def scrape_high_scardus():
 
 
 # ---------------------------------------------------------------------------
+# Stråsjöleden — Outdooractive (outdooractive.com), Sweden
+# ---------------------------------------------------------------------------
+# 16 stages, ~272 km. Korsholmen (Hudiksvall) -> Kilkoja (Ragunda), Hälsingland/
+# Jämtland pilgrim trail. -> se-hike 22.
+# Found via Outdooractive's plain-text search API (no auth needed):
+#   https://www.outdooractive.com/api/search?q=<name>  -> XML list of OA ids
+# Each stage page embeds schema.org JSON-LD with exact distance (metres) and
+# elevation_ascent/elevation_descent (metres) in `amenityFeature`.
+
+SJ_BASE = "https://www.outdooractive.com"
+SJ_STAGES = [
+    ( 1, "Korsholmen",      "Enånger",         f"{SJ_BASE}/en/r/22356000/"),
+    ( 2, "Enånger",         "Njutånger",       f"{SJ_BASE}/en/r/22356090/"),
+    ( 3, "Njutånger",       "Sörforsa",        f"{SJ_BASE}/en/r/23072175/"),
+    ( 4, "Sörforsa",        "Nirsgård",        f"{SJ_BASE}/en/r/23083371/"),
+    ( 5, "Nirsgård",        "Dellenbaden",     f"{SJ_BASE}/en/r/23169041/"),
+    ( 6, "Dellenbaden",     "Mockastorp",      f"{SJ_BASE}/en/r/23169442/"),
+    ( 7, "Mockastorp",      "Stråsjö Chapel",  f"{SJ_BASE}/en/r/22862089/"),
+    ( 8, "Stråsjö Chapel",  "Sandvik",         f"{SJ_BASE}/en/r/23841657/"),
+    ( 9, "Sandvik",         "Hennan",          f"{SJ_BASE}/en/r/23841829/"),
+    (10, "Hennan",          "Tallnäs",         f"{SJ_BASE}/en/r/24276710/"),
+    (11, "Tallnäs",         "Ramsjö",          f"{SJ_BASE}/en/r/24277001/"),
+    (12, "Ramsjö",          "Flomyr",          f"{SJ_BASE}/en/r/24277089/"),
+    (13, "Flomyr",          "Haverö",          f"{SJ_BASE}/en/r/24277125/"),
+    (14, "Haverö",          "Överturingen",    f"{SJ_BASE}/en/r/31834674/"),
+    (15, "Överturingen",    "Rätan",           f"{SJ_BASE}/en/r/31834791/"),
+    (16, "Rätan",           "Kilkoja",         f"{SJ_BASE}/en/r/31858302/"),
+]
+
+
+def _oa_stage_stats(html):
+    """Extract (dist_km, elev_up, elev_down) from an Outdooractive page's JSON-LD."""
+    blobs = re.findall(r'application/ld\+json[^>]*>(.*?)</script>', html, re.S | re.I)
+    for blob in blobs:
+        blob = blob.strip()
+        if 'potentialAction' not in blob:
+            continue
+        try:
+            d = json.loads(blob)
+        except json.JSONDecodeError:
+            continue
+        dist = d.get("potentialAction", {}).get("distance", {}).get("value")
+        up = down = None
+        for af in d.get("amenityFeature", []):
+            if af.get("name") == "elevation_ascent":
+                up = af.get("value")
+            elif af.get("name") == "elevation_descent":
+                down = af.get("value")
+        dist_km = round(dist / 1000, 1) if dist else None
+        return dist_km, (round(up) if up is not None else None), (round(down) if down is not None else None)
+    return None, None, None
+
+
+def scrape_strasjoleden():
+    print("Stråsjöleden (SE) — fetching 16 stage pages ...")
+    stages = []
+    for nr, start, end, url in SJ_STAGES:
+        time.sleep(DELAY)
+        html = fetch(url)
+        if not html:
+            print(f"  stage {nr}: fetch failed — using None for stats")
+            dist_km = elev_up = elev_down = None
+        else:
+            dist_km, elev_up, elev_down = _oa_stage_stats(html)
+        print(f"  Stage {nr:2d}  {start} → {end}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          dist_km,
+            "elev_up":          elev_up,
+            "elev_down":        elev_down,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      url,
+        })
+
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   22,
+        "route_type": "national",
+        "land":       "se-hike",
+        "name":       "Stråsjöleden",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Müritz-Nationalpark-Wanderweg — Komoot collection, Germany
+# ---------------------------------------------------------------------------
+# 9 stages, ~175 km circular route (Waren -> ... -> Waren). OSM relation
+# 181787 has no day-stage subroutes; the official park website links to a
+# Komoot collection with a per-stage breakdown instead. -> de-hike 73.
+# Komoot exposes a plain public JSON API behind its React app:
+#   GET https://api.komoot.de/v007/collections/{collectionId}/compilation/
+# -> _embedded.items[], each with name, distance (m), elevation_up/_down (m).
+
+MURITZ_COLLECTION_ID = 1470717
+MURITZ_STAGE_NAME_RE = re.compile(r'Stage \d+:\s*From\s+(.+?)\s+to\s+(.+?)\s*[–-]')
+
+
+def scrape_muritz():
+    print("Müritz-Nationalpark-Wanderweg (DE) — fetching Komoot collection ...")
+    url = f"https://api.komoot.de/v007/collections/{MURITZ_COLLECTION_ID}/compilation/"
+    resp = SESSION.get(url, timeout=30)
+    resp.raise_for_status()
+    items = resp.json()["_embedded"]["items"]
+
+    stages = []
+    for it in items:
+        m = MURITZ_STAGE_NAME_RE.match(it["name"])
+        start, end = m.groups() if m else ("?", "?")
+        dist_km = round(it["distance"] / 1000, 1)
+        elev_up = round(it["elevation_up"])
+        elev_down = round(it["elevation_down"])
+        print(f"  Stage {len(stages)+1:2d}  {start} → {end}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
+        stages.append({
+            "stage_nr":         len(stages) + 1,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          dist_km,
+            "elev_up":          elev_up,
+            "elev_down":        elev_down,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      f"https://www.komoot.com/tour/{it['id']}",
+            "country":          "de",
+            "admin1":           "de-mv",
+        })
+
+    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   73,
+        "route_type": "regional",
+        "land":       "de-hike",
+        "name":       "Müritz-Nationalpark-Wanderweg",
+        "description": None,
+        "start":      stages[0]["start_name"],
+        "end":        stages[-1]["end_name"],
+        "total_km":   total_km,
+        "stages":     stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # gronze.com — shared helper for Spanish Camino routes
 # ---------------------------------------------------------------------------
 # Stage page format (stats inline text):
@@ -2700,6 +2859,168 @@ def scrape_camino_san_francesco():
     return _gronze_route(_SAN_FRANCESCO_PATHS, 53, "it-hike", "Camino di San Francesco")
 
 
+_CAMINO_NORTE_PATHS = [
+    "/etapa/bayonne-baiona/saint-jean-luz-donibane-lohizune",
+    "/etapa/saint-jean-luz-donibane-lohizune/irun",
+    "/etapa/irun/san-sebastian-donostia",
+    "/etapa/san-sebastian-donostia/zarautz",
+    "/etapa/zarautz/deba",
+    "/etapa/deba/markina-xemein",
+    "/etapa/markina-xemein/gernika",
+    "/etapa/gernika/lezama",
+    "/etapa/lezama/bilbao-bilbo",
+    "/etapa/bilbao-bilbo/portugalete",          # 10A official
+    "/etapa/portugalete/castro-urdiales",
+    "/etapa/castro-urdiales/laredo",
+    "/etapa/laredo/guemes",
+    "/etapa/guemes/santander",
+    "/etapa/santander/santillana-mar",
+    "/etapa/santillana-mar/comillas",
+    "/etapa/comillas/colombres",
+    "/etapa/colombres/llanes",
+    "/etapa/llanes/ribadesella",
+    "/etapa/ribadesella/colunga",
+    "/etapa/colunga/villaviciosa",
+    "/etapa/villaviciosa/gijon",                # coastal main route
+    "/etapa/gijon/aviles",
+    "/etapa/aviles/muros-nalon",
+    "/etapa/muros-nalon/soto-luina",
+    "/etapa/soto-luina/cadavedo",
+    "/etapa/cadavedo/luarca",
+    "/etapa/luarca/caridad",
+    "/etapa/caridad/ribadeo",                   # 29A official
+    "/etapa/ribadeo/gondan",
+    "/etapa/gondan/mondonedo",
+    "/etapa/mondonedo/abadin",
+    "/etapa/abadin/vilalba",
+    "/etapa/vilalba/baamonde",
+    "/etapa/baamonde/sobrado-dos-monxes",       # 35A traditional
+    "/etapa/sobrado-dos-monxes/arzua",
+]
+
+
+def scrape_camino_norte():
+    print("Camino del Norte — gronze.com (36 stages, Bayonne → Arzúa; FR/ES)")
+    return _gronze_route(_CAMINO_NORTE_PATHS, 14, "es-hike", "Camino del Norte", "international")
+
+
+_TOURS_PARIS_PATHS = [
+    # Paris → Tours via Orléans (main route, 10 stages)
+    "/etapa/paris/ville-du-bois",
+    "/etapa/ville-du-bois/etampes",
+    "/etapa/etampes/angerville",
+    "/etapa/angerville/artenay",
+    "/etapa/artenay/orleans",
+    "/etapa/orleans/beaugency",
+    "/etapa/beaugency/blois",
+    "/etapa/blois/chaumont-sur-loire",
+    "/etapa/chaumont-sur-loire/amboise",
+    "/etapa/amboise/tours",
+    # Tours → Ostabat (shared trunk, 26 stages)
+    "/etapa/tours/sorigny",
+    "/etapa/sorigny/sainte-maure-touraine",
+    "/etapa/sainte-maure-touraine/dange-saint-romain",
+    "/etapa/dange-saint-romain/chatellerault",
+    "/etapa/chatellerault/poitiers",
+    "/etapa/poitiers/lusignan",
+    "/etapa/lusignan/chenay",
+    "/etapa/chenay/melle",
+    "/etapa/melle/aulnay",
+    "/etapa/aulnay/saint-jean-dangely",
+    "/etapa/saint-jean-dangely/saintes",
+    "/etapa/saintes/pons-charente-maritime",
+    "/etapa/pons-charente-maritime/mirambeau",
+    "/etapa/mirambeau/saint-aubin-blaye",
+    "/etapa/saint-aubin-blaye/blaye",
+    "/etapa/blaye/blanquefort",
+    "/etapa/blanquefort/bordeaux",
+    "/etapa/bordeaux/le-barp",
+    "/etapa/le-barp/saugnacq-et-muret",
+    "/etapa/saugnacq-et-muret/labouheyre",
+    "/etapa/labouheyre/onesse-laharie",
+    "/etapa/onesse-laharie/taller",
+    "/etapa/taller/dax",
+    "/etapa/dax/peyrehorade",
+    "/etapa/peyrehorade/bergouey",
+    "/etapa/bergouey/ostabat",
+]
+
+
+def scrape_camino_tours_paris():
+    print("Camino de Tours y París — gronze.com (36 stages, Paris → Ostabat; FR)")
+    return _gronze_route(_TOURS_PARIS_PATHS, 5, "fr-hike", "Camino de Tours y París", "national")
+
+
+_SAN_JACOPO_PATHS = [
+    "/etapa/firenze/prato",
+    "/etapa/prato/pistoia",
+    "/etapa/pistoia/pescia",
+    "/etapa/pescia/lucca",
+    "/etapa/lucca/pisa",
+    "/etapa/pisa/tirrenia",
+    "/etapa/tirrenia/chiesa-di-san-jacopo-acquaviva-livorno",
+]
+
+_LEBANIEGO_PATHS = [
+    "/etapa/palencia/amayuelas-abajo",
+    "/etapa/amayuelas-abajo/fromista",
+    "/etapa/fromista/osorno-mayor",
+    "/etapa/osorno-mayor/herrera-pisuerga",
+    "/etapa/herrera-pisuerga/perazancas-ojeda",
+    "/etapa/perazancas-ojeda/cervera-pisuerga",
+    "/etapa/cervera-pisuerga/san-salvador-cantamuda",
+    "/etapa/san-salvador-cantamuda/camasobres",
+    "/etapa/camasobres/pesaguero",
+    "/etapa/pesaguero/monasterio-santo-toribio-liebana",
+]
+
+
+def scrape_san_jacopo():
+    print("Camino San Jacopo in Toscana — gronze.com (7 stages, Firenze → Livorno)")
+    return _gronze_route(_SAN_JACOPO_PATHS, 54, "it-hike", "Camino San Jacopo in Toscana")
+
+def scrape_camino_lebaniego():
+    print("Camino Lebaniégo Castellano — gronze.com (10 stages, Palencia → Liébana)")
+    return _gronze_route(_LEBANIEGO_PATHS, 34, "es-hike", "Camino Lebaniégo Castellano")
+
+
+_VIA_AUGUSTA_PATHS = [
+    "/etapa/cadiz/puerto-real",
+    "/etapa/puerto-real/jerez-frontera",
+    "/etapa/jerez-frontera/cuervo-sevilla",
+    "/etapa/cuervo-sevilla/cabezas-san-juan",
+    "/etapa/cabezas-san-juan/utrera",
+    "/etapa/utrera/alcala-guadaira",
+    "/etapa/alcala-guadaira/sevilla",
+]
+
+_PORTUGUES_INTERIOR_PATHS = [
+    "/etapa/coimbra/penacova",
+    "/etapa/penacova/mortagua",
+    "/etapa/mortagua/tondela",
+    "/etapa/tondela/viseu",
+    "/etapa/viseu/almargem",
+    "/etapa/almargem/ribolhos",
+    "/etapa/ribolhos/bigorne",
+    "/etapa/bigorne/lamego",
+    "/etapa/lamego/santa-marta-penaguiao",
+    "/etapa/santa-marta-penaguiao/vila-real",
+    "/etapa/vila-real/vila-pouca-aguiar",
+    "/etapa/vila-pouca-aguiar/vidago",
+    "/etapa/vidago/chaves",
+    "/etapa/chaves/verin",
+]
+
+
+def scrape_via_augusta():
+    print("Vía Augusta — gronze.com (7 stages, Cádiz → Sevilla)")
+    return _gronze_route(_VIA_AUGUSTA_PATHS, 33, "es-hike", "Vía Augusta")
+
+def scrape_camino_portugues_interior():
+    print("Camino Portugués Interior — gronze.com (14 stages, Coimbra → Verín)")
+    return _gronze_route(_PORTUGUES_INTERIOR_PATHS, 5, "pt-hike", "Camino Portugués Interior", "international")
+
+
 # ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
@@ -2751,6 +3072,8 @@ TRAILS = {
     "mont-gramondo":      scrape_mont_gramondo,
     "villages-ligures":   scrape_villages_ligures,
     "high-scardus":       scrape_high_scardus,
+    "strasjoleden":       scrape_strasjoleden,
+    "muritz":             scrape_muritz,
     "camino-frances":     scrape_camino_frances,
     "via-plata":          scrape_via_plata,
     "camino-ingles":      scrape_camino_ingles,
@@ -2776,6 +3099,12 @@ TRAILS = {
     "camino-piamonte":        scrape_camino_piamonte,
     "via-francigena":         scrape_via_francigena,
     "camino-san-francesco":   scrape_camino_san_francesco,
+    "via-augusta":            scrape_via_augusta,
+    "camino-portugues-interior": scrape_camino_portugues_interior,
+    "camino-norte":           scrape_camino_norte,
+    "san-jacopo":             scrape_san_jacopo,
+    "camino-lebaniego":       scrape_camino_lebaniego,
+    "camino-tours-paris":     scrape_camino_tours_paris,
 }
 
 

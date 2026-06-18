@@ -1682,18 +1682,22 @@ let LINKED_STAGE_MAP = new Map(
 );
 
 // Rebuild after loadData(): augments hard-coded pairs with any additional links
-// derivable from shared osm_id values.
+// derivable from shared osm_id or link_key values.
 function buildLinkedStageMap() {
   LINKED_STAGE_MAP = new Map(
     ALL_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
   );
-  const byOsmId = new Map();
+  const bySharedKey = new Map();
   allRoutes.forEach(r => r.stages.forEach(s => {
-    if (!s.osm_id) return;
-    if (!byOsmId.has(s.osm_id)) byOsmId.set(s.osm_id, []);
-    byOsmId.get(s.osm_id).push(stageKey(r.land, r.route_id, s.stage_nr));
+    const ids = [];
+    if (s.osm_id)   ids.push('osm:'      + s.osm_id);
+    if (s.link_key) ids.push('link_key:' + s.link_key);
+    ids.forEach(id => {
+      if (!bySharedKey.has(id)) bySharedKey.set(id, []);
+      bySharedKey.get(id).push(stageKey(r.land, r.route_id, s.stage_nr));
+    });
   }));
-  byOsmId.forEach(keys => {
+  bySharedKey.forEach(keys => {
     if (keys.length < 2) return;
     for (let i = 0; i < keys.length; i++)
       for (let j = i + 1; j < keys.length; j++) {

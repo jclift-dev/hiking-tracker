@@ -230,7 +230,7 @@ def main():
 
     route = {
         "route_id":   ROUTE_ID,
-        "route_type": "international",
+        "route_type": "continental",
         "land":       LAND,
         "name":       "E1 European Long Distance Path",
         "description": None,

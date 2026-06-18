@@ -36,10 +36,12 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 
 `hikes.json` is the local scraper output — same data imported to Supabase. The web app reads from Supabase, not this file.
 
+`route_type: "continental"` is reserved for the official ERA E-paths (OSM tag `ref=E1`..`E12`, `network=iwn`) — currently E1, E9, E11. Generic multi-country routes that just happen to cross 2-3 borders (Via Alpina, Via Gebennensis, etc.) stay `"international"`. Neither value has dedicated filter UI yet — only national/regional/local have tabs in `index.html`.
+
 ```json
 [{
   "route_id": 1,
-  "route_type": "national" | "regional",
+  "route_type": "local" | "regional" | "national" | "international" | "continental",
   "land": "ch-hike" | "ch-cycle" | "uk" | "fr-hike" | "it-hike" | "de-hike" | "es-hike" | "pt-hike" | "eu-hike" | "at-hike" | "se-hike" | "no-hike" | "hr-hike" | "sk-hike" | ...,
   "name": "Via Alpina",
   "description": "...",

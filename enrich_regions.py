@@ -195,6 +195,20 @@ ROUTE_DEFAULTS = {
     ("de-hike", 30): [(1, None, "de", "de-bw")],  # Wasserweltensteig
     ("de-hike", 31): [(1, None, "de", "de-bw")],  # Hotzenwald-Querweg
     # Spain — gronze.com routes (no OSM IDs); uses ISO 3166-2 autonomous-community codes
+    ("es-hike", 34): [                                   # Camino Lebaniégo Castellano (Palencia → Liébana, 10 stages)
+        (1,  8,  "es", "es-cl"),   # Castilla y León: Palencia → Camasobres
+        (9,  None, "es", "es-cb"), # Cantabria: Pesaguero → Santo Toribio de Liébana
+    ],
+    ("it-hike", 54): [                                   # Camino San Jacopo in Toscana (Firenze → Livorno, 7 stages)
+        (1, None, "it", "it-52"),  # Toscana
+    ],
+    ("es-hike", 14): [                                   # Camino del Norte (Bayonne → Arzúa, 36 stages; FR/ES)
+        (1,  2,  "fr", "fr-64"),   # Pyrénées-Atlantiques: Bayonne → Irún
+        (3,  10, "es", "es-pv"),   # País Vasco: Irún → Bilbao/Portugalete
+        (11, 17, "es", "es-cb"),   # Cantabria: Castro Urdiales → Comillas
+        (18, 29, "es", "es-as"),   # Asturias: Colombres → La Caridad/Ribadeo
+        (30, None, "es", "es-ga"), # Galicia: Ribadeo → Arzúa
+    ],
     ("es-hike", 15): [                                   # Camino Francés (SJdPP → Santiago)
         (1,  6,  "es", "es-na"),   # Navarra: Roncesvalles → Los Arcos
         (7,  9,  "es", "es-ri"),   # La Rioja: Logroño → Santo Domingo de la Calzada
@@ -273,6 +287,15 @@ ROUTE_DEFAULTS = {
         (5,  5,  "pt", "pt-16"),   # Viana do Castelo district: Viana → Caminha
         (6,  None, "es", "es-ga"), # Galicia (Spain): A Guarda → Pontevedra
     ],
+    ("pt-hike", 5): [                                    # Camino Portugués Interior (Coimbra → Verín, 14 stages)
+        (1,  1,  "pt", "pt-06"),   # Coimbra district: Coimbra → Penacova
+        (2,  9,  "pt", "pt-18"),   # Viseu district: Mortágua → Lamego
+        (10, 13, "pt", "pt-17"),   # Vila Real district: Santa Marta → Chaves
+        (14, None, "es", "es-ga"), # Galicia (Spain): Chaves → Verín
+    ],
+    ("es-hike", 33): [                                   # Vía Augusta (Cádiz → Sevilla, 7 stages)
+        (1, None, "es", "es-an"),  # Andalucía
+    ],
     ("fr-hike", 30): [                                   # Camino de Vézelay (Vézelay → Saint-Jean-Pied-de-Port, 51 stages)
         (1,  11, "fr", "fr-89"),   # Yonne/Nièvre/Berry: Vézelay → Argenton
         (12, 23, "fr", "fr-58"),   # Nièvre/Cher/Creuse: Nevers branch → Gargilesse
@@ -316,6 +339,23 @@ ROUTE_DEFAULTS = {
         (8,  14, "it", "it-tr"),   # Terni province (Umbria): Ferentillo → Assisi
         (15, 19, "it", "it-pg"),   # Perugia province (Umbria): Valfabbrica → Città di Castello
         (20, None, "it", "it-ar"), # Arezzo province (Tuscany): Citerna → La Verna
+    ],
+    ("fr-hike", 5): [                                    # Camino de Tours y París (Paris → Ostabat, 36 stages)
+        (1,  2,  "fr", "fr-91"),   # Essonne: Paris → Étampes
+        (3,  6,  "fr", "fr-45"),   # Loiret: Angerville → Orléans → Beaugency
+        (7,  8,  "fr", "fr-41"),   # Loir-et-Cher: Blois → Chaumont-sur-Loire
+        (9,  13, "fr", "fr-37"),   # Indre-et-Loire: Amboise → Sainte-Maure
+        (14, 16, "fr", "fr-86"),   # Vienne: Dange-Saint-Romain → Poitiers
+        (17, 18, "fr", "fr-79"),   # Deux-Sèvres: Lusignan → Melle
+        (19, 23, "fr", "fr-17"),   # Charente-Maritime: Aulnay → Mirambeau
+        (24, 29, "fr", "fr-33"),   # Gironde: Saint-Aubin-de-Blaye → Le Barp
+        (30, 34, "fr", "fr-40"),   # Landes: Saugnacq → Dax → Peyrehorade
+        (35, None, "fr", "fr-64"), # Pyrénées-Atlantiques: Peyrehorade → Ostabat
+    ],
+    ("se-hike", 22): [                                   # Stråsjöleden (Korsholmen → Kilkoja, 16 stages)
+        (1,  12, "se", "se-x"),    # Gävleborg (Hälsingland): Korsholmen → Ramsjö
+        (13, 14, "se", "se-y"),    # Västernorrland: Flomyr → Överturingen
+        (15, None, "se", "se-z"),  # Jämtland: Rätan → Kilkoja
     ],
 }
 
