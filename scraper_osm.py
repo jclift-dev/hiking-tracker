@@ -219,6 +219,8 @@ TRAILS = [
     (2073724,  "at-hike", 1, "national", "Jakobsweg Österreich"),
     (18013720, "at-hike", 2, "national", "BergeSeen Trail"),
     (2926132,  "at-hike", 3, "national", "Panoramaweg Südalpen"),
+    (3372194,  "at-hike", 4, "national", "Alpenpanorama-Weg"),
+    (1560864,  "at-hike", 5, "national", "Donausteig"),
 
     # Hungary (hu-hike — add to Supabase CHECK before --import)
     (6007494,  "hu-hike", 1, "national", "Országos Kéktúra"),
@@ -273,6 +275,10 @@ TRAILS = [
     (1730468,  "se-hike", 19, "national", "Höga Kusten-leden"),
     (2926839,  "se-hike", 20, "national", "Dalkarlsvägen"),
     (9588658,  "se-hike", 21, "national", "Solanderleden"),
+    (7468545,  "se-hike", 23, "national", "Smålandsleden"),
+    (17368380, "se-hike", 24, "national", "Upplandsleden"),
+    (13439996, "se-hike", 25, "national", "Lapplandsleden"),
+    (1513909,  "se-hike", 26, "national", "Höglandsleden"),
 
     # Norway (no-hike)
     (14772115, "no-hike", 1, "national", "Fjordruta på Nordmøre"),
@@ -294,6 +300,7 @@ TRAILS = [
     (1661032,  "no-hike", 16, "regional", "Kjerag og Kjeragbolten"),
     (1417687,  "no-hike", 17, "regional", "Besseggen"),
     (4173881,  "no-hike", 18, "regional", "Trollstigen"),
+    (1362633,  "no-hike", 19, "national", "Kyststier langs Oslofjorden"),
 
     # Denmark (dk-hike — add to Supabase CHECK before --import)
     (1792585,  "dk-hike", 1, "national", "Hærvejen"),
@@ -325,6 +332,8 @@ TRAILS = [
     # France — famous day hikes
     (7428864,  "fr-hike", 28, "regional", "Tour du Lac Blanc"),
     (11340787, "fr-hike", 29, "regional", "Le Puy de Dôme"),
+    (2785399,  "fr-hike", 31, "national", "Chemin du Piémont Pyrénéen"),
+    (8289243,  "fr-hike", 32, "national", "Chemin de Régordane"),
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
@@ -748,8 +757,8 @@ def parse_start_end(data):
     Prefers tags.from / tags.to, then parses the name field.
     """
     tags = data.get("tags", {})
-    from_place = (tags.get("from") or "").strip()
-    to_place   = (tags.get("to")   or "").strip()
+    from_place = (tags.get("from") or "").strip().lstrip("(")
+    to_place   = (tags.get("to")   or "").strip().lstrip("(")
     if from_place and to_place:
         return from_place, to_place
 
