@@ -1397,6 +1397,11 @@ const COUNTRIES = [
   { id: 'se', lands: ['se-hike'] },
   { id: 'no', lands: ['no-hike'] },
   { id: 'ee', lands: ['ee-hike'] },
+  { id: 'sk', lands: ['sk-hike'] },
+  { id: 'dk', lands: ['dk-hike'] },
+  { id: 'lt', lands: ['lt-hike'] },
+  { id: 'lv', lands: ['lv-hike'] },
+  { id: 'hr', lands: ['hr-hike'] },
   { id: 'eu', lands: ['eu-hike'] },
 ];
 
@@ -1571,6 +1576,8 @@ function smUrl(route, stageNr) {
       1: 'https://hiking.waymarkedtrails.org/#route?id=2073724',
       2: 'https://hiking.waymarkedtrails.org/#route?id=18013720',
       3: 'https://hiking.waymarkedtrails.org/#route?id=2926132',
+      5: 'https://hiking.waymarkedtrails.org/#route?id=1560864',
+      6: 'https://hiking.waymarkedtrails.org/#route?id=17036352',
     };
     return AT_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
@@ -1586,7 +1593,12 @@ function smUrl(route, stageNr) {
     return CZ_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'si-hike') {
-    return `https://hiking.waymarkedtrails.org/#route?id=10909145`;
+    const SI_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=10909145',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=19446539',
+      3: 'https://hiking.waymarkedtrails.org/#route?id=1658429',
+    };
+    return SI_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'nl-hike') {
     const NL_HIKE_URLS = {
@@ -1607,7 +1619,11 @@ function smUrl(route, stageNr) {
     return NL_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'be-hike') {
-    return `https://hiking.waymarkedtrails.org/#route?id=18632711`;
+    const BE_HIKE_URLS = {
+      1: 'https://hiking.waymarkedtrails.org/#route?id=18632711',
+      2: 'https://hiking.waymarkedtrails.org/#route?id=13676541',
+    };
+    return BE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
   if (route.land === 'se-hike') {
     const SE_HIKE_URLS = {
@@ -1632,6 +1648,7 @@ function smUrl(route, stageNr) {
     };
     return EE_HIKE_URLS[route.route_id] || 'https://hiking.waymarkedtrails.org/';
   }
+  if (['sk-hike','dk-hike','lt-hike','lv-hike','hr-hike'].includes(route.land)) return 'https://hiking.waymarkedtrails.org/';
   // OSM-sourced Swiss trails use route_id >= 100 to avoid collision with SchweizMobil IDs
   if (route.land === 'ch-hike' && route.route_id >= 100) {
     const CH_OSM_URLS = {
@@ -1659,7 +1676,7 @@ function sourceLabel(route) {
   if (route.land === 'ch-hike' && route.route_id >= 100) return 'waymarkedtrails.org';
   if (route.land === 'es-hike') return 'waymarkedtrails.org';
   if (route.land === 'ie-hike') return 'waymarkedtrails.org';
-  if (route.land === 'pt-hike') return 'rotavicentina.com';
+  if (route.land === 'pt-hike') { const l = {1:'rotavicentina.com',2:'walkingpenedageres.pt',3:'pilgrim.es',4:'gronze.com',5:'gronze.com'}; return l[route.route_id] || 'waymarkedtrails.org'; }
   if (route.land === 'eu-hike') return 'waymarkedtrails.org';
   if (route.land === 'at-hike') return 'waymarkedtrails.org';
   if (route.land === 'hu-hike') return 'waymarkedtrails.org';
@@ -1670,6 +1687,11 @@ function sourceLabel(route) {
   if (route.land === 'se-hike') return 'waymarkedtrails.org';
   if (route.land === 'no-hike') return 'waymarkedtrails.org';
   if (route.land === 'ee-hike') return 'waymarkedtrails.org';
+  if (route.land === 'sk-hike') return 'waymarkedtrails.org';
+  if (route.land === 'dk-hike') return 'waymarkedtrails.org';
+  if (route.land === 'lt-hike') return 'waymarkedtrails.org';
+  if (route.land === 'lv-hike') return 'waymarkedtrails.org';
+  if (route.land === 'hr-hike') return 'waymarkedtrails.org';
   return 'SchweizMobil';
 }
 

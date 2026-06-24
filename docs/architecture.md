@@ -73,7 +73,7 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 
 `_osm_id` is the Waymarked Trails OSM relation ID for the day stage. Present on OSM-scraped routes and ch-hike routes 1–7 (backfilled via `--backfill-ch-osm-ids`). Imported to Supabase as `osm_id`. Enables the 🗺 Map button and dynamic cross-route linking.
 
-`country` and `admin1` are populated by `enrich_regions.py` for all European lands (see `EU_LANDS` set in that file — currently 22 values including `eu-hike`, `fr-hike`, `de-hike`, `it-hike`, `es-hike`, `pt-hike`, `at-hike`, `nl-hike`, `be-hike`, `se-hike`, `no-hike`, etc.). Swiss stages use the separate `cantons` field instead.
+`country` and `admin1` (ISO codes) are added by `enrich_regions.py` for all European lands (`EU_LANDS` set — 22 values). Swiss stages also carry `cantons` (array of Swiss canton codes), `arrival_stations` (SBB station names for transport lookups), and `sbb_times` (cached travel times from scraper.py). `duration_hrs` comes from the Waymarked Trails API metadata and is present on OSM-scraped non-Swiss routes. Website-only routes (scraper_websites.py etc.) may omit `duration_hrs` if the source doesn't publish it.
 
 `sbb_times` values: `null` = scraper tried, no connection found; integer = minutes; missing/`undefined` = never looked up.
 

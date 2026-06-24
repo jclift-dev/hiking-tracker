@@ -8,6 +8,7 @@ Read these when working on the relevant area — don't load them all upfront:
 - **[docs/scrapers.md](docs/scrapers.md)** — CLI flags, prerequisites, per-scraper format notes, rate limits, resumability
 - **[docs/architecture.md](docs/architecture.md)** — Supabase schema, hikes.json format, web app state, auth, assets, route numbering
 - **[docs/trails.md](docs/trails.md)** — full route lists per land value, OSM trail IDs, deferred & future candidates
+- **[docs/roadmap.md](docs/roadmap.md)** — what to add next, what's blocked, website scraper candidates
 
 **Keep docs current**: after adding routes, update `docs/trails.md` (routes-by-land table, OSM catalog, website-only/Geotrek tables, deferred list). After adding a new `land` value, also update: the land table in this file, the Supabase CHECK constraint template below, and `enrich_regions.py` `EU_LANDS`.
 
@@ -78,6 +79,8 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 | `hr-hike`  | Croatia        | Hiking   |
 | `ee-hike`  | Estonia        | Hiking   |
 | `sk-hike`  | Slovakia       | Hiking   |
+| `dk-hike`  | Denmark        | Hiking   |
+| `lt-hike`  | Lithuania      | Hiking   |
 | `lv-hike`  | Latvia         | Hiking   |
 | `eu-hike`  | Europe (multi) | Hiking   |
 
