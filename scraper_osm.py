@@ -156,6 +156,7 @@ TRAILS = [
     (6390970,  "es-hike", 10, "national", "Gran Senda del Guadalhorce"),
     # Basque section (Irún→Cantabria) unmapped in OSM — those stages missing until OSM is updated
     (4830796,  "es-hike", 35, "national", "Camino Natural del Guadiana"),
+    (3802149,  "es-hike", 36, "national", "La Senda del Duero"),
     (19001007, "es-hike", 14, "national", "Camino del Norte"),
     # Spain — famous day hikes
     (4678863,  "es-hike", 13, "regional", "Caminito del Rey"),
