@@ -710,6 +710,7 @@ CH_OSM_PARENTS = {
     5: (120118,   "Jura Crest Trail"),       # OSM=15, SM=16 — first 15 assigned
     6: (18021781, "Alpine Passes Trail"),    # 43 stages, exact match
     7: (2927508,  "ViaGottardo"),           # 20 stages, exact match
+    95: (20103066, "Au fil du Doubs"),       # 4 stages, exact match
 }
 
 

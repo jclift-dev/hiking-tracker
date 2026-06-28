@@ -93,6 +93,8 @@ A small hardcoded fallback `E1_STAGE_PAIRS` covers 17 E1 ↔ national-route link
 
 Stages with an `osm_id` show a 🗺 Map button. Clicking it lazy-loads Leaflet.js (once per session), fetches the route GeoJSON from `https://hiking.waymarkedtrails.org/api/details/relation/{osm_id}/geometry`, and renders a 200px inline map with an OSM tile layer. Geometry is cached in `stageGeomCache` (keyed by `osm_id`) so re-opens are instant. Live map instances are tracked in `stageMaps` and torn down on close.
 
+Routes also have a 🗺 Map button (opens a larger modal) if the route has an entry in `ROUTE_OSM_IDS` in `index.html`. This is a hardcoded map of `'land:route_id' → OSM superroute relation ID`. **When adding a new route that has an OSM superroute, add it to `ROUTE_OSM_IDS`.** The OSM ID is the parent `superroute` relation — the same one added to `CH_OSM_PARENTS` for Swiss routes.
+
 ## Assets
 
 `assets/` contains five terrain icons for the elevation profile display on stage cards:
