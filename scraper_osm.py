@@ -126,6 +126,7 @@ TRAILS = [
     (18138429, "de-hike", 46, "national", "Lahn-Camino - Jakobsweg"),
     (19221478, "de-hike", 47, "national", "Ulrikaweg"),
     (2153742,  "de-hike", 48, "national", "Kammweg Erzgebirge-Vogtland"),
+    (16742541, "de-hike", 74, "national", "Hugenotten und Waldenserweg"),
     (7458271,  "de-hike", 60, "national", "Westerwaldsteig"),
     (3535507,  "de-hike", 61, "national", "Bergischer Panoramasteig"),
     (31758,    "de-hike", 62, "national", "X19 Schlösserweg"),
@@ -154,6 +155,7 @@ TRAILS = [
     (1181120,  "es-hike", 9,  "national", "Camí dels bons homes"),
     (6390970,  "es-hike", 10, "national", "Gran Senda del Guadalhorce"),
     # Basque section (Irún→Cantabria) unmapped in OSM — those stages missing until OSM is updated
+    (4830796,  "es-hike", 35, "national", "Camino Natural del Guadiana"),
     (19001007, "es-hike", 14, "national", "Camino del Norte"),
     # Spain — famous day hikes
     (4678863,  "es-hike", 13, "regional", "Caminito del Rey"),

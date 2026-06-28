@@ -13,8 +13,8 @@ OSM routes with verified day-stage hierarchies. All can be added with `scraper_o
 | OSM ID | Trail | Land | route_id | Stages | Notes |
 |--------|-------|------|----------|--------|-------|
 | 8928052 | Transcaucasian Trail | `eu-hike` | 18 | ~94 | GE/AM/AZ — needs GE/AM/AZ added to SVG map (re-run `make_europe_svg.py` with updated Natural Earth data or add polygons manually) |
-| 16742541 | Hugenotten und Waldenserweg | `de-hike` | 74 | ~23 | Basel/Geneva → Schaffhausen/Mosbach; max ~14km per stage |
-| 4830796 | Camino Natural del Guadiana | `es-hike` | 35 | ~44 | PT/ES cross-border; max ~39km per stage |
+| 16742541 | Hugenotten und Waldenserweg | `de-hike` | 74 | 23 | ✓ Added 2026-06-28. Baden→Schaffhausen. |
+| 4830796 | Camino Natural del Guadiana | `es-hike` | 35 | 44 | ✓ Added 2026-06-28. Laguna Blanca→Ayamonte, ES/PT. |
 | 3802149 | La Senda del Duero | `es-hike` | 36 | ~42 | PT/ES; max ~46km per stage |
 
 ### Catalog entries to investigate
