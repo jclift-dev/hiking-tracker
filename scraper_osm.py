@@ -703,14 +703,42 @@ def backfill_elevation():
 # Subroutes are listed in stage order — we match by position.
 # Counts verified against SchweizMobil stage counts; mismatches noted.
 CH_OSM_PARENTS = {
-    1: (12359033, "Via Alpina"),            # 20 stages, exact match
-    2: (1107386,  "Trans Swiss Trail"),      # 32 stages, exact match
-    3: (3372194,  "Alpine Panorama Trail"),  # 29 stages, exact match
-    4: (2927471,  "ViaJacobi"),             # OSM=32, SM=33 — first 32 assigned
-    5: (120118,   "Jura Crest Trail"),       # OSM=15, SM=16 — first 15 assigned
-    6: (18021781, "Alpine Passes Trail"),    # 43 stages, exact match
-    7: (2927508,  "ViaGottardo"),           # 20 stages, exact match
-    95: (20103066, "Au fil du Doubs"),       # 4 stages, exact match
+    1:  (12359033,  "Via Alpina"),                    # 20 stages, exact match
+    2:  (1107386,   "Trans Swiss Trail"),              # 32 stages, exact match
+    3:  (3372194,   "Alpine Panorama Trail"),          # 29 stages, exact match
+    4:  (2927471,   "ViaJacobi"),                     # OSM=32, SM=33 — first 32 assigned
+    5:  (120118,    "Jura Crest Trail"),               # OSM=15, SM=16 — first 15 assigned
+    6:  (18021781,  "Alpine Passes Trail"),            # 43 stages, exact match
+    7:  (2927508,   "ViaGottardo"),                   # 20 stages, exact match
+    24: (1639661,   "Thurweg"),                       # 8 stages, exact match
+    25: (14240750,  "Senda Segantini"),               # 4 stages, exact match
+    31: (20087988,  "Chemin du Jura"),                # 5 stages, exact match
+    32: (8188414,   "ViaSurprise"),                   # 6 stages, exact match
+    34: (157483,    "Klettgau-Rhein-Weg"),            # 2 stages, exact match
+    35: (17036352,  "Walserweg"),                     # 19 stages, exact match
+    38: (12770114,  "ViaBerna"),                      # 20 stages, exact match
+    43: (1601190,   "Jakobsweg Graubünden"),          # 19 stages, exact match (OSM name: Via son Giachen)
+    46: (1612158,   "Tour des Alpes Vaudoises"),      # 8 stages, exact match
+    47: (12988850,  "Zürich-Zugerland-Panoramaweg"), # 2 stages, exact match
+    52: (7132092,   "Sentiero Lago di Lugano"),       # 9 stages, exact match
+    54: (17439991,  "Mittelbünden-Panoramaweg"),      # 2 stages, exact match
+    55: (2596805,   "ViaSuworow"),                    # 11 stages, exact match
+    56: (19723067,  "Lötschberg-Panoramaweg"),        # 4 stages, exact match
+    60: (1702824,   "ViaRhenana"),                    # 10 stages, exact match
+    61: (19702382,  "Walliser Sonnenweg"),             # 4 stages, exact match
+    63: (170848,    "Schwyzer Höhenweg"),              # 5 stages, exact match
+    64: (7450464,   "ViaSett"),                       # 6 stages, exact match
+    67: (9522678,   "Dreiland-Wanderweg"),            # 3 stages, exact match
+    68: (11134723,  "WALSA-Weg"),                     # 4 stages, exact match
+    72: (3047973,   "Prättigauer Höhenweg"),          # 4 stages, exact match
+    73: (8451508,   "Sardona-Welterbe-Weg"),          # 6 stages, exact match
+    74: (2165763,   "Sentiero Verzasca"),             # 2 stages, exact match
+    80: (934721,    "ViaJura"),                       # 7 stages, exact match
+    83: (7509231,   "Emmenuferweg"),                  # 4 stages, exact match
+    84: (2120111,   "Zürichsee-Rundweg"),             # 10 stages, exact match
+    91: (1691656,   "Chemin du Jura bernois"),        # 4 stages, exact match
+    95: (20103066,  "Au fil du Doubs"),               # 4 stages, exact match
+    98: (4859680,   "Waldstätterweg"),                # 7 stages, exact match
 }
 
 
