@@ -21,13 +21,13 @@ OSM routes with verified day-stage hierarchies. All can be added with `scraper_o
 
 These OSM IDs appeared in `discover_trails.py` with plausible stage counts but haven't been examined in detail:
 
-| OSM ID | Next step |
-|--------|-----------|
-| 7029512 | Check `https://hiking.waymarkedtrails.org/#route?id=7029512` for stage count and max stage length |
-| 5576339 | Check Waymarked Trails |
-| 7125614 | Check Waymarked Trails |
-| 7332771 | Check Waymarked Trails |
-| 7029513 | Check Waymarked Trails |
+| OSM ID | Trail | Verdict |
+|--------|-------|---------|
+| 7029512 | Sentiero Italia — Lombardia (D00), 60 stages | Regional chunk of a 300+ stage national trail. Defer until Sentiero Italia is assessed as a whole. |
+| 7125614 | Sentiero Italia — Calabria (U00), 32 stages | Same — regional child of Sentiero Italia master superroute. |
+| 7332771 | Sentiero Italia — Friuli Venezia Giulia (A00), 29 stages | Same. |
+| 7029513 | Sentiero Italia — Trentino Alto Adige (C00), 30 stages | Same. |
+| 5576339 | Kuststigen (SE/NO coastal path, Göteborg → Oslo), 38 stages | Max stage 42km — too coarse. Defer unless OSM improves. |
 
 ---
 
