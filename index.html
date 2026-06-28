@@ -2909,7 +2909,7 @@ function renderRoute(route) {
         <span class="route-chevron">▾</span>
         ${doneCount < totalStages ? `<button class="mark-all-btn" onclick="markRouteComplete('${rkey}');event.stopPropagation()" title="Mark all stages complete">✓ All</button>` : `<button class="mark-all-btn mark-all-btn--undo" onclick="markRouteComplete('${rkey}',true);event.stopPropagation()" title="Unmark all stages">✕ All</button>`}
         ${(() => { const allWished = route.stages.every(s => wishlist[stageKey(route.land, route.route_id, s.stage_nr)]); return `<button class="wish-route-btn${allWished ? ' active' : ''}" onclick="wishlistRoute('${rkey}',${allWished});event.stopPropagation()" title="${allWished ? 'Remove route from wishlist' : 'Add all stages to wishlist'}">${allWished ? '♥' : '♡'} Wishlist</button>`; })()}
-        ${routeOsmId(route) ? `<button class="sm-stage-btn" style="font-size:11px;padding:4px 10px" onclick="openRouteMap('${route.land}',${route.route_id},${routeOsmId(route)},${JSON.stringify(route.name)});event.stopPropagation()" title="View full route map">🗺 Map</button>` : ''}
+        ${routeOsmId(route) ? `<button class="sm-stage-btn" style="font-size:11px;padding:4px 10px" onclick="openRouteMap('${route.land}',${route.route_id},${routeOsmId(route)},${JSON.stringify(route.name).replace(/"/g, '&quot;')});event.stopPropagation()" title="View full route map">🗺 Map</button>` : ''}
       </div>
     </div>
     ${renderStages(route)}
