@@ -246,6 +246,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 6436417   | `eu-hike` | 3        | Tour du Mont Blanc (11 stages, circular FR/IT/CH) |
 | 16127693  | `eu-hike` | 4        | Sultan's Trail (120 stages, Vienna→Istanbul, AT/SK/HU/RS/HR/BG/GR/TR) |
 | 2437984   | `eu-hike` | 6        | Nordkalottruta (43 stages, Sulitjelma→Buletjávri, NO/SE/FI) |
+| 5576339   | `eu-hike` | 17       | Kuststigen (39 stages, Göteborg→Oslo, SE/NO) |
 
 ## Website-only routes (scraper_websites.py)
 

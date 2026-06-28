@@ -27,7 +27,7 @@ These OSM IDs appeared in `discover_trails.py` with plausible stage counts but h
 | 7125614 | Sentiero Italia — Calabria (U00), 32 stages | Same — regional child of Sentiero Italia master superroute. |
 | 7332771 | Sentiero Italia — Friuli Venezia Giulia (A00), 29 stages | Same. |
 | 7029513 | Sentiero Italia — Trentino Alto Adige (C00), 30 stages | Same. |
-| 5576339 | Kuststigen (SE/NO coastal path, Göteborg → Oslo), 38 stages | Max stage 42km — too coarse. Defer unless OSM improves. |
+| 5576339 | Kuststigen (SE/NO coastal path, Göteborg → Oslo), 39 stages | ✓ Added as eu-hike:17. Scraper split the 42km outlier at level-2. |
 
 ---
 
