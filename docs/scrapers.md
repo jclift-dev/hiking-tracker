@@ -262,6 +262,10 @@ For routes with no viable OSM day-stage hierarchy. Each trail has a custom scrap
 | `sauerland` | Sauerland-Waldroute | `de-hike` | 44 | 7 (partial) | sauerland-waldroute.de |
 | `linksrheinisch` | Linksrheinischer Jakobsweg | `de-hike` | 50 | 12 | linksrheinischer-jakobsweg.info |
 | `westfalenww` | WestfalenWanderWeg | `de-hike` | 51 | 11 | wildganz.com |
+| `sea-to-sea` | C2C Sea to Sea | `uk-cycle` | 1 | 6 | hardcoded (NCN 71, Whitehaven→Sunderland) |
+| `way-of-the-roses` | Way of the Roses | `uk-cycle` | 2 | 7 | hardcoded (Morecambe→Bridlington) |
+| `hadrians-cycleway` | Hadrian's Cycleway | `uk-cycle` | 3 | 6 | hardcoded (NCN 72, Ravenglass→South Shields) |
+| `lon-las-cymru` | Lôn Las Cymru | `uk-cycle` | 4 | 9 | hardcoded (NCN 8, Holyhead→Cardiff) |
 
 **Sauerland-Waldroute note:** Overwrites the 3 coarse OSM sections in route_id=44. Only 7 of 19 stages are server-rendered (rest require JS). Use `--only sauerland` to re-fetch.
 

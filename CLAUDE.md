@@ -41,7 +41,7 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 9. **`scraper_gr.py`** — French GR trails: GR65 Via Podiensis (32 stages) and GR70 Chemin de Stevenson (13 stages).
 10. **`scraper_osm.py`** — Long-distance trails via Waymarked Trails API (19+ countries). Data © OpenStreetMap contributors, ODbL 1.0. CLI: `--only <osm_id>`, `--refresh-trail <osm_id>`, `--skip-elevation`, `--backfill-elevation`, `--backfill-names`, `--backfill-ch-osm-ids` (assigns `_osm_id` to ch-hike routes 1–7 from OSM parent superroutes).
 11. **`scraper_schwarzwaldverein.py`** — 22 Fernwanderwege from schwarzwaldverein.de (`de-hike`, route_ids 10–31). See docs/scrapers.md for elevation backfill notes.
-12. **`scraper_websites.py`** — Website-only routes (no OSM day-stage hierarchy): Eifelsteig (de-hike 49), Italia Coast to Coast (it-hike 13), Sauerland-Waldroute (de-hike 44, overwrites OSM), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Camino de la Frontera (es-hike 11), Grande Rota Peneda-Gerês (pt-hike 2), Camino Portugués (pt-hike 3, pilgrim.es, Lisboa→Santiago), SNP Trail (sk-hike 1, snptrail.com, hardcoded), Stråsjöleden (se-hike 22, outdooractive.com), Müritz-Nationalpark-Wanderweg (de-hike 73, komoot.de public API). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for details.
+12. **`scraper_websites.py`** — 70+ routes with no viable OSM day-stage hierarchy, across four categories: (a) **Geotrek API** — Vanoise (fr-hike 15–24), Mercantour (fr-hike 25–27, eu-hike 7–11, it-hike 44–50), GR54 (fr-hike 14); (b) **gronze.com Camino routes** — es-hike 14–32, pt-hike 3–5, fr-hike 5/30, eu-hike 13–15; (c) **website-scraped** — Eifelsteig (de-hike 49), Italia C2C (it-hike 13), Sauerland (de-hike 44), Linksrheinischer Jakobsweg (de-hike 50), WestfalenWanderWeg (de-hike 51), Stormarnweg (53), Oberlausitzer Bergweg (54), Werra-Burgen-Steig (55), König-Ludwig-Weg (56), X27 (57), Kammweg (48), Vulkanring Vogelsberg (58), Ith-Hils-Wanderweg (59), Camino de la Frontera (es-hike 11), Camino Espiritual del Sur (es-hike 12), Grande Rota Peneda-Gerês (pt-hike 2), Stråsjöleden (se-hike 22), Müritz NP (de-hike 73); (d) **hardcoded** — SNP Trail (sk-hike 1), Via Francígena (eu-hike 16, see also scraper_via_francigena.py), High Scardus Trail (eu-hike 12), Coast to Coast Walk (uk:15), C2C Sea to Sea (uk-cycle 1), Way of the Roses (uk-cycle 2), Hadrian's Cycleway (uk-cycle 3), Lôn Las Cymru (uk-cycle 4). CLI: `--only <slug>`, `--refresh`. See docs/scrapers.md for the full slug/route_id table.
 13. **`scraper_e1.py`** — E1 European Long Distance Path (eu-hike, route_id=5, 425 stages, North Cape→Sicily) from hiking-europe.eu. CLI: `--refresh`, `--clear-cache`. Uses `.e1_cache.json` to avoid re-fetching.
 14. **`scraper_albverein.py`** — Albverein Hauptwanderwege (de-hike, route_ids 33–41, 52) from wege.albverein.net. CLI: `--only <slug>`, `--refresh`.
 15. **`scraper_via_francigena.py`** — Full official Via Francigena (eu-hike, route_id=16, 156 stages, Southwark→Santa Maria di Leuca; GB/FR/CH/IT) from viefrancigene.org's JSON API. Computes country/admin1 directly from per-stage track coordinates (point-in-polygon, reuses `enrich_regions.py` helpers) instead of ROUTE_DEFAULTS. CLI: `--refresh`. Cache: `.via_francigena_cache.json`.
@@ -55,13 +55,14 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 
 ## Land values
 
-`{country}-{activity}` (e.g. `ch-hike`). Exception: all UK trails share `land="uk"`. For full route lists and OSM IDs, see **[docs/trails.md](docs/trails.md)**.
+`{country}-{activity}` (e.g. `ch-hike`). Exception: UK hiking trails use `land="uk"` (no suffix). UK cycling uses `uk-cycle`. For full route lists and OSM IDs, see **[docs/trails.md](docs/trails.md)**.
 
 | `land`     | Country        | Activity |
 |------------|----------------|----------|
 | `ch-hike`  | Switzerland    | Hiking   |
 | `ch-cycle` | Switzerland    | Cycling  |
 | `uk`       | UK             | Hiking   |
+| `uk-cycle` | UK             | Cycling  |
 | `fr-hike`  | France         | Hiking   |
 | `it-hike`  | Italy          | Hiking   |
 | `de-hike`  | Germany        | Hiking   |
@@ -102,10 +103,10 @@ Update both tables' constraints before importing any new land value:
 ```sql
 ALTER TABLE routes DROP CONSTRAINT routes_land_check;
 ALTER TABLE routes ADD CONSTRAINT routes_land_check
-  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk'));
+  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk','uk-cycle'));
 ALTER TABLE stages DROP CONSTRAINT stages_land_check;
 ALTER TABLE stages ADD CONSTRAINT stages_land_check
-  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk'));
+  CHECK (land IN ('at-hike','be-hike','ch-cycle','ch-hike','cz-hike','de-hike','dk-hike','ee-hike','es-hike','eu-hike','fr-hike','hr-hike','hu-hike','ie-hike','it-hike','lt-hike','lv-hike','nl-hike','no-hike','pt-hike','se-hike','si-hike','sk-hike','uk','uk-cycle'));
 ```
 
 ## Viewing the web app

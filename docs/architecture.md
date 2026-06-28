@@ -42,7 +42,7 @@ RLS policies ensure each user can only read/write their own rows. Routes and sta
 [{
   "route_id": 1,
   "route_type": "local" | "regional" | "national" | "international" | "continental",
-  "land": "ch-hike" | "ch-cycle" | "uk" | "fr-hike" | "it-hike" | "de-hike" | "es-hike" | "pt-hike" | "eu-hike" | "at-hike" | "se-hike" | "no-hike" | "hr-hike" | "sk-hike" | ...,
+  "land": "ch-hike" | "ch-cycle" | "uk" | "uk-cycle" | "fr-hike" | "it-hike" | "de-hike" | "es-hike" | "pt-hike" | "eu-hike" | "at-hike" | "se-hike" | "no-hike" | "hr-hike" | "sk-hike" | ...,
   "name": "Via Alpina",
   "description": "...",
   "start": "Vaduz (Gaflei, FL)",

@@ -31,6 +31,19 @@ These OSM IDs appeared in `discover_trails.py` with plausible stage counts but h
 
 ---
 
+## UK cycling routes — added 2026-06-28
+
+4 routes added as `uk-cycle` land value using hardcoded stage data in `scraper_websites.py` (UK cycling routes on cycling.waymarkedtrails.org have no day-stage subroutes — only unnamed way fragments).
+
+| Slug | Trail | route_id | Stages | Notes |
+|------|-------|----------|--------|-------|
+| `sea-to-sea` | C2C Sea to Sea | 1 | 6 | NCN 71, Whitehaven→Sunderland |
+| `way-of-the-roses` | Way of the Roses | 2 | 7 | Morecambe→Bridlington |
+| `hadrians-cycleway` | Hadrian's Cycleway | 3 | 6 | NCN 72, Ravenglass→South Shields |
+| `lon-las-cymru` | Lôn Las Cymru | 4 | 9 | NCN 8, Holyhead→Cardiff |
+
+---
+
 ## Website scrapers — no viable OSM day-stage data
 
 These trails have day-stage pages on an official website but the OSM data is too coarse to use.

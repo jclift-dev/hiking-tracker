@@ -41,7 +41,7 @@ USER_AGENT     = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracke
 # Lands to enrich (all European non-Swiss)
 EU_LANDS = {
     "eu-hike", "fr-hike", "de-hike", "it-hike", "es-hike", "ie-hike", "uk",
-    "pt-hike", "at-hike", "hu-hike", "cz-hike", "si-hike",
+    "uk-cycle", "pt-hike", "at-hike", "hu-hike", "cz-hike", "si-hike",
     "nl-hike", "be-hike", "se-hike", "no-hike", "ee-hike",
     "hr-hike", "sk-hike", "dk-hike", "lt-hike", "lv-hike",
 }
@@ -356,6 +356,30 @@ ROUTE_DEFAULTS = {
         (1,  12, "se", "se-x"),    # Gävleborg (Hälsingland): Korsholmen → Ramsjö
         (13, 14, "se", "se-y"),    # Västernorrland: Flomyr → Överturingen
         (15, None, "se", "se-z"),  # Jämtland: Rätan → Kilkoja
+    ],
+    # UK cycling — NCN hardcoded routes
+    ("uk-cycle", 1): [                                   # C2C Sea to Sea (Whitehaven → Sunderland)
+        (1,  2,  "gb", "gb-cma"),  # Cumbria: Whitehaven → Penrith
+        (3,  4,  "gb", "gb-dur"),  # County Durham: Alston → Stanhope
+        (5,  5,  "gb", "gb-dur"),  # County Durham: Stanhope → Consett
+        (6,  None, "gb", "gb-sun"), # Sunderland: Consett → Sunderland
+    ],
+    ("uk-cycle", 2): [                                   # Way of the Roses (Morecambe → Bridlington)
+        (1,  1,  "gb", "gb-lan"),  # Lancashire: Morecambe → Settle
+        (2,  4,  "gb", "gb-yow"),  # North Yorkshire: Settle → York
+        (5,  7,  "gb", "gb-eyr"),  # East Yorkshire: York → Bridlington
+    ],
+    ("uk-cycle", 3): [                                   # Hadrian's Cycleway (Ravenglass → South Shields)
+        (1,  3,  "gb", "gb-cma"),  # Cumbria: Ravenglass → Carlisle/Silloth
+        (4,  5,  "gb", "gb-nbl"),  # Northumberland: Carlisle → Newcastle
+        (6,  None, "gb", "gb-sun"), # South Tyneside: Newcastle → South Shields
+    ],
+    ("uk-cycle", 4): [                                   # Lôn Las Cymru (Holyhead → Cardiff)
+        (1,  2,  "gb", "gb-gwy"),  # Gwynedd: Holyhead → Porthmadog
+        (3,  4,  "gb", "gb-gwy"),  # Gwynedd: Porthmadog → Machynlleth
+        (5,  7,  "gb", "gb-pow"),  # Powys: Machynlleth → Rhayader → Brecon
+        (8,  8,  "gb", "gb-mtd"),  # Merthyr Tydfil: Brecon → Merthyr Tydfil
+        (9,  None, "gb", "gb-crf"), # Cardiff: Merthyr Tydfil → Cardiff
     ],
 }
 

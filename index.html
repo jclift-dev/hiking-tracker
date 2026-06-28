@@ -42,13 +42,15 @@
     --shadow:     0 2px 16px rgba(25,28,29,0.07), 0 1px 4px rgba(25,28,29,0.04);
     --shadow-lg:  0 12px 40px rgba(25,28,29,0.09), 0 2px 8px rgba(25,28,29,0.05);
   }
-  body[data-land="ch-cycle"] {
+  body[data-land="ch-cycle"],
+  body[data-land="uk-cycle"] {
     --primary:    #0d2b45;
     --primary-lt: #1a4a6e;
     --sec-container: #cce3f5;
   }
   @media (prefers-color-scheme: dark) {
-    body[data-land="ch-cycle"] {
+    body[data-land="ch-cycle"],
+    body[data-land="uk-cycle"] {
       --sec-container: #0e2642;
     }
   }
@@ -1381,7 +1383,7 @@ function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 // ---------------------------------------------------------------------------
 const COUNTRIES = [
   { id: 'ch', lands: ['ch-hike', 'ch-cycle'] },
-  { id: 'uk', lands: ['uk'] },
+  { id: 'uk', lands: ['uk', 'uk-cycle'] },
   { id: 'fr', lands: ['fr-hike'] },
   { id: 'de', lands: ['de-hike'] },
   { id: 'it', lands: ['it-hike'] },
@@ -1406,7 +1408,7 @@ const COUNTRIES = [
 ];
 
 function activeLand() {
-  if (selectedCountry === 'uk') return 'uk';
+  if (selectedCountry === 'uk') return selectedActivity === 'cycle' ? 'uk-cycle' : 'uk';
   return `${selectedCountry}-${selectedActivity}`;
 }
 
@@ -1420,6 +1422,15 @@ const SWCP_WALK_IDS = [
 ];
 
 function smUrl(route, stageNr) {
+  if (route.land === 'uk-cycle') {
+    const UK_CYCLE_URLS = {
+      1: 'https://www.sustrans.org.uk/national-cycle-network/sea-to-sea-c2c',
+      2: 'https://www.wayoftheroses.co.uk/',
+      3: 'https://www.visitnorthumberland.com/things-to-do/cycling/hadrians-cycleway',
+      4: 'https://www.sustrans.org.uk/national-cycle-network/lon-las-cymru',
+    };
+    return UK_CYCLE_URLS[route.route_id] || '#';
+  }
   if (route.land === 'uk') {
     if (route.route_id === 1) {
       // SWCP — direct walksdb links via static walk ID map
@@ -1870,7 +1881,7 @@ function linkedStageKey(key) { return LINKED_STAGE_MAP.get(key) || null; }
 const LAND_FLAG = {
   'ch-hike': '🇨🇭', 'ch-cycle': '🇨🇭', 'eu-hike': '🇪🇺',
   'de-hike': '🇩🇪', 'fr-hike': '🇫🇷', 'it-hike': '🇮🇹',
-  'es-hike': '🇪🇸', 'uk':      '🇬🇧', 'no-hike': '🇳🇴',
+  'es-hike': '🇪🇸', 'uk':      '🇬🇧', 'uk-cycle': '🇬🇧', 'no-hike': '🇳🇴',
   'se-hike': '🇸🇪', 'pt-hike': '🇵🇹', 'at-hike': '🇦🇹',
   'ie-hike': '🇮🇪', 'hu-hike': '🇭🇺', 'cz-hike': '🇨🇿',
   'si-hike': '🇸🇮', 'nl-hike': '🇳🇱', 'be-hike': '🇧🇪',
@@ -2133,8 +2144,9 @@ function normalizeDiff(d) {
 // Valid canonical difficulties per land — anything else is discarded
 const VALID_DIFFS = {
   'ch-hike':  new Set(['hiking trail', 'mountain hiking trail', 'demanding mountain hiking trail', 'alpine hiking trail', 'demanding alpine hiking trail']),
-  'ch-cycle': new Set(['easy', 'medium', 'difficult']),
-  uk:         new Set(['easy', 'moderate', 'challenging', 'strenuous']),
+  'ch-cycle':  new Set(['easy', 'medium', 'difficult']),
+  'uk-cycle':  new Set([]),
+  uk:          new Set(['easy', 'moderate', 'challenging', 'strenuous']),
   'fr-hike':  new Set(['easy', 'moderate', 'difficult']),
   'de-hike':  new Set(['easy', 'moderate', 'difficult']),
   'it-hike':  new Set(['easy', 'moderate', 'difficult']),
@@ -2653,7 +2665,7 @@ function renderSurprise() {
       <span style="font-size:22px">🎲</span>
       <div>
         <div class="surprise-label">Suggested for you</div>
-        <div class="surprise-route">${r.land === 'ch-cycle' ? '🚴' : '🥾'} ${r.name}</div>
+        <div class="surprise-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${r.name}</div>
       </div>
       <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
     </div>
@@ -2881,7 +2893,7 @@ function renderRoute(route) {
   const pct = totalStages ? Math.round(doneCount / totalStages * 100) : 0;
   const rkey  = routeKey(route.land, route.route_id);
   const isOpen = !!expanded[rkey];
-  const isCycle = route.land === 'ch-cycle';
+  const isCycle = route.land.endsWith('-cycle');
   const numClass = [isCycle ? 'cycle' : '', route.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
   const routeCantons = [...new Set(route.stages.flatMap(s => s.cantons || []))];
   const icon = isCycle ? '🚴' : '🥾';
@@ -2920,7 +2932,7 @@ function renderFlatStage(stage) {
   const key  = stageKey(stage._land, stage._routeId, stage.stage_nr);
   const done = !!completed[key];
   const r    = stage._route;
-  const isCycle = r.land === 'ch-cycle';
+  const isCycle = r.land.endsWith('-cycle');
   const numLabel = r.route_type === 'national' ? `★ ${r.route_id}` : `${r.route_id}`;
   const distStr    = fmtKm(stage.dist_km);
   const hrsStr     = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
@@ -3873,7 +3885,7 @@ function renderDashboard() {
     const diff = s.difficulty;
     return `
     <div class="dash-next-up">
-      <div class="dash-next-up-route">${r.land === 'ch-cycle' ? '🚴' : '🥾'} ${r.name} · Stage ${s.stage_nr} of ${r._total}</div>
+      <div class="dash-next-up-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${r.name} · Stage ${s.stage_nr} of ${r._total}</div>
       <div class="dash-next-up-title">${s.start_name} → ${s.end_name}${s.via ? ` via ${s.via}` : ''}</div>
       <div class="dash-next-up-meta">
         ${s.dist_km ? `<span class="badge badge-gray">${fmtKm(s.dist_km)}</span>` : ''}
@@ -4099,7 +4111,7 @@ function renderDashboard() {
       <div class="dash-activity-title">Recent Activity</div>
       ${recentDone.length ? recentDone.map(s => `
         <div class="dash-activity-item">
-          <div class="dash-activity-icon">${s._land === 'ch-cycle' ? '🚴' : '🥾'}</div>
+          <div class="dash-activity-icon">${s._land.endsWith('-cycle') ? '🚴' : '🥾'}</div>
           <div class="dash-activity-body">
             <div class="dash-activity-name">${s.start_name} → ${s.end_name}</div>
             <div class="dash-activity-meta">${s._route.name}${s.dist_km ? ` · ${s.dist_km} km` : ''}</div>

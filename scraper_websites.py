@@ -3022,6 +3022,226 @@ def scrape_camino_portugues_interior():
 
 
 # ---------------------------------------------------------------------------
+# UK cycling routes — hardcoded (official sites JS-rendered, no OSM day stages)
+# Sources: Sustrans/NCN official guidebooks and CyclingUK route information.
+# Distances are guidebook estimates and may vary from GPS tracks.
+# ---------------------------------------------------------------------------
+
+SEA_TO_SEA_URL = "https://www.sustrans.org.uk/national-cycle-network/sea-to-sea-c2c"
+SEA_TO_SEA_STAGES = [
+    # Southern (Whitehaven) route → Sunderland. 6 stages, ~203 km.
+    (1, "Whitehaven",        "Ennerdale Bridge",       26.0),
+    (2, "Ennerdale Bridge",  "Penrith",                51.0),
+    (3, "Penrith",           "Alston",                 43.0),
+    (4, "Alston",            "Stanhope",               23.0),
+    (5, "Stanhope",          "Consett",                27.0),
+    (6, "Consett",           "Sunderland",             33.0),
+]
+
+
+def scrape_sea_to_sea():
+    print("C2C Sea to Sea (cycling) — hardcoded (NCN 71, Whitehaven → Sunderland)")
+    stages = []
+    for nr, start, end, km in SEA_TO_SEA_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      SEA_TO_SEA_URL,
+        })
+        print(f"  Stage {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   1,
+        "route_type": "national",
+        "land":       "uk-cycle",
+        "name":       "C2C Sea to Sea",
+        "description": (
+            "The C2C (Sea to Sea) is one of the UK's most popular long-distance "
+            "cycling routes, crossing northern England from the Irish Sea at "
+            "Whitehaven to the North Sea at Sunderland. NCN Route 71 traverses "
+            "the Lake District fells and the North Pennines, including the climb "
+            "over Hartside Pass at 580m."
+        ),
+        "start":    "Whitehaven",
+        "end":      "Sunderland",
+        "total_km": total_km,
+        "stages":   stages,
+    }
+
+
+WAY_OF_THE_ROSES_URL = "https://www.wayoftheroses.co.uk/"
+WAY_OF_THE_ROSES_STAGES = [
+    # Morecambe → Bridlington. 7 stages, ~260 km.
+    (1, "Morecambe",         "Settle",           65.0),
+    (2, "Settle",            "Skipton",          23.0),
+    (3, "Skipton",           "Ripon",            57.0),
+    (4, "Ripon",             "York",             35.0),
+    (5, "York",              "Market Weighton",  33.0),
+    (6, "Market Weighton",   "Beverley",         17.0),
+    (7, "Beverley",          "Bridlington",      30.0),
+]
+
+
+def scrape_way_of_the_roses():
+    print("Way of the Roses (cycling) — hardcoded (Morecambe → Bridlington)")
+    stages = []
+    for nr, start, end, km in WAY_OF_THE_ROSES_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      WAY_OF_THE_ROSES_URL,
+        })
+        print(f"  Stage {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   2,
+        "route_type": "national",
+        "land":       "uk-cycle",
+        "name":       "Way of the Roses",
+        "description": (
+            "The Way of the Roses is a coast-to-coast cycling route crossing northern "
+            "England from Morecambe Bay on the Irish Sea to Bridlington on the North "
+            "Sea. The 260 km route passes through Lancashire, the Yorkshire Dales, "
+            "Nidderdale, York, and the Yorkshire Wolds."
+        ),
+        "start":    "Morecambe",
+        "end":      "Bridlington",
+        "total_km": total_km,
+        "stages":   stages,
+    }
+
+
+HADRIANS_CYCLEWAY_URL = "https://www.visitnorthumberland.com/things-to-do/cycling/hadrians-cycleway"
+HADRIANS_CYCLEWAY_STAGES = [
+    # Ravenglass → South Shields. 6 stages, ~224 km. NCN Route 72.
+    (1, "Ravenglass",            "Whitehaven",            55.0),
+    (2, "Whitehaven",            "Silloth",               57.0),
+    (3, "Silloth",               "Carlisle",              30.0),
+    (4, "Carlisle",              "Hexham",                43.0),
+    (5, "Hexham",                "Newcastle upon Tyne",   23.0),
+    (6, "Newcastle upon Tyne",   "South Shields",         16.0),
+]
+
+
+def scrape_hadrians_cycleway():
+    print("Hadrian's Cycleway — hardcoded (NCN 72, Ravenglass → South Shields)")
+    stages = []
+    for nr, start, end, km in HADRIANS_CYCLEWAY_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      HADRIANS_CYCLEWAY_URL,
+        })
+        print(f"  Stage {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   3,
+        "route_type": "national",
+        "land":       "uk-cycle",
+        "name":       "Hadrian's Cycleway",
+        "description": (
+            "Hadrian's Cycleway (NCN Route 72) follows the route of Hadrian's Wall "
+            "from Ravenglass on the Cumbrian coast to South Shields on the River Tyne. "
+            "The 224 km route combines a spectacular coastal section through Cumbria "
+            "with an inland leg along the Wall corridor through Carlisle and Hexham."
+        ),
+        "start":    "Ravenglass",
+        "end":      "South Shields",
+        "total_km": total_km,
+        "stages":   stages,
+    }
+
+
+LON_LAS_CYMRU_URL = "https://www.sustrans.org.uk/national-cycle-network/lon-las-cymru"
+LON_LAS_CYMRU_STAGES = [
+    # Holyhead → Cardiff. 9 stages, ~352 km. NCN Route 8.
+    (1, "Holyhead",         "Caernarfon",       25.0),
+    (2, "Caernarfon",       "Porthmadog",       38.0),
+    (3, "Porthmadog",       "Dolgellau",        44.0),
+    (4, "Dolgellau",        "Machynlleth",      44.0),
+    (5, "Machynlleth",      "Llanidloes",       44.0),
+    (6, "Llanidloes",       "Rhayader",         24.0),
+    (7, "Rhayader",         "Brecon",           59.0),
+    (8, "Brecon",           "Merthyr Tydfil",   33.0),
+    (9, "Merthyr Tydfil",   "Cardiff",          41.0),
+]
+
+
+def scrape_lon_las_cymru():
+    print("Lôn Las Cymru — hardcoded (NCN 8, Holyhead → Cardiff)")
+    stages = []
+    for nr, start, end, km in LON_LAS_CYMRU_STAGES:
+        stages.append({
+            "stage_nr":         nr,
+            "start_name":       start,
+            "end_name":         end,
+            "via":              None,
+            "dist_km":          km,
+            "elev_up":          None,
+            "elev_down":        None,
+            "duration_hrs":     None,
+            "difficulty":       None,
+            "description":      None,
+            "arrival_stations": [],
+            "sbb_times":        {},
+            "_source_url":      LON_LAS_CYMRU_URL,
+        })
+        print(f"  Stage {nr}  {start} → {end} ({km} km)")
+    total_km = round(sum(s["dist_km"] for s in stages), 1)
+    print(f"  {len(stages)} stages, {total_km} km total")
+    return {
+        "route_id":   4,
+        "route_type": "national",
+        "land":       "uk-cycle",
+        "name":       "Lôn Las Cymru",
+        "description": (
+            "Lôn Las Cymru (NCN Route 8) traverses Wales from Holyhead on Anglesey "
+            "to Cardiff, passing through Snowdonia, the Cambrian Mountains, and the "
+            "Brecon Beacons. Much of the northern section follows disused railway "
+            "trackbeds (Lôn Las Menai, Lôn Eifion, Mawddach Trail) before climbing "
+            "through remote mid-Wales. The southern leg descends via the Taff Trail."
+        ),
+        "start":    "Holyhead",
+        "end":      "Cardiff",
+        "total_km": total_km,
+        "stages":   stages,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Trail registry
 # ---------------------------------------------------------------------------
 
@@ -3105,6 +3325,11 @@ TRAILS = {
     "san-jacopo":             scrape_san_jacopo,
     "camino-lebaniego":       scrape_camino_lebaniego,
     "camino-tours-paris":     scrape_camino_tours_paris,
+    # UK cycling (hardcoded — official sites are JS-rendered)
+    "sea-to-sea":             scrape_sea_to_sea,
+    "way-of-the-roses":       scrape_way_of_the_roses,
+    "hadrians-cycleway":      scrape_hadrians_cycleway,
+    "lon-las-cymru":          scrape_lon_las_cymru,
 }
 
 
