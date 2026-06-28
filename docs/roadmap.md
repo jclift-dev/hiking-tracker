@@ -51,7 +51,7 @@ These trails have day-stage pages on an official website but the OSM data is too
 
 - **SVG map** — if adding routes in GE/AM/AZ (Transcaucasian Trail), run `make_europe_svg.py` with updated Natural Earth GeoJSON (currently those 3 countries have no SVG polygon) and update the `europePaths` JS constant in `index.html`.
 - **ee-hike:4 ROUTE_OSM_IDS** — already populated (`11346181`) and route is live. No action needed.
-- **Via Alpina overlap links** — eu-hike:1 (Via Alpina, 116s) likely shares stages with ch-hike routes; scan for matching `_osm_id` values to enable automatic cross-linking.
+- **Via Alpina overlap links** — ✓ Done. eu-hike:1 shares 14 OSM stage IDs with ch-hike:1 (stages 2–15 on the Swiss section); 170 total cross-route shared `osm_id` pairs across the dataset. `buildLinkedStageMap()` handles these automatically at boot.
 - **Nordkalottruta stage links** — eu-hike:6 likely overlaps with Kungsleden (se-hike:5) and Nordland (no-hike:2); check OSM IDs or add link_keys.
 - **Ireland OSM** — all 6 ie-hike routes are currently single-stage flat OSM; re-check periodically if day stages are added.
 - **discover_trails --recheck-large-stages** — run to get accurate day-stage counts for multi-section candidates in `trails_catalog.json`.
