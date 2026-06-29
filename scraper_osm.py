@@ -865,6 +865,62 @@ def backfill_swcp_osm_ids():
 
 
 # ---------------------------------------------------------------------------
+# WHW OSM ID backfill
+# ---------------------------------------------------------------------------
+
+# Parent OSM relation for the West Highland Way.
+# Has 8 ordered unnamed child sub-routes matching the 8 stages scraped
+# from walkshighlands.co.uk by scraper_whw.py.
+WHW_OSM_PARENT = 16287
+
+
+def backfill_whw_osm_ids():
+    existing = load_existing()
+    all_routes = list(existing.values())
+
+    whw = next(
+        (r for r in all_routes if r["land"] == "uk" and r["route_id"] == 2),
+        None,
+    )
+    if not whw:
+        print("WHW (uk:2) not found in hikes.json. Run scraper_whw.py first.")
+        return
+
+    stages = whw["stages"]
+    print(f"WHW: {len(stages)} scraped stages. "
+          f"Fetching OSM relation {WHW_OSM_PARENT}...", flush=True)
+
+    parent_data = fetch_relation(WHW_OSM_PARENT, "West Highland Way")
+    if not parent_data:
+        print("Could not fetch WHW OSM relation. Aborting.")
+        return
+
+    children = parent_data.get("route", {}).get("main", [])
+    osm_ids = [c["id"] for c in children if "id" in c]
+    print(f"OSM relation has {len(osm_ids)} child sub-routes.")
+
+    n_assign = min(len(stages), len(osm_ids))
+    if len(stages) != len(osm_ids):
+        print(f"⚠  Count mismatch: {len(stages)} scraped stages vs "
+              f"{len(osm_ids)} OSM sections — assigning first {n_assign} positionally.")
+
+    for i in range(n_assign):
+        stages[i]["_osm_id"] = osm_ids[i]
+
+    unmatched = stages[n_assign:]
+    if unmatched:
+        print("   Unmatched stages (no _osm_id assigned):")
+        for s in unmatched:
+            print(f"     stage {s['stage_nr']:2d}: {s['start_name']} → {s['end_name']}")
+
+    print(f"✓  {n_assign} WHW stages assigned _osm_id "
+          f"(OSM {osm_ids[0]} … {osm_ids[n_assign - 1]})")
+
+    save(all_routes)
+    print("Next: source .env && python3 scraper.py --import")
+
+
+# ---------------------------------------------------------------------------
 # Stage parsing
 # ---------------------------------------------------------------------------
 
@@ -1201,6 +1257,8 @@ def main():
                    help="Assign _osm_id to ch-hike stages from OSM parent superroutes (by position)")
     p.add_argument("--backfill-swcp-osm-ids", action="store_true",
                    help="Assign _osm_id to SWCP (uk:1) stages from OSM super-relation 2376086 (by position)")
+    p.add_argument("--backfill-whw-osm-ids", action="store_true",
+                   help="Assign _osm_id to WHW (uk:2) stages from OSM relation 16287 (by position)")
     args = p.parse_args()
 
     if args.backfill_names:
@@ -1217,6 +1275,10 @@ def main():
 
     if args.backfill_swcp_osm_ids:
         backfill_swcp_osm_ids()
+        return
+
+    if args.backfill_whw_osm_ids:
+        backfill_whw_osm_ids()
         return
 
     refresh_ids = set(args.refresh_ids or [])
