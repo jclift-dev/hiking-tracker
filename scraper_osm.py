@@ -213,6 +213,10 @@ TRAILS = [
     (15720869, "it-hike", 61, "national", "Romea Strata - Tratto Italiano 07"),
     (16895273, "it-hike", 62, "national", "Cammino di San Francesco di Paola"),
     (10749336, "it-hike", 63, "national", "Via Matildica del Volto Santo"),
+    (7561168,  "it-hike", 64, "national", "Sentiero Italia - Liguria"),
+    (7246181,  "it-hike", 65, "national", "Sentiero Italia - Lazio"),
+    (9290765,  "it-hike", 66, "national", "Sentiero Italia - Puglia"),
+    (7029514,  "it-hike", 67, "national", "Sentiero Italia - Veneto"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
     (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
