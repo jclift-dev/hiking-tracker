@@ -205,6 +205,10 @@ TRAILS = [
     (7450464,  "it-hike", 43, "national", "ViaSett"),
     (16133891, "it-hike", 55, "national", "Dolomites World Heritage Geotrail"),
     (14888098, "it-hike", 56, "national", "Via Normanna"),
+    (7029512,  "it-hike", 57, "national", "Sentiero Italia - Lombardia"),
+    (7029513,  "it-hike", 58, "national", "Sentiero Italia - Trentino Alto Adige"),
+    (7332771,  "it-hike", 59, "national", "Sentiero Italia - Friuli Venezia Giulia"),
+    (7125614,  "it-hike", 60, "national", "Sentiero Italia - Calabria"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
     (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
