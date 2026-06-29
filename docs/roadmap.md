@@ -67,7 +67,8 @@ These trails have day-stage pages on an official website but the OSM data is too
 - **Swiss OSM superroute linking** — ✓ Done (2026-06-28). 28 multi-stage ch-hike routes and 83 single-stage routes linked to OSM. 390 Swiss stages have `_osm_id`. See `docs/osm-superroute-status.md` for 3 count-mismatch routes and 50 routes with no OSM superroute (both need OSM fixes before they can be linked).
 - **Nordkalottruta stage links** — ✓ Done. 18 shared OSM IDs confirmed: 14 with Nordland (no-hike:2, stages 24–37) and 4 with Kungsleden (se-hike:5, stages 1–4). All auto-linked via `buildLinkedStageMap()`.
 - **Ireland OSM** — all 6 ie-hike routes are currently single-stage flat OSM; re-check periodically if day stages are added.
-- **discover_trails --recheck-large-stages** — run to get accurate day-stage counts for multi-section candidates in `trails_catalog.json`.
+- **discover_trails --recheck-large-stages** — ✓ Done (2026-06-29). Found 12 new viable candidates; all added.
+- **OSM stage splits needed** — several added routes have stages longer than ideal (~30–44km) that would benefit from a mapper splitting them in OSM: Limeswanderweg de-hike:75 (max 44km), Camino Lituano lt-hike:2 (max 34km), Via Matildica del Volto Santo it-hike:63 (max 35km), Svatojakubská cesta cz-hike:4 (max 33km). Re-scrape once splits appear in OSM.
 
 ---
 

@@ -127,6 +127,7 @@ TRAILS = [
     (19221478, "de-hike", 47, "national", "Ulrikaweg"),
     (2153742,  "de-hike", 48, "national", "Kammweg Erzgebirge-Vogtland"),
     (16742541, "de-hike", 74, "national", "Hugenotten und Waldenserweg"),
+    (191317,   "de-hike", 75, "national", "Limeswanderweg"),
     (7458271,  "de-hike", 60, "national", "Westerwaldsteig"),
     (3535507,  "de-hike", 61, "national", "Bergischer Panoramasteig"),
     (31758,    "de-hike", 62, "national", "X19 Schlösserweg"),
@@ -209,6 +210,9 @@ TRAILS = [
     (7029513,  "it-hike", 58, "national", "Sentiero Italia - Trentino Alto Adige"),
     (7332771,  "it-hike", 59, "national", "Sentiero Italia - Friuli Venezia Giulia"),
     (7125614,  "it-hike", 60, "national", "Sentiero Italia - Calabria"),
+    (15720869, "it-hike", 61, "national", "Romea Strata - Tratto Italiano 07"),
+    (16895273, "it-hike", 62, "national", "Cammino di San Francesco di Paola"),
+    (10749336, "it-hike", 63, "national", "Via Matildica del Volto Santo"),
     # Italy — famous day hikes
     (1169757,  "it-hike", 51, "regional", "Tre Cime di Lavaredo"),
     (7224540,  "it-hike", 52, "regional", "Stromboli Volcano Trail"),
@@ -239,6 +243,7 @@ TRAILS = [
     (16828381, "cz-hike", 1, "national", "Via Czechia - Severní stezka"),
     (16828379, "cz-hike", 2, "national", "Via Czechia - Centrální stezka"),
     (16828282, "cz-hike", 3, "national", "Via Czechia - Jižní stezka"),
+    (254280,   "cz-hike", 4, "national", "Svatojakubská cesta"),
 
     # Slovenia (si-hike — add to Supabase CHECK before --import)
     (10909145, "si-hike", 1, "national", "Julius Kugy Alpine Trail"),
@@ -263,6 +268,9 @@ TRAILS = [
     (13202508, "nl-hike", 15, "national", "Ons Kloosterpad"),
     (8273240,  "nl-hike", 16, "national", "Romeinse Limespad"),
     (5404951,  "nl-hike", 17, "national", "Airbornepad Market Garden"),
+    (9769895,  "nl-hike", 18, "national", "Floris V-pad"),
+    (9769732,  "nl-hike", 19, "national", "Friese Woudenpad"),
+    (1572126,  "nl-hike", 20, "national", "Overijssels Havezatenpad"),
 
     # Belgium (be-hike)
     (18632711, "be-hike", 1, "national", "Via Brabantica"),
@@ -318,6 +326,7 @@ TRAILS = [
     (1417687,  "no-hike", 17, "regional", "Besseggen"),
     (4173881,  "no-hike", 18, "regional", "Trollstigen"),
     (1362633,  "no-hike", 19, "national", "Kyststier langs Oslofjorden"),
+    (1942304,  "no-hike", 20, "national", "Pilgrimsruten"),
 
     # Denmark (dk-hike — add to Supabase CHECK before --import)
     (1792585,  "dk-hike", 1, "national", "Hærvejen"),
@@ -325,6 +334,7 @@ TRAILS = [
 
     # Lithuania (lt-hike — add to Supabase CHECK before --import)
     (6519670,  "lt-hike", 1, "continental", "E11 Lithuania"),
+    (14303715, "lt-hike", 2, "national", "Camino Lituano"),
 
     # Latvia (lv-hike — add to Supabase CHECK before --import)
     (13239065, "lv-hike", 1, "national", "Ezertaka"),
@@ -344,6 +354,7 @@ TRAILS = [
     (2437984,  "eu-hike", 6,  "national", "Nordkalottruta"),
     (5576339,  "eu-hike", 17, "national", "Kuststigen"),
     (8928052,  "eu-hike", 18, "national", "Transcaucasian Trail"),
+    (6367856,  "eu-hike", 19, "national", "European long distance path E12 - Spain"),
 
     # France — new
     (16234318, "fr-hike", 12, "national", "L'Echappée Jurassienne"),
@@ -358,6 +369,7 @@ TRAILS = [
     (20499402, "fr-hike", 35, "national", "Chemin des Plantagenêts"),
     (8375828,  "fr-hike", 36, "national", "Voie des Plantagenêts"),
     (368453,   "fr-hike", 37, "national", "Voie du Piémont"),
+    (18282788, "fr-hike", 38, "national", "Via Cluny - Le grand itinéraire"),
 
     # Croatia (hr-hike — add to Supabase CHECK before --import)
     (14368967, "hr-hike", 1,  "national", "Via Apsyrtides"),
