@@ -30,7 +30,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | `lv-hike`  | Latvia         | Hiking   | Ezertaka (1,43s,OSM 13239065), E11 Mežtaka (2,31s,OSM 11116577) |
 | `ee-hike`  | Estonia        | Hiking   | Euroopa matkarada E9 (1,31s), Peraküla-Aegviidu-Ähijärve haru (2,11s), Camino Estonia (3,10s) |
 | `sk-hike`  | Slovakia       | Hiking   | SNP Trail (1,27s,website,Dukla Pass→Devín Castle) |
-| `eu-hike`  | Europe (multi) | Hiking   | Via Alpina (1,116s,Monaco→Trieste), Alpe Adria (2,43s,Salzburg→Trieste), TMB (3,11s,circular), Sultan's Trail (4,120s,Vienna→Istanbul), E1 (5,425s,North Cape→Sicily), Nordkalottruta (6,43s,NO/SE/FI), Grande traversée Alpi Marittime (7,19s,Geotrek), Boucle 4 vallées (8,5s,Geotrek), Tour du Mont Ténibre (9,5s,Geotrek), Sur l'Alta Via Ligure (10,3s,Geotrek), Tour franco-italien du Mont Gramondo (11,3s,Geotrek), High Scardus Trail (12,20s,website,MK/XK/AL), Via Gebennensis (13,17s,gronze,Geneva→Le Puy,CH/FR), Camino de Arles (14,34s,gronze,Arles→Jaca,FR/ES), Camino del Piamonte (15,23s,gronze,Carcassonne→Roncesvalles,FR/ES), Via Francígena (16,156s,viefrancigene.org,Southwark→Santa Maria di Leuca,GB/FR/CH/IT), Kuststigen (17,39s,OSM 5576339,Göteborg→Oslo,SE/NO) |
+| `eu-hike`  | Europe (multi) | Hiking   | Via Alpina (1,116s,Monaco→Trieste), Alpe Adria (2,43s,Salzburg→Trieste), TMB (3,11s,circular), Sultan's Trail (4,120s,Vienna→Istanbul), E1 (5,425s,North Cape→Sicily), Nordkalottruta (6,43s,NO/SE/FI), Grande traversée Alpi Marittime (7,19s,Geotrek), Boucle 4 vallées (8,5s,Geotrek), Tour du Mont Ténibre (9,5s,Geotrek), Sur l'Alta Via Ligure (10,3s,Geotrek), Tour franco-italien du Mont Gramondo (11,3s,Geotrek), High Scardus Trail (12,20s,website,MK/XK/AL), Via Gebennensis (13,17s,gronze,Geneva→Le Puy,CH/FR), Camino de Arles (14,34s,gronze,Arles→Jaca,FR/ES), Camino del Piamonte (15,23s,gronze,Carcassonne→Roncesvalles,FR/ES), Via Francígena (16,156s,viefrancigene.org,Southwark→Santa Maria di Leuca,GB/FR/CH/IT), Kuststigen (17,39s,OSM 5576339,Göteborg→Oslo,SE/NO), Transcaucasian Trail (18,94s,OSM 8928052,Lake Arpi→Meghri,AM) |
 
 ## OSM trail catalog (scraper_osm.py TRAILS list)
 
@@ -251,6 +251,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 | 16127693  | `eu-hike` | 4        | Sultan's Trail (120 stages, Vienna→Istanbul, AT/SK/HU/RS/HR/BG/GR/TR) |
 | 2437984   | `eu-hike` | 6        | Nordkalottruta (43 stages, Sulitjelma→Buletjávri, NO/SE/FI) |
 | 5576339   | `eu-hike` | 17       | Kuststigen (39 stages, Göteborg→Oslo, SE/NO) |
+| 8928052   | `eu-hike` | 18       | Transcaucasian Trail (94 stages, Lake Arpi→Meghri, AM) |
 
 ## Website-only routes (scraper_websites.py)
 

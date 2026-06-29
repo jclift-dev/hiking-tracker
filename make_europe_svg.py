@@ -39,16 +39,19 @@ INCLUDE_COUNTRIES = {
     "HU", "CZ", "NL", "BE", "SE", "NO", "EE", "HR", "SK", "DK",
     "RS", "BG", "GR", "TR", "LT", "LV",
     "MK", "XK", "AL",  # High Scardus Trail countries
+    "GE", "AM", "AZ",  # Transcaucasian Trail countries
 }
 
 # SVG viewport — equirectangular projection
-LON_MIN, LON_MAX = -12.0, 35.0
+# Extended east to 52°E to include Georgia/Armenia/Azerbaijan (Transcaucasian Trail).
+# SVG_W scaled proportionally: 64° lon / 47° lon × 1100 ≈ 1500.
+LON_MIN, LON_MAX = -12.0, 52.0
 LAT_MIN, LAT_MAX = 34.0, 72.0
-SVG_W, SVG_H = 1100, 920
+SVG_W, SVG_H = 1500, 920
 
 # Minimum area (in SVG px²) to include a polygon (filters tiny islands/enclaves).
 MIN_AREA_PX2 = 20.0
-ALWAYS_INCLUDE = {"MC", "LI", "SI", "MK", "XK", "AL"}  # country codes exempt from min-area filter
+ALWAYS_INCLUDE = {"MC", "LI", "SI", "MK", "XK", "AL", "GE", "AM", "AZ"}  # country codes exempt from min-area filter
 
 # Douglas-Peucker epsilon in SVG px units.
 # Higher = more simplification (fewer points).
@@ -156,6 +159,12 @@ def make_code(props):
         return "xk"
     if iso_a2 == "AL":
         return "al"
+    if iso_a2 == "GE":
+        return "ge"
+    if iso_a2 == "AM":
+        return "am"
+    if iso_a2 == "AZ":
+        return "az"
 
     # Ireland: map county → province
     if iso_a2 == "IE":

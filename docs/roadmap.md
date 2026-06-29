@@ -12,7 +12,7 @@ OSM routes with verified day-stage hierarchies. All can be added with `scraper_o
 
 | OSM ID | Trail | Land | route_id | Stages | Notes |
 |--------|-------|------|----------|--------|-------|
-| 8928052 | Transcaucasian Trail | `eu-hike` | 18 | ~94 | GE/AM/AZ — needs GE/AM/AZ added to SVG map (re-run `make_europe_svg.py` with updated Natural Earth data or add polygons manually) |
+| 8928052 | Transcaucasian Trail | `eu-hike` | 18 | 94 | ✓ Added 2026-06-29. Lake Arpi→Meghri, AM. SVG map extended to LON_MAX=52 to include GE/AM/AZ. |
 | 16742541 | Hugenotten und Waldenserweg | `de-hike` | 74 | 23 | ✓ Added 2026-06-28. Baden→Schaffhausen. |
 | 4830796 | Camino Natural del Guadiana | `es-hike` | 35 | 44 | ✓ Added 2026-06-28. Laguna Blanca→Ayamonte, ES/PT. |
 | 3802149 | La Senda del Duero | `es-hike` | 36 | 42 | ✓ Added 2026-06-28. Fuentes del Duero→Vega Terrón. |
@@ -62,7 +62,7 @@ These trails have day-stage pages on an official website but the OSM data is too
 
 ## Infrastructure / one-off tasks
 
-- **SVG map** — if adding routes in GE/AM/AZ (Transcaucasian Trail), run `make_europe_svg.py` with updated Natural Earth GeoJSON (currently those 3 countries have no SVG polygon) and update the `europePaths` JS constant in `index.html`.
+- **SVG map** — ✓ Done (2026-06-29). GE/AM/AZ added to `make_europe_svg.py` and `europePaths` regenerated for Transcaucasian Trail. Viewport extended to LON_MAX=52, SVG_W=1500.
 - **Via Alpina overlap links** — ✓ Done. eu-hike:1 shares 14 OSM stage IDs with ch-hike:1 (stages 2–15 on the Swiss section); 170 total cross-route shared `osm_id` pairs across the dataset. `buildLinkedStageMap()` handles these automatically at boot.
 - **Swiss OSM superroute linking** — ✓ Done (2026-06-28). 28 multi-stage ch-hike routes and 83 single-stage routes linked to OSM. 390 Swiss stages have `_osm_id`. See `docs/osm-superroute-status.md` for 3 count-mismatch routes and 50 routes with no OSM superroute (both need OSM fixes before they can be linked).
 - **Nordkalottruta stage links** — ✓ Done. 18 shared OSM IDs confirmed: 14 with Nordland (no-hike:2, stages 24–37) and 4 with Kungsleden (se-hike:5, stages 1–4). All auto-linked via `buildLinkedStageMap()`.

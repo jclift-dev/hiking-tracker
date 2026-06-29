@@ -339,6 +339,7 @@ TRAILS = [
     (16127693, "eu-hike", 4,  "national", "Sultan's Trail"),
     (2437984,  "eu-hike", 6,  "national", "Nordkalottruta"),
     (5576339,  "eu-hike", 17, "national", "Kuststigen"),
+    (8928052,  "eu-hike", 18, "national", "Transcaucasian Trail"),
 
     # France — new
     (16234318, "fr-hike", 12, "national", "L'Echappée Jurassienne"),
