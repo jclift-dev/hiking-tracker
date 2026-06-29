@@ -69,6 +69,7 @@ These trails have day-stage pages on an official website but the OSM data is too
 - **Ireland OSM** — all 6 ie-hike routes are currently single-stage flat OSM; re-check periodically if day stages are added.
 - **discover_trails --recheck-large-stages** — ✓ Done (2026-06-29). Found 12 new viable candidates; all added.
 - **OSM stage splits needed** — several added routes have stages longer than ideal (~30–44km) that would benefit from a mapper splitting them in OSM: Limeswanderweg de-hike:75 (max 44km), Camino Lituano lt-hike:2 (max 34km), Via Matildica del Volto Santo it-hike:63 (max 35km), Svatojakubská cesta cz-hike:4 (max 33km). Re-scrape once splits appear in OSM.
+- **Dutch "alle varianten" superroutes** — several nl-hike routes have an OSM "alle varianten" superroute wrapping the main trail plus side variants (e.g. Trekvogelpad 532494 → superroute 10879005, Maarten van Rossumpad 8435936 → 11141874, Marskramerpad 2801085 → 13506168, Pieterpad 312993+156951 → 7973533). We intentionally use the main sub-route IDs in `ROUTE_OSM_IDS` — the superroutes include unmapped variant branches and would show more than what's in the app.
 
 ---
 
