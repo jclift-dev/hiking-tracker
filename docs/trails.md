@@ -36,6 +36,7 @@ Full route lists per land value, OSM trail IDs, deferred & future candidates.
 
 | OSM ID    | `land`    | route_id | Trail |
 |-----------|-----------|----------|-------|
+| 2376086   | `uk`      | 1        | South West Coast Path super-relation (52 sections — `--backfill-swcp-osm-ids` only; stages from scraper_swcp.py) |
 | 4080347   | `uk`      | 4        | Pennine Way (11 stages) |
 | 77976     | `uk`      | 5        | South Downs Way — OSM fallback (superseded by scraper_nationaltrail.py) |
 | 65239     | `uk`      | 6        | Cotswold Way — OSM fallback (superseded by scraper_nationaltrail.py) |
