@@ -1669,10 +1669,7 @@ function smUrl(route, stageNr) {
   }
   const activity = route.land === 'ch-cycle' ? 'cycling-in-switzerland' : 'hiking-in-switzerland';
   const id = String(route.route_id).padStart(2, '0');
-  const single = route.stages.length === 1;
-  return single
-    ? `https://schweizmobil.ch/en/${activity}/route-${id}`
-    : `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
+  return `https://schweizmobil.ch/en/${activity}/route-${id}/stage-${stageNr}`;
 }
 const UK_ROUTE_LABELS = { 1: 'SWCP', 2: 'WHW', 3: 'ODP', 5: 'nationaltrail.co.uk', 6: 'nationaltrail.co.uk', 7: 'nationaltrail.co.uk', 8: 'nationaltrail.co.uk', 13: 'nationaltrail.co.uk' };
 const FR_HIKE_SOURCE_LABELS = { 1: 'le-gr20.fr', 2: 'podiensis.com', 3: 'chamina-voyages.com' };
