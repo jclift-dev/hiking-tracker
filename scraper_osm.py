@@ -239,6 +239,7 @@ TRAILS = [
     # at-hike:4 skipped — OSM 3372194 is ch-hike:3 (Alpine Panorama Trail, Rorschach→Genève, entirely Swiss)
     (1560864,  "at-hike", 5, "national", "Donausteig"),
     (17036352, "at-hike", 6, "national", "Walserweg"),
+    (15545474, "at-hike", 7, "national", "Weg des Buches"),
 
     # Hungary (hu-hike — add to Supabase CHECK before --import)
     (6007494,  "hu-hike", 1, "national", "Országos Kéktúra"),
