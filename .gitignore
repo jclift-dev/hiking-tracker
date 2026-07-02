@@ -7,3 +7,24 @@ discover_local.py
 # Stitch reference designs (local only)
 stitch*/
 DESIGN.md
+
+# macOS
+.DS_Store
+
+# Local Claude / OMC state
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
+.omc/
+
+# Scraper caches and logs
+.e1_cache.json
+.ne_admin1.json
+.via_francigena_cache.json
+discover_trails.log
+discover_trails_delta.log
+scraper_thun.log
+trails_catalog.json
+
+# Backup files
+hikes.json.bak*
