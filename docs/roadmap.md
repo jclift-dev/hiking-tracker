@@ -16,6 +16,8 @@ OSM routes with verified day-stage hierarchies. All can be added with `scraper_o
 | 16742541 | Hugenotten und Waldenserweg | `de-hike` | 74 | 23 | ✓ Added 2026-06-28. Baden→Schaffhausen. |
 | 4830796 | Camino Natural del Guadiana | `es-hike` | 35 | 44 | ✓ Added 2026-06-28. Laguna Blanca→Ayamonte, ES/PT. |
 | 3802149 | La Senda del Duero | `es-hike` | 36 | 42 | ✓ Added 2026-06-28. Fuentes del Duero→Vega Terrón. |
+| 15545474 | Weg des Buches | `at-hike` | 7 | 16 | ✓ Added 2026-07-02. Carinthia, 284km, max 27.6km. Includes 3 variant stages. |
+| 186221 | Südalpenweg 03 | `at-hike` | 8 | 25+variants | WT returns subroutes as dict (Etappe 1–25 + variants). Verify stage distances before scraping. |
 
 ### Catalog entries to investigate
 
@@ -92,3 +94,4 @@ These trails have day-stage pages on an official website but the OSM data is too
 | St. Paul's Trail (Turkey) | OSM 569620 flat; no per-stage pages found |
 | Querweg Freiburg-Bodensee | OSM 10180 has 68 "stages" at max 3km — these are trail segments, not day stages |
 | South West Coast Path | OSM 2376086 (52 stages) would duplicate uk:1 already scraped from southwestcoastpath.org.uk |
+| King Charles III England Coast Path (uk:13) | Current data (OSM 3971851, 44 stages) is coarse regional sections not day stages — some 97–110km, dirty names. nationaltrail.co.uk has no /route/ pages for any ECP section. No better source found 2026-07-02; leave as rough overview or remove. |
