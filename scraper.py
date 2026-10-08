@@ -967,7 +967,9 @@ def main():
     print("=" * 60)
 
     existing = load_existing()
-    routes = []
+    # Carry over routes from lands this scraper doesn't touch (OSM, website and
+    # other scrapers) so save(routes) below never drops them from hikes.json.
+    routes = [r for r in existing.values() if r.get("land", "ch-hike") not in LANDS]
 
     # --- Route scraping ---
     if not args.sbb_only and not args.sbb_all:
