@@ -94,7 +94,7 @@ hiking-tracker/
 ├── scraper_nationaltrail.py  # UK: South Downs Way, Cotswold Way, etc.
 ├── scraper_osm.py       # OpenStreetMap trails (Waymarked Trails API)
 ├── test_sbb.py          # SBB API connectivity test
-├── discover_local.py    # Research tool (Playwright)
+├── discover_local.py    # Research tool (Playwright) — gitignored, local only
 ├── hikes.json           # Scraped trail data (output)
 ├── CLAUDE.md            # Technical documentation
 ├── DESIGN.md            # Design system specification
@@ -105,7 +105,6 @@ hiking-tracker/
 │   ├── icon-4-alpine.svg
 │   └── icon-5-summit.svg
 ├── .env                 # Supabase credentials (gitignored)
-└── .gitlab-ci.yml       # CI configuration
 ```
 
 ---

@@ -76,10 +76,10 @@ except ImportError:
 #   uk:      4+  (1=SWCP, 2=WHW, 3=ODP already from authoritative scrapers; 10-13 new)
 #   fr-hike: 4+  (1=GR20, 2=GR65, 3=GR70 already scraped; 5-6 new)
 #   de-hike: 2+  (1=Malerweg already scraped; 6-7 new)
-#   es-hike: 1+  (new land value — add to Supabase CHECK before --import; 4-6 new)
+#   es-hike: 1+  (land already in the Supabase CHECK; 4-6 new)
 #   it-hike: 2+  (1=Alta Via 1 already scraped; 2-3 new)
-#   pt-hike: 1+  (new land value — add to Supabase CHECK before --import)
-#   eu-hike: 1+  (new land value — add to Supabase CHECK before --import)
+#   pt-hike: 1+  (land already in the Supabase CHECK)
+#   eu-hike: 1+  (land already in the Supabase CHECK)
 
 TRAILS = [
     # UK — day-stage subroutes available

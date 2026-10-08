@@ -47,10 +47,10 @@ A hiking tracker for a small group of users. Scraper scripts build `hikes.json` 
 15. **`scraper_via_francigena.py`** — Full official Via Francigena (eu-hike, route_id=16, 156 stages, Southwark→Santa Maria di Leuca; GB/FR/CH/IT) from viefrancigene.org's JSON API. Computes country/admin1 directly from per-stage track coordinates (point-in-polygon, reuses `enrich_regions.py` helpers) instead of ROUTE_DEFAULTS. CLI: `--refresh`. Cache: `.via_francigena_cache.json`.
 16. **`index.html`** — Single-file vanilla JS web app: Supabase auth, stage tracking, route filtering/searching.
 17. **`test_sbb.py`** — Sanity-checks transport.opendata.ch API for all SBB origins.
-18. **`discover_local.py`** — Playwright script to intercept SchweizMobil network traffic. One-off research tool.
+18. **`discover_local.py`** — Playwright script to intercept SchweizMobil network traffic. One-off research tool; gitignored, so not in the repo.
 19. **`discover_trails.py`** — Builds/maintains `trails_catalog.json` (56k+ entries) of European hiking trail candidates via Overpass + Waymarked Trails APIs. See docs/scrapers.md for CLI and filter_status values.
 20. **`discover_trail_websites.py`** — Three-source pipeline that checks which catalog candidates have day-stage pages on their official websites. Outputs `trail_websites.json` (status="found" = viable; 68 confirmed hits across 896 processed). One-off research tool; re-run to refresh.
-21. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `--import`.
+21. **`enrich_regions.py`** — Adds `country`/`admin1` ISO codes to hikes.json stages for the Europe map. Run after adding European routes, then `python3 scraper.py --import`.
 22. **`make_europe_svg.py`** — One-off: generates `europePaths` JS constant for `index.html` from Natural Earth GeoJSON. Re-run only if SVG region shapes need updating.
 
 ## Land values
