@@ -15,13 +15,8 @@ import json
 import sys
 from collections import Counter
 
-# Keep in sync with the Supabase CHECK constraint (see CLAUDE.md).
-LANDS = {
-    "at-hike", "be-hike", "ch-cycle", "ch-hike", "cz-hike", "de-hike", "dk-hike",
-    "ee-hike", "es-hike", "eu-hike", "fr-hike", "hr-hike", "hu-hike", "ie-hike",
-    "it-hike", "lt-hike", "lv-hike", "nl-hike", "no-hike", "pt-hike", "se-hike",
-    "si-hike", "sk-hike", "uk", "uk-cycle",
-}
+from lands import ALL_LANDS as LANDS  # single source of truth
+
 ROUTE_KEYS = ("route_id", "land", "route_type", "name", "stages")
 NUMERIC_STAGE_KEYS = ("dist_km", "elev_up", "elev_down", "duration_hrs", "hiking_hrs")
 

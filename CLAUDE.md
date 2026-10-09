@@ -10,7 +10,7 @@ Read these when working on the relevant area — don't load them all upfront:
 - **[docs/trails.md](docs/trails.md)** — full route lists per land value, OSM trail IDs, deferred & future candidates
 - **[docs/roadmap.md](docs/roadmap.md)** — what to add next, what's blocked, website scraper candidates
 
-**Keep docs current**: after adding routes, update `docs/trails.md` (routes-by-land table, OSM catalog, website-only/Geotrek tables, deferred list). After adding a new `land` value, also update: the land table in this file, the Supabase CHECK constraint template below, and `enrich_regions.py` `EU_LANDS`.
+**Keep docs current**: after adding routes, update `docs/trails.md` (routes-by-land table, OSM catalog, website-only/Geotrek tables, deferred list). After adding a new `land` value, add it to `lands.py` (single source for `enrich_regions.py`, `validate_hikes.py` and the `--import` check), run `python3 lands.py` to print the Supabase CHECK SQL and apply it, and update the land table in this file and the CHECK template below.
 
 ## Git workflow
 

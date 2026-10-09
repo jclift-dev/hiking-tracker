@@ -36,6 +36,7 @@ import sys
 import argparse
 
 from atomic_io import write_json_atomic
+from lands import ALL_LANDS
 from datetime import datetime
 
 try:
@@ -833,6 +834,14 @@ def import_to_supabase(routes):
         sys.exit(1)
     if not key:
         print("Error: SUPABASE_SERVICE_KEY environment variable is not set.")
+        sys.exit(1)
+
+    # Fail fast, before any batch is uploaded, if a land isn't in the Supabase
+    # CHECK constraint (lands.py is the source; run `python3 lands.py` for SQL).
+    unknown = sorted({r.get("land") for r in routes} - ALL_LANDS)
+    if unknown:
+        print(f"Error: unknown land value(s) {unknown}. Add them to lands.py and "
+              f"update the Supabase CHECK constraint (python3 lands.py) first.")
         sys.exit(1)
 
     headers = {

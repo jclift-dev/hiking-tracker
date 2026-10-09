@@ -24,6 +24,7 @@ import time
 
 import requests
 from atomic_io import write_json_atomic
+from lands import EU_LANDS
 
 # ---------------------------------------------------------------------------
 # Config
@@ -39,13 +40,7 @@ WT_BASE        = "https://hiking.waymarkedtrails.org/api/v1/details/relation"
 WT_DELAY       = 1.8   # seconds between Waymarked Trails requests
 USER_AGENT     = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
-# Lands to enrich (all European non-Swiss)
-EU_LANDS = {
-    "eu-hike", "fr-hike", "de-hike", "it-hike", "es-hike", "ie-hike", "uk",
-    "uk-cycle", "pt-hike", "at-hike", "hu-hike", "cz-hike", "si-hike",
-    "nl-hike", "be-hike", "se-hike", "no-hike", "ee-hike",
-    "hr-hike", "sk-hike", "dk-hike", "lt-hike", "lv-hike",
-}
+# Lands to enrich (all European non-Swiss) — see lands.py
 
 # ---------------------------------------------------------------------------
 # Hardcoded defaults for website-scraped routes (no _osm_id on stages).

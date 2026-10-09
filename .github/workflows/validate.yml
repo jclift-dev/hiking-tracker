@@ -3,9 +3,9 @@ name: Validate hikes.json
 on:
   push:
     branches: [main]
-    paths: ['hikes.json', 'validate_hikes.py']
+    paths: ['hikes.json', 'validate_hikes.py', 'lands.py']
   pull_request:
-    paths: ['hikes.json', 'validate_hikes.py']
+    paths: ['hikes.json', 'validate_hikes.py', 'lands.py']
 
 jobs:
   validate:
