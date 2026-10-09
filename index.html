@@ -1480,9 +1480,20 @@ function showError(msg) {
   document.getElementById('subtitle').textContent = 'Could not load data';
 }
 
+// Clear app/session storage but keep un-migrated pre-Supabase data
+// (hikes_done / hikes_ratings / hikes_notes) so a reset or logout can't destroy it.
+const LEGACY_KEYS = ['hikes_done', 'hikes_ratings', 'hikes_notes'];
+function clearStorageKeepLegacy() {
+  try {
+    for (const k of Object.keys(localStorage)) {
+      if (!LEGACY_KEYS.includes(k)) localStorage.removeItem(k);
+    }
+    sessionStorage.clear();
+  } catch (e) { console.warn('clearStorageKeepLegacy failed:', e); }
+}
+
 function hardReset() {
-  localStorage.clear();
-  sessionStorage.clear();
+  clearStorageKeepLegacy();
   window.location.href = window.location.pathname;
 }
 
@@ -4603,7 +4614,13 @@ function setRating(key, n) {
 const PROD_URL = 'https://jclift-dev.github.io/hiking-tracker/';
 const APP_URL  = location.hostname === 'localhost' ? `${location.origin}/` : PROD_URL;
 
+function resetSignInButton() {
+  const btn = document.querySelector('#auth-login button');
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+}
+
 function showLoginForm() {
+  resetSignInButton();
   document.getElementById('auth-login').style.display = 'flex';
   document.getElementById('auth-reset').style.display = 'none';
   document.getElementById('auth-newpass').style.display = 'none';
@@ -4621,23 +4638,31 @@ async function sendReset() {
   errEl.style.display = 'none';
   sentEl.style.display = 'none';
   if (!email) { errEl.textContent = 'Please enter your email.'; errEl.style.display = 'block'; return; }
+  const btn = document.querySelector('#auth-reset .auth-btn');
+  if (btn && btn.disabled) return;   // request in flight / cooling down
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
   if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
   else sentEl.style.display = 'block';
+  // Short cooldown so the button can't be used to spam reset emails.
+  setTimeout(() => { if (btn) { btn.disabled = false; btn.textContent = 'Send reset link'; } }, error ? 1000 : 30000);
 }
 
 async function setNewPassword() {
   const password = document.getElementById('auth-newpass-input').value;
   const errEl    = document.getElementById('auth-newpass-error');
   errEl.style.display = 'none';
-  if (!password) { errEl.textContent = 'Please enter a password.'; errEl.style.display = 'block'; return; }
+  if (password.length < 8) { errEl.textContent = 'Please use at least 8 characters.'; errEl.style.display = 'block'; return; }
   const { error } = await sb.auth.updateUser({ password });
   if (error) {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
   } else {
+    // The recovery session is already signed in. Reload (dropping the recovery
+    // URL hash) so the normal boot path loads the app instead of leaving the
+    // user on a login form while actually authenticated.
     _inPasswordRecovery = false;
-    showLoginForm();
+    window.location.replace(location.pathname);
   }
 }
 
@@ -4658,6 +4683,12 @@ async function signIn() {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
     if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  } else {
+    // Normally onAuthStateChange hides this screen. If it returned early (e.g.
+    // a boot already in flight), don't leave the button stuck on 'Signing in…'.
+    setTimeout(() => {
+      if (document.getElementById('auth-screen').style.display !== 'none') resetSignInButton();
+    }, 10000);
   }
 }
 
@@ -4674,8 +4705,7 @@ async function logout() {
   if (!signedOut) {
     // signOut timed out (network hung) — clear session from storage so the
     // reload lands on the login screen instead of the same broken state.
-    localStorage.clear();
-    sessionStorage.clear();
+    clearStorageKeepLegacy();
   }
   window.location.reload();
 }
@@ -4743,8 +4773,7 @@ const DEV_MODE = false;
 
 // Emergency escape hatch — ?reset clears all storage and reloads clean
 if (new URLSearchParams(location.search).has('reset')) {
-  localStorage.clear();
-  sessionStorage.clear();
+  clearStorageKeepLegacy();
   window.location.replace(location.pathname);
 }
 
