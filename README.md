@@ -134,9 +134,6 @@ index.html (Web App)
 ```bash
 # Install all dependencies
 pip3 install -r requirements.txt
-
-# Or install individually
-pip3 install requests beautifulsoup4 cloudscraper
 ```
 
 ### Switzerland (SchweizMobil)

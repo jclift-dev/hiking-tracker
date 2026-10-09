@@ -9,7 +9,7 @@ CLI flags, prerequisites, per-scraper format notes, rate limits, resumability.
 pip3 install -r requirements.txt
 
 # Or install individually as needed:
-pip3 install requests
+pip3 install -r requirements.txt
 ```
 
 ## Swiss routes — scraper.py
@@ -52,7 +52,7 @@ Basel SBB, Bern, Biel/Bienne, Chur, Genève, Interlaken Ost, Lausanne, Lugano, L
 ## UK South West Coast Path — scraper_swcp.py
 
 ```bash
-pip3 install cloudscraper beautifulsoup4 requests
+pip3 install -r requirements.txt
 python3 scraper_swcp.py                   # fetch all 53 stages + elevation
 python3 scraper_swcp.py --refresh         # re-fetch everything, including elevation
 python3 scraper_swcp.py --limit 3         # smoke test: first N stages only
@@ -72,7 +72,7 @@ OpenTopoData: **1000 req/day quota** (1 call per stage = 53 calls per full run).
 ## West Highland Way — scraper_whw.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_whw.py                # fetch all 8 stages
 python3 scraper_whw.py --refresh      # re-fetch everything
 python3 scraper_whw.py --limit 3      # smoke test
@@ -84,7 +84,7 @@ Writes `route_id=2`, `land="uk"`, 8 stages. Resumable via internal `_slug`. No e
 ## Offa's Dyke Path — scraper_odd.py
 
 ```bash
-pip3 install cloudscraper beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_odd.py               # fetch all 12 stages
 python3 scraper_odd.py --refresh
 python3 scraper.py --import
@@ -95,7 +95,7 @@ Writes `route_id=3`, `land="uk"`, 12 stages from a single nationaltrail.co.uk pa
 ## GR20 (Corsica) — scraper_gr20.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_gr20.py              # fetch all 16 stages
 python3 scraper_gr20.py --refresh
 python3 scraper_gr20.py --limit 3
@@ -107,7 +107,7 @@ Source: `https://www.le-gr20.fr/en/pages/profile-stages/`. Writes `route_id=1`, 
 ## French GR trails — scraper_gr.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_gr.py                       # all trails (GR65, GR70, GR20 backfill)
 python3 scraper_gr.py --only gr65
 python3 scraper_gr.py --only gr70
@@ -134,7 +134,7 @@ python3 scraper.py --import
 ## Alta Via 1 (Dolomites) — scraper_av1.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_av1.py              # fetch all 11 stages
 python3 scraper_av1.py --refresh
 python3 scraper.py --import
@@ -145,7 +145,7 @@ Source: `https://altavia1dolomites.com/alta-via-1-stages/`. Writes `route_id=1`,
 ## Malerweg (Saxon Switzerland) — scraper_malerweg.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_malerweg.py              # fetch all 8 stages
 python3 scraper_malerweg.py --refresh
 python3 scraper_malerweg.py --limit 3
@@ -157,7 +157,7 @@ Source: sequential per-stage URLs at `saechsische-schweiz.de`. Writes `route_id=
 ## UK National Trails — scraper_nationaltrail.py
 
 ```bash
-pip3 install requests beautifulsoup4 cloudscraper
+pip3 install -r requirements.txt
 python3 scraper_nationaltrail.py              # all 4 trails
 python3 scraper_nationaltrail.py --only sdw   # South Downs Way
 python3 scraper_nationaltrail.py --only cw    # Cotswold Way
@@ -181,7 +181,7 @@ All stages on a single route page per trail — `smUrl` links to the trail descr
 ## OSM trails (Waymarked Trails) — scraper_osm.py
 
 ```bash
-pip3 install requests
+pip3 install -r requirements.txt
 python3 scraper_osm.py                          # full run (all trails in catalog)
 python3 scraper_osm.py --limit 2               # smoke test: first 2 trails only
 python3 scraper_osm.py --only 4080347          # one trail by OSM relation ID
@@ -246,7 +246,7 @@ No elevation or duration data (not published per stage). To add more HW trails: 
 ## Website-only routes — scraper_websites.py
 
 ```bash
-pip3 install requests beautifulsoup4
+pip3 install -r requirements.txt
 python3 scraper_websites.py                   # all trails
 python3 scraper_websites.py --only eifelsteig # one trail by slug
 python3 scraper_websites.py --refresh         # re-fetch even if cached
