@@ -1283,6 +1283,21 @@ function saveNote(key, val) {
 // ---------------------------------------------------------------------------
 // Data loading
 // ---------------------------------------------------------------------------
+async function fetchAllRows(table, orderCols) {
+  const PAGE = 1000;
+  let rows = [], from = 0;
+  while (true) {
+    let q = sb.from(table).select('*');
+    for (const col of orderCols) q = q.order(col);
+    const { data: page, error } = await withTimeout(q.range(from, from + PAGE - 1), 10000);
+    if (error) throw new Error(error.message);
+    rows = rows.concat(page);
+    if (page.length < PAGE) break;
+    from += PAGE;
+  }
+  return rows;
+}
+
 async function loadData() {
   const MAX_RETRIES = 4;
   const RETRY_DELAY_MS = 3000;
@@ -1294,21 +1309,11 @@ async function loadData() {
         await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
       }
 
-      // Fetch routes (well under 1000)
-      const { data: routes, error: routesErr } = await withTimeout(
-        sb.from('routes').select('*').limit(1000), 10000);
-      if (routesErr) throw new Error(routesErr.message);
-
-      // Fetch stages in pages of 1000 (Supabase hard cap per request)
-      let stages = [], from = 0;
-      while (true) {
-        const { data: page, error: stagesErr } = await withTimeout(
-          sb.from('stages').select('*').range(from, from + 999), 10000);
-        if (stagesErr) throw new Error(stagesErr.message);
-        stages = stages.concat(page);
-        if (page.length < 1000) break;
-        from += 1000;
-      }
+      // Fetch routes and stages in pages of 1000 (Supabase hard cap per request).
+      // Pages are ordered by primary key so rows aren't skipped or duplicated
+      // across page boundaries.
+      const routes = await fetchAllRows('routes', ['land', 'id']);
+      const stages = await fetchAllRows('stages', ['id']);
 
       // Empty result on first attempt likely means DB is waking up — retry
       if (!routes.length && attempt < MAX_RETRIES) continue;
