@@ -1347,15 +1347,35 @@ async function persistStation(val) {
   }
 }
 
-let noteTimer = null;
+// One debounce timer per stage key, so editing note B within 500 ms of note A
+// doesn't cancel A's save. Pending notes are flushed when the tab is hidden or
+// closed and before logout.
+const noteTimers = new Map();   // stage_key -> { timer, val }
+
 function saveNote(key, val) {
-  clearTimeout(noteTimer);
-  noteTimer = setTimeout(() => {
-    if (val.trim()) notes[key] = val.trim();
-    else delete notes[key];
-    persistStage(key);
-  }, 500);
+  const pending = noteTimers.get(key);
+  if (pending) clearTimeout(pending.timer);
+  noteTimers.set(key, { val, timer: setTimeout(() => commitNote(key), 500) });
 }
+
+function commitNote(key) {
+  const pending = noteTimers.get(key);
+  if (!pending) return;
+  clearTimeout(pending.timer);
+  noteTimers.delete(key);
+  const val = pending.val.trim();
+  if (val) notes[key] = val;
+  else delete notes[key];
+  persistStage(key);
+}
+
+function flushNotes() {
+  for (const key of [...noteTimers.keys()]) commitNote(key);
+}
+window.addEventListener('pagehide', flushNotes);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushNotes();
+});
 
 // ---------------------------------------------------------------------------
 // Data loading
@@ -4630,6 +4650,7 @@ async function signIn() {
 }
 
 async function logout() {
+  flushNotes();
   _loggingOut = true;
   let signedOut = false;
   try {
