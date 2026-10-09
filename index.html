@@ -1170,7 +1170,7 @@ let currentUser = null;
 // Utilities
 // ---------------------------------------------------------------------------
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ---------------------------------------------------------------------------
@@ -1409,8 +1409,19 @@ async function loadData() {
       // Fetch routes and stages in pages of 1000 (Supabase hard cap per request).
       // Pages are ordered by primary key so rows aren't skipped or duplicated
       // across page boundaries.
-      const routes = await fetchAllRows('routes', ['land', 'id']);
-      const stages = await fetchAllRows('stages', ['id']);
+      let routes = await fetchAllRows('routes', ['land', 'id']);
+      let stages = await fetchAllRows('stages', ['id']);
+
+      // Keys built from land/route_id/stage_nr/osm_id end up inside inline
+      // onclick="...('key')" handlers, where HTML-escaping doesn't help. Only
+      // accept well-formed values so a bad row can't break out of the string.
+      const SAFE_LAND = /^[a-z]{2}(-[a-z]+)?$/;
+      const num = v => (v === null || v === undefined || v === '') ? null : (Number.isFinite(Number(v)) ? Number(v) : NaN);
+      routes = routes.filter(r => SAFE_LAND.test(r.land) && Number.isFinite(num(r.id)))
+                     .map(r => ({ ...r, id: Number(r.id) }));
+      stages = stages.filter(s => SAFE_LAND.test(s.land) && Number.isFinite(num(s.route_id)) && Number.isFinite(num(s.stage_nr)))
+                     .map(s => ({ ...s, route_id: Number(s.route_id), stage_nr: Number(s.stage_nr),
+                                  osm_id: Number.isFinite(num(s.osm_id)) ? num(s.osm_id) : null }));
 
       // Empty result on first attempt likely means DB is waking up — retry
       if (!routes.length && attempt < MAX_RETRIES) continue;
@@ -1999,7 +2010,7 @@ function linkedBadgeText(key) {
   if (!m) return null;
   const route = allRoutes.find(r => r.land === m[1] && r.route_id === +m[2]);
   if (!route) return null;
-  return `↔ ${LAND_FLAG[route.land] || ''} ${route.name}`;
+  return `↔ ${LAND_FLAG[route.land] || ''} ${escHtml(route.name)}`;
 }
 
 function waymarkedStageUrl(stage) {
@@ -2761,7 +2772,7 @@ function renderSurprise() {
   const key = stageKey(s._land, s._routeId, s.stage_nr);
   const sbbTimes = (s.sbb_times || {})[selectedStation] || {};
   const best = stageBestSbb(s);
-  const sbbStr = best != null ? `🚆 ${fmtMins(best)} from ${selectedStation}` : '';
+  const sbbStr = best != null ? `🚆 ${fmtMins(best)} from ${escHtml(selectedStation)}` : '';
   const distStr = fmtKm(s.dist_km);
   const hrsStr  = s.duration_hrs ? fmtHrs(s.duration_hrs) : null;
   const season  = seasonInfo(s, s._land);
@@ -2773,17 +2784,17 @@ function renderSurprise() {
       <span style="font-size:22px">🎲</span>
       <div>
         <div class="surprise-label">Suggested for you</div>
-        <div class="surprise-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${r.name}</div>
+        <div class="surprise-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${escHtml(r.name)}</div>
       </div>
       <button class="surprise-btn" style="margin-left:auto" onclick="surpriseStage=null;render()">✕</button>
     </div>
-    <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${s.start_name || '?'} → ${s.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}</div>
+    <div class="surprise-title ${done ? 'done-text' : ''}">${done ? '✓ ' : ''}${r.stages.length > 1 ? `Stage ${s.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${escHtml(s.start_name || '?')} → ${escHtml(s.end_name || '?')}${sbbTimes.end === null ? ' 🛏' : ''}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:0.5rem">
       ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
       ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
       ${diff && diffClass(s.difficulty, s._land) ? `<span class="badge ${diffClass(s.difficulty, s._land)}">${DIFF_LABELS[diff]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
-      ${(s.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+      ${(s.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(s.elev_up, s.elev_down)}
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
@@ -2862,8 +2873,8 @@ function renderStages(route) {
     const wished      = !!wishlist[key];
     const smLink      = smUrl(route, stage.stage_nr);
     const season      = seasonInfo(stage, route.land);
-    const viaStr      = stage.via ? ` via ${stage.via}` : '';
-    const title       = `${multi ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}`;
+    const viaStr      = stage.via ? ` via ${escHtml(stage.via)}` : '';
+    const title       = `${multi ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${escHtml(stage.start_name || '?')} → ${escHtml(stage.end_name || '?')}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}`;
 
     // Dot
     const isLinked = !!linkedStageKey(key);
@@ -2881,21 +2892,21 @@ function renderStages(route) {
       ${aspStr   ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
       ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
-      ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+      ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
       ${elevProfile(stage.elev_up, stage.elev_down)}
-      ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${t}</span>` : ''; })()}
+      ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${escHtml(t)}</span>` : ''; })()}
     </div>`;
 
     // SBB transport mini
     const transport = (startTravel || endTravel) ? `
       <div class="transport-mini">
-        <div class="transport-mini-label">🚆 from ${selectedStation}</div>
+        <div class="transport-mini-label">🚆 from ${escHtml(selectedStation)}</div>
         ${startTravel ? `<div class="transport-stop transport-stop--start">
-          <span class="transport-stop-name">${stage.start_name || '?'}</span>
+          <span class="transport-stop-name">${escHtml(stage.start_name || '?')}</span>
           <span class="transport-stop-time">${startTravel}</span>
         </div>` : ''}
         ${endTravel ? `<div class="transport-stop transport-stop--end">
-          <span class="transport-stop-name">${stage.end_name || '?'}</span>
+          <span class="transport-stop-name">${escHtml(stage.end_name || '?')}</span>
           <span class="transport-stop-time">${endTravel}</span>
         </div>` : ''}
       </div>` : '';
@@ -3010,14 +3021,14 @@ function renderRoute(route) {
     <div class="route-header" onclick="toggleRoute('${rkey}')">
       <span class="route-num ${numClass}">${route.route_type === 'national' ? '★ ' : ''}${route.route_id}</span>
       <div class="route-meta">
-        <div class="route-name">${icon} ${route.name || 'Route ' + route.route_id}</div>
+        <div class="route-name">${icon} ${escHtml(route.name || 'Route ' + route.route_id)}</div>
         <div class="route-stats-row">
           <div class="route-stat-col"><span class="route-stat-label">Stages</span><span class="route-stat-val">${totalStages}</span></div>
           <div class="route-stat-col"><span class="route-stat-label">Total km</span><span class="route-stat-val">${Math.round(totalKm)}</span></div>
           ${doneCount > 0 ? `<div class="route-stat-col"><span class="route-stat-label">Done</span><span class="route-stat-val" style="color:var(--green)">${doneCount}/${totalStages}</span></div>` : ''}
         </div>
         ${routeCantons.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
-          ${routeCantons.map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="16" height="16" onerror="this.style.display='none'"></span>`).join('')}
+          ${routeCantons.map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="16" height="16" onerror="this.style.display='none'"></span>`).join('')}
         </div>` : ''}
         ${doneCount > 0 ? `
         <div class="route-progress">
@@ -3048,7 +3059,7 @@ function renderFlatStage(stage) {
   const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
   const startTravel = fmtMins(sbbTimes.start);
   const endTravel   = fmtMins(sbbTimes.end);
-  const viaStr = stage.via ? ` via ${stage.via}` : '';
+  const viaStr = stage.via ? ` via ${escHtml(stage.via)}` : '';
 
   const numClass = [isCycle ? 'cycle' : '', r.route_type === 'national' ? 'national' : ''].filter(Boolean).join(' ');
   const smLink = smUrl(r, stage.stage_nr);
@@ -3070,22 +3081,22 @@ function renderFlatStage(stage) {
     <div class="stage-info">
       <div style="font-size:11px;color:var(--muted);margin-bottom:2px">
         <span class="route-num ${numClass}" style="font-size:10px;padding:2px 5px">${numLabel}</span>
-        ${isCycle ? '🚴' : '🥾'} ${r.name}
+        ${isCycle ? '🚴' : '🥾'} ${escHtml(r.name)}
       </div>
-      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${stage.start_name || '?'} → ${stage.end_name || '?'}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}</div>
+      <div class="stage-title ${done ? 'done-text' : ''}">${r.stages.length > 1 ? `Stage ${stage.stage_nr}: ` : ''}${sbbTimes.start === null ? '🛏 ' : ''}${escHtml(stage.start_name || '?')} → ${escHtml(stage.end_name || '?')}${sbbTimes.end === null ? ' 🛏' : ''}${viaStr}</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center">
         ${distStr ? `<span class="badge badge-gray">${distStr}</span>` : ''}
         ${hrsStr ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
         ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
         ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
         ${(() => { const s = seasonInfo(stage, r.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
-        ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${c}</span><img src="https://schweizmobil.ch/img/footer/${c.toLowerCase()}.svg" alt="${c}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
-        ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${t}</span>` : ''; })()}
+        ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+        ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${escHtml(t)}</span>` : ''; })()}
       </div>
       ${startTravel || endTravel ? `
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)">
-        ${startTravel ? `<span>🚆 <strong>${stage.start_name}</strong> ${startTravel} from ${selectedStation}</span>` : ''}
-        ${endTravel   ? `<span>🚆 <strong>${stage.end_name}</strong> ${endTravel} from ${selectedStation}</span>` : ''}
+        ${startTravel ? `<span>🚆 <strong>${escHtml(stage.start_name)}</strong> ${startTravel} from ${escHtml(selectedStation)}</span>` : ''}
+        ${endTravel   ? `<span>🚆 <strong>${escHtml(stage.end_name)}</strong> ${endTravel} from ${escHtml(selectedStation)}</span>` : ''}
       </div>` : ''}
       ${smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">View on ${sourceLabel(r)} ↗</a>` : ''}
       ${(() => { const wUrl = waymarkedStageUrl(stage); return (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">Stage on waymarkedtrails.org ↗</a>` : ''; })()}
@@ -3977,8 +3988,8 @@ function renderDashboard() {
       <img class="dash-hero-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_Az3YmLRSe9g6TQdoT04O8ach6Lg5tNWi3qF77OkHE0XCCunKg4bp_2GreuRp91wSBAqgojyAdoYrelyulCX4MpGakVjvgJe4G14USJ7wKMPQz1biGJIdFm2VySzLhpsTwipKfHzHTC44JXRxdmpnNU-ei4hiAm2wLnEBEfmKGPqN5mqIFLA-AtGQgQlxBOr8ZOKpx7pJXtRW3BhH2TwkRMwFDEoO4L_ZzanH4Eor_8UeLTuWR4g20Svi0aGNSKhVfvWgVD-ObUC" alt="">
       <div class="dash-hero-inner">
         <div class="dash-hero-eyebrow">Current Expedition</div>
-        <h2>${heroRoute.name}</h2>
-        <div class="dash-hero-sub">${heroRoute.start} → ${heroRoute.end}</div>
+        <h2>${escHtml(heroRoute.name)}</h2>
+        <div class="dash-hero-sub">${escHtml(heroRoute.start)} → ${escHtml(heroRoute.end)}</div>
         <div class="dash-hero-prog-wrap"><div class="dash-hero-prog-fill" style="width:${heroRoute._pct}%"></div></div>
         <div class="dash-hero-prog-label">${heroRoute._pct}% complete · ${heroRoute._done}/${heroRoute._total} stages</div>
         <div class="dash-hero-btns">
@@ -4024,8 +4035,8 @@ function renderDashboard() {
     const diff = s.difficulty;
     return `
     <div class="dash-next-up">
-      <div class="dash-next-up-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${r.name} · Stage ${s.stage_nr} of ${r._total}</div>
-      <div class="dash-next-up-title">${s.start_name} → ${s.end_name}${s.via ? ` via ${s.via}` : ''}</div>
+      <div class="dash-next-up-route">${r.land.endsWith('-cycle') ? '🚴' : '🥾'} ${escHtml(r.name)} · Stage ${s.stage_nr} of ${r._total}</div>
+      <div class="dash-next-up-title">${escHtml(s.start_name)} → ${escHtml(s.end_name)}${s.via ? ` via ${escHtml(s.via)}` : ''}</div>
       <div class="dash-next-up-meta">
         ${s.dist_km ? `<span class="badge badge-gray">${fmtKm(s.dist_km)}</span>` : ''}
         ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
@@ -4052,10 +4063,10 @@ function renderDashboard() {
       ${gridRoutes.map(r => `
         <div class="dash-trail-card" onclick="setView('routes')">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-            <span class="dash-trail-name">${r.name}</span>
+            <span class="dash-trail-name">${escHtml(r.name)}</span>
             <span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px;background:${['national','international','continental'].includes(r.route_type)?'#c1ecd4':'var(--gray-bg)'};color:${['national','international','continental'].includes(r.route_type)?'#274e3d':'var(--muted)'};white-space:nowrap;flex-shrink:0;margin-left:8px">${r.route_type.toUpperCase()}</span>
           </div>
-          <div class="dash-trail-desc">${r.start} → ${r.end}</div>
+          <div class="dash-trail-desc">${escHtml(r.start)} → ${escHtml(r.end)}</div>
           <div class="dash-trail-stats">
             <div><div class="dash-trail-stat-label">Distance</div><div class="dash-trail-stat-val">${r._km} km</div></div>
             <div><div class="dash-trail-stat-label">Stages</div><div class="dash-trail-stat-val">${r._total}</div></div>
@@ -4065,7 +4076,7 @@ function renderDashboard() {
             <span>Progress</span><span class="dash-trail-prog-pct">${r._pct}%</span>
           </div>
           <div class="dash-trail-prog-bar"><div class="dash-trail-prog-fill" style="width:${r._pct}%"></div></div>
-          ${r._next ? `<div class="dash-trail-next">Next: ${r._next.start_name} → ${r._next.end_name}</div>` : ''}
+          ${r._next ? `<div class="dash-trail-next">Next: ${escHtml(r._next.start_name)} → ${escHtml(r._next.end_name)}</div>` : ''}
         </div>`).join('')}
     </div>` : '';
 
@@ -4149,7 +4160,7 @@ function renderDashboard() {
         const left = r._total - r._done;
         return `<div class="dash-almost-item">
           <div style="flex:1;min-width:0">
-            <div class="dash-almost-name">${r.name}</div>
+            <div class="dash-almost-name">${escHtml(r.name)}</div>
             <div class="dash-almost-prog"><div class="dash-almost-prog-fill" style="width:${r._pct}%"></div></div>
           </div>
           <div class="dash-almost-left">${left} stage${left > 1 ? 's' : ''} left</div>
@@ -4181,11 +4192,11 @@ function renderDashboard() {
     <div class="dash-card">
       <div class="dash-card-eyebrow">Personal Bests</div>
       ${longestStage ? `<div class="dash-best-item">
-        <div><div class="dash-best-label">Longest stage</div><div class="dash-best-sub">${longestStage.start_name} → ${longestStage.end_name}</div></div>
+        <div><div class="dash-best-label">Longest stage</div><div class="dash-best-sub">${escHtml(longestStage.start_name)} → ${escHtml(longestStage.end_name)}</div></div>
         <div class="dash-best-val">${longestStage.dist_km} km</div>
       </div>` : ''}
       ${highestAscent ? `<div class="dash-best-item">
-        <div><div class="dash-best-label">Most ascent in one stage</div><div class="dash-best-sub">${highestAscent.start_name} → ${highestAscent.end_name}</div></div>
+        <div><div class="dash-best-label">Most ascent in one stage</div><div class="dash-best-sub">${escHtml(highestAscent.start_name)} → ${escHtml(highestAscent.end_name)}</div></div>
         <div class="dash-best-val">${highestAscent.elev_up.toLocaleString()} m</div>
       </div>` : ''}
       ${mostStagesMonth ? `<div class="dash-best-item">
@@ -4210,14 +4221,14 @@ function renderDashboard() {
   const hotdHtml = hotdRoute ? `
     <div class="dash-card">
       <div class="dash-card-eyebrow">Hike of the Day</div>
-      <div class="dash-hotd-route">${hotdRoute.route_type === 'national' ? '★ ' : ''}${hotdRoute.name}</div>
-      <div class="dash-hotd-name">${hotdStage ? `${hotdStage.start_name} → ${hotdStage.end_name}` : hotdRoute.start + ' → ' + hotdRoute.end}</div>
+      <div class="dash-hotd-route">${hotdRoute.route_type === 'national' ? '★ ' : ''}${escHtml(hotdRoute.name)}</div>
+      <div class="dash-hotd-name">${hotdStage ? `${escHtml(hotdStage.start_name)} → ${escHtml(hotdStage.end_name)}` : hotdRoute.start + ' → ' + hotdRoute.end}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
         ${hotdStage?.dist_km ? `<span class="badge badge-gray">${fmtKm(hotdStage.dist_km)}</span>` : ''}
         ${hotdStage?.elev_up ? `<span class="badge badge-gray">↑ ${hotdStage.elev_up.toLocaleString()} m</span>` : ''}
         ${hotdStage?.difficulty && diffClass(hotdStage.difficulty, 'ch-hike') ? `<span class="badge ${diffClass(hotdStage.difficulty,'ch-hike')}">${DIFF_LABELS[canonDiff(hotdStage.difficulty,'ch-hike')]}</span>` : ''}
       </div>
-      ${hotdRoute.description ? `<div class="dash-hotd-desc">${hotdRoute.description}</div>` : ''}
+      ${hotdRoute.description ? `<div class="dash-hotd-desc">${escHtml(hotdRoute.description)}</div>` : ''}
     </div>` : '';
 
   // ── Season Card ──
@@ -4231,7 +4242,7 @@ function renderDashboard() {
       <div class="dash-card-eyebrow">Seasonal Conditions</div>
       ${seasonRoutes.map(({ s, r, info }) => `
         <div class="dash-season-item">
-          <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}${r.stages.length > 1 ? ` · Stage ${s.stage_nr}` : ''}</div>
+          <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.name)}${r.stages.length > 1 ? ` · Stage ${s.stage_nr}` : ''}</div>
           <span class="${info.warn ? 'dash-season-warn' : 'dash-season-ok'}">${info.warn ? '⚠ ' : '✓ '}${info.label}</span>
         </div>`).join('')}
     </div>` : '';
@@ -4252,8 +4263,8 @@ function renderDashboard() {
         <div class="dash-activity-item">
           <div class="dash-activity-icon">${s._land.endsWith('-cycle') ? '🚴' : '🥾'}</div>
           <div class="dash-activity-body">
-            <div class="dash-activity-name">${s.start_name} → ${s.end_name}</div>
-            <div class="dash-activity-meta">${s._route.name}${s.dist_km ? ` · ${s.dist_km} km` : ''}</div>
+            <div class="dash-activity-name">${escHtml(s.start_name)} → ${escHtml(s.end_name)}</div>
+            <div class="dash-activity-meta">${escHtml(s._route.name)}${s.dist_km ? ` · ${s.dist_km} km` : ''}</div>
           </div>
           <div class="dash-activity-age">${relativeDate(s._date)}</div>
         </div>`).join('') : '<div style="font-size:13px;color:var(--muted);padding:1rem 0">No completed stages yet. Go hike something! 🏔</div>'}
