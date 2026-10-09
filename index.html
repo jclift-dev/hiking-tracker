@@ -1245,7 +1245,8 @@ async function loadUserState() {
     }
     await Promise.all(syncPromises);
     const { data: prefs } = await withTimeout(
-      sb.from('user_preferences').select('selected_station').maybeSingle(), 10000);
+      sb.from('user_preferences').select('selected_station')
+        .eq('user_id', currentUser.id).maybeSingle(), 10000);
     if (prefs?.selected_station) {
       selectedStation = prefs.selected_station;
     }
@@ -4686,7 +4687,8 @@ async function migrateFromLocalStorage() {
   if (!Object.keys(legacyDone).length) return;
 
   const { count } = await sb.from('user_state')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', currentUser.id);
   if (count > 0) return; // already migrated
 
   // Migrate old keys (routeId_stageNr) → new keys (hike_routeId_stageNr)
