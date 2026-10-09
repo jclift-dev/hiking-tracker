@@ -2588,7 +2588,7 @@ function stageMatchesFilters(s, land, diffVal, kmVal, timeVal) {
     if (kmVal === 'long'   && km <= 25) return false;
   }
   if (timeVal) {
-    const hrs = s.hiking_hrs || 0;
+    const hrs = s.duration_hrs || 0;
     if (timeVal === 'quick' && hrs >= 4) return false;
     if (timeVal === 'half'  && (hrs < 4 || hrs > 6)) return false;
     if (timeVal === 'full'  && hrs <= 6) return false;
@@ -2720,7 +2720,7 @@ function filteredStages() {
   else if (sortBy === 'dist_asc')  stages.sort((a, b) => (a.dist_km || 0) - (b.dist_km || 0));
   else if (sortBy === 'dist_desc') stages.sort((a, b) => (b.dist_km || 0) - (a.dist_km || 0));
   else if (sortBy === 'elev_desc') stages.sort((a, b) => (b.elev_up || 0) - (a.elev_up || 0));
-  else if (sortBy === 'time_asc')  stages.sort((a, b) => (a.hiking_hrs || 99) - (b.hiking_hrs || 99));
+  else if (sortBy === 'time_asc')  stages.sort((a, b) => (a.duration_hrs || 99) - (b.duration_hrs || 99));
 
   return stages;
 }

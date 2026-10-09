@@ -89,7 +89,7 @@ def main():
     for w in other:
         print(f"  [warn] {w}")
     if legacy:
-        print(f"  [warn] {len(legacy)} stages use legacy hiking_hrs only (see issue #14)")
+        print(f"  [warn] {len(legacy)} stages use legacy hiking_hrs only (use duration_hrs; see issue #14)")
     for e in errors:
         print(f"  [error] {e}")
 
