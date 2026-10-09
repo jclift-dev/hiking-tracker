@@ -315,3 +315,7 @@ All scrapers write `hikes.json` and the cache/catalog files through `atomic_io.w
 ## Import behaviour
 
 `--import` is upsert-only: it never deletes remote rows, so routes or stages removed or renumbered locally stay in Supabase as orphans until removed by hand (see issue #52). Unknown `land` values are rejected before anything is uploaded. Each batch is retried up to 3 times on network errors, 429 and 5xx. If any routes batch fails, stages are not uploaded; if any batch fails the script exits 1 (re-running is safe, upserts are idempotent). Note it overwrites remote `sbb_times` with the local copy.
+
+## Tests
+
+`python3 -m pytest -q tests` (needs `pip install -r requirements.txt pytest`) covers `validate_hikes.py`, `atomic_io.py`, `lands.py` (including that the CLAUDE.md land table / CHECK template match it) and the pure parts of `scraper.py`: load/save, `--import` (dry-run, retries, exit codes, unknown-land rejection), the bounded SBB 429 loop and `.env` parsing. No test touches the network. GitHub Actions runs them on every push and PR. `test_sbb.py` is *not* part of this — it's a manual live-API check of transport.opendata.ch.
