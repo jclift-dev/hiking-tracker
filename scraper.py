@@ -454,6 +454,9 @@ class SbbDailyLimitError(Exception):
     pass
 
 
+SBB_MAX_429_ATTEMPTS = 40  # ~20 minutes of 30s waits
+
+
 _FIRST_WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+")
 
 
@@ -482,8 +485,8 @@ def sbb_canonical_station(name):
             return stations[0]["name"]
     except SbbDailyLimitError:
         raise
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"    [warn] SBB station lookup failed for '{name}': {e}")
     return None
 
 
@@ -499,13 +502,13 @@ def sbb_travel_minutes(destination):
     """
     Get travel time in minutes from origin to destination.
     Returns int (minutes) or None on failure/bad match.
-    Retries indefinitely on 429 rate-limit (30s between attempts).
+    Retries on 429 rate-limit (30s between attempts, up to SBB_MAX_429_ATTEMPTS).
     Raises SbbDailyLimitError if the daily quota is exhausted.
     """
     if not destination:
         return None
     attempt = 0
-    while True:
+    while attempt < SBB_MAX_429_ATTEMPTS:
         attempt += 1
         try:
             r = SESSION.get(
@@ -593,7 +596,10 @@ def sbb_travel_minutes(destination):
         except Exception as e:
             print(f"    [warn] SBB lookup failed for '{destination}': {e}")
             return None
-    return None
+    # Still rate-limited: stop the run (progress is saved by the caller) rather
+    # than returning None, which would record the stage as 'no connection'.
+    raise SbbDailyLimitError(
+        f"still rate-limited after {SBB_MAX_429_ATTEMPTS} attempts for '{destination}'")
 
 
 def supabase_patch_stage(route_id, land, stage_nr, sbb_times):

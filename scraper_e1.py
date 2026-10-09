@@ -115,7 +115,8 @@ def fetch_stage(url_path, cache):
     url = BASE + url_path
     html = fetch(url)
     if not html:
-        cache[url_path] = None
+        # Don't cache fetch failures: a transient error would otherwise skip
+        # this stage on every later run until the cache is cleared.
         return None
     title_m = TITLE_RE.search(html)
     if not title_m:
