@@ -1237,10 +1237,11 @@ async function loadUserState() {
     // Stages completed before linking was introduced only have one side in Supabase.
     const syncKeys = [];
     for (const [key, date] of Object.entries(completed)) {
-      const linked = LINKED_STAGE_MAP.get(key);
-      if (linked && !completed[linked]) {
-        completed[linked] = date;
-        syncKeys.push(linked);
+      for (const linked of linkedStageKeys(key)) {
+        if (!completed[linked]) {
+          completed[linked] = date;
+          syncKeys.push(linked);
+        }
       }
     }
     await persistStages(syncKeys);
@@ -1989,18 +1990,32 @@ const E1_STAGE_PAIRS = [
 
 const ALL_STAGE_PAIRS = [...SWISS_EU_STAGE_PAIRS, ...E1_STAGE_PAIRS];
 
+// key -> array of partner keys. A "group" is a set of stage keys that cover the
+// same ground (a hard-coded pair, or stages sharing an osm_id / link_key).
+// Completing any member mirrors to every member of the group that belongs to a
+// DIFFERENT route; stages of the same route never mirror each other (e.g. an E1
+// stage spanning two Swiss stages completes both, but one Swiss stage doesn't
+// complete its neighbour).
+const stageRouteOf = k => k.replace(/_\d+$/, '');
+function makeLinkedMap(groups) {
+  const m = new Map();
+  for (const keys of groups) {
+    for (const a of keys) for (const b of keys) {
+      if (a === b || stageRouteOf(a) === stageRouteOf(b)) continue;
+      if (!m.has(a)) m.set(a, new Set());
+      m.get(a).add(b);
+    }
+  }
+  return new Map([...m].map(([k, set]) => [k, [...set]]));
+}
+
 // Seeded from ALL_STAGE_PAIRS at startup; rebuilt with OSM-derived links
 // by buildLinkedStageMap() once route data is loaded.
-let LINKED_STAGE_MAP = new Map(
-  ALL_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
-);
+let LINKED_STAGE_MAP = makeLinkedMap(ALL_STAGE_PAIRS);
 
 // Rebuild after loadData(): augments hard-coded pairs with any additional links
 // derivable from shared osm_id or link_key values.
 function buildLinkedStageMap() {
-  LINKED_STAGE_MAP = new Map(
-    ALL_STAGE_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]])
-  );
   const bySharedKey = new Map();
   allRoutes.forEach(r => r.stages.forEach(s => {
     const ids = [];
@@ -2011,17 +2026,11 @@ function buildLinkedStageMap() {
       bySharedKey.get(id).push(stageKey(r.land, r.route_id, s.stage_nr));
     });
   }));
-  bySharedKey.forEach(keys => {
-    if (keys.length < 2) return;
-    for (let i = 0; i < keys.length; i++)
-      for (let j = i + 1; j < keys.length; j++) {
-        LINKED_STAGE_MAP.set(keys[i], keys[j]);
-        LINKED_STAGE_MAP.set(keys[j], keys[i]);
-      }
-  });
+  LINKED_STAGE_MAP = makeLinkedMap([...ALL_STAGE_PAIRS, ...[...bySharedKey.values()].filter(k => k.length > 1)]);
 }
 
-function linkedStageKey(key) { return LINKED_STAGE_MAP.get(key) || null; }
+function linkedStageKeys(key) { return LINKED_STAGE_MAP.get(key) || []; }
+function linkedStageKey(key)  { return linkedStageKeys(key)[0] || null; }
 
 const LAND_FLAG = {
   'ch-hike': '🇨🇭', 'ch-cycle': '🇨🇭', 'eu-hike': '🇪🇺',
@@ -4562,18 +4571,17 @@ function wishlistRoute(rkey, undo = false) {
 
 function toggleStage(key) {
   event.stopPropagation();
-  const linked = linkedStageKey(key);
+  const linked = linkedStageKeys(key);
   if (completed[key]) {
     delete completed[key];
     delete ratings[key];
-    persistStage(key);
-    if (linked) { delete completed[linked]; delete ratings[linked]; persistStage(linked); }
+    linked.forEach(l => { delete completed[l]; delete ratings[l]; });
   } else {
     completed[key] = new Date().toLocaleDateString('de-CH');
     if (selectedStageKey === key) selectedStageKey = null;
-    persistStage(key);
-    if (linked) { completed[linked] = completed[key]; persistStage(linked); }
+    linked.forEach(l => { completed[l] = completed[key]; });
   }
+  persistStages([key, ...linked]);
   saveState();
   updateStats();
   render();
@@ -4588,13 +4596,13 @@ function markRouteComplete(rkey, undo = false) {
   const keys = [];
   route.stages.forEach(s => {
     const key = stageKey(land, routeId, s.stage_nr);
-    const linked = linkedStageKey(key);
+    const linked = linkedStageKeys(key);
     if (undo) {
       delete completed[key]; delete ratings[key]; keys.push(key);
-      if (linked) { delete completed[linked]; delete ratings[linked]; keys.push(linked); }
+      linked.forEach(l => { delete completed[l]; delete ratings[l]; keys.push(l); });
     } else if (!completed[key]) {
       completed[key] = today; keys.push(key);
-      if (linked && !completed[linked]) { completed[linked] = today; keys.push(linked); }
+      linked.forEach(l => { if (!completed[l]) { completed[l] = today; keys.push(l); } });
     }
   });
   persistStages(keys);
