@@ -1208,7 +1208,13 @@ function toISODate(chDate) {
   return `${y}-${m}-${d}`;
 }
 
+// False until this user's rows have been fetched successfully. While false,
+// persistStage() refuses to write: local state is empty, so an upsert would
+// overwrite the server's rating/note/completion with nulls.
+let userStateLoaded = false;
+
 async function loadUserState() {
+  userStateLoaded = false;
   try {
     const { data: rows, error } = await withTimeout(
       sb.from('user_state')
@@ -1225,6 +1231,8 @@ async function loadUserState() {
       if (row.note)         notes[row.stage_key]      = row.note;
       if (row.wishlist)     wishlist[row.stage_key]   = true;
     }
+    userStateLoaded = true;
+    clearUserStateWarning();
     // One-time migration: back-propagate completions across linked stage pairs.
     // Stages completed before linking was introduced only have one side in Supabase.
     const syncPromises = [];
@@ -1246,30 +1254,97 @@ async function loadUserState() {
   }
 }
 
+function showUserStateWarning() {
+  const area = document.getElementById('error-area');
+  if (!area || area.querySelector('.error-box')) return;
+  area.innerHTML = `
+    <div class="error-box" id="user-state-warning">
+      <strong>Your progress could not be loaded</strong><br>
+      Changes are not being saved so your existing data isn't overwritten.<br><br>
+      <a href="#" onclick="retryUserState();return false;">Try again</a>
+    </div>`;
+}
+
+function clearUserStateWarning() {
+  document.getElementById('user-state-warning')?.remove();
+}
+
+async function retryUserState() {
+  await loadUserState();
+  if (userStateLoaded) render();
+}
+
 function saveState() {
   // No-op: persistence is handled by persistStage() at mutation sites
 }
 
+// Keys whose last save failed. Kept so "Try again" can re-send them.
+const failedSaves = new Set();
+
+function showSaveWarning() {
+  const area = document.getElementById('error-area');
+  if (!area || document.getElementById('save-warning')) return;
+  const box = document.createElement('div');
+  box.className = 'error-box';
+  box.id = 'save-warning';
+  box.innerHTML = `
+    <strong>Some changes could not be saved</strong><br>
+    They are shown here but not stored yet.<br><br>
+    <a href="#" onclick="retrySaves();return false;">Try again</a>`;
+  area.appendChild(box);
+}
+
+function clearSaveWarning() {
+  document.getElementById('save-warning')?.remove();
+}
+
+async function retrySaves() {
+  await Promise.all([...failedSaves].map(persistStage));
+}
+
 async function persistStage(key) {
   if (!currentUser) return;
-  const { error } = await sb.from('user_state').upsert({
-    user_id:      currentUser.id,
-    stage_key:    key,
-    completed_on: toISODate(completed[key]) || null,
-    rating:       ratings[key] || null,
-    note:         notes[key]   || null,
-    wishlist:     wishlist[key] || null,
-    updated_at:   new Date().toISOString()
-  }, { onConflict: 'user_id,stage_key' });
-  if (error) console.error('persistStage failed:', error.message);
+  if (!userStateLoaded) {
+    console.warn('persistStage skipped: user state not loaded');
+    showUserStateWarning();
+    return;
+  }
+  let error = null;
+  try {
+    ({ error } = await sb.from('user_state').upsert({
+      user_id:      currentUser.id,
+      stage_key:    key,
+      completed_on: toISODate(completed[key]) || null,
+      rating:       ratings[key] || null,
+      note:         notes[key]   || null,
+      wishlist:     wishlist[key] || null,
+      updated_at:   new Date().toISOString()
+    }, { onConflict: 'user_id,stage_key' }));
+  } catch (e) {
+    error = e;
+  }
+  if (error) {
+    console.error('persistStage failed:', error.message);
+    failedSaves.add(key);
+    showSaveWarning();
+    return;
+  }
+  failedSaves.delete(key);
+  if (!failedSaves.size) clearSaveWarning();
 }
 
 async function persistStation(val) {
   if (!currentUser) return;
-  await sb.from('user_preferences').upsert(
-    { user_id: currentUser.id, selected_station: val, updated_at: new Date().toISOString() },
-    { onConflict: 'user_id' }
-  );
+  try {
+    const { error } = await sb.from('user_preferences').upsert(
+      { user_id: currentUser.id, selected_station: val, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+    if (error) throw error;
+  } catch (e) {
+    console.error('persistStation failed:', e.message);
+    showSaveWarning();
+  }
 }
 
 let noteTimer = null;
