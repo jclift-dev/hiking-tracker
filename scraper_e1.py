@@ -19,6 +19,7 @@ import time
 from pathlib import Path
 
 import requests
+from atomic_io import write_json_atomic
 from bs4 import BeautifulSoup
 
 HIKES_FILE  = Path("hikes.json")
@@ -58,7 +59,7 @@ def load_json(path):
 
 
 def save_json(path, data):
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    write_json_atomic(path, data, ensure_ascii=False, indent=2)
 
 
 def load_hikes():
@@ -66,7 +67,7 @@ def load_hikes():
 
 
 def save_hikes(routes):
-    HIKES_FILE.write_text(json.dumps(routes, ensure_ascii=False, indent=2))
+    write_json_atomic(HIKES_FILE, routes, ensure_ascii=False, indent=2)
 
 
 # ---------------------------------------------------------------------------

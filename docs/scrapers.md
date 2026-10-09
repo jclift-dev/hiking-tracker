@@ -306,3 +306,7 @@ Builds/maintains `trails_catalog.json` (56k+ entries, gitignored). Two-phase: Ov
 ## Validating hikes.json
 
 `python3 validate_hikes.py [hikes.json]` checks required keys, allowed `land` values, duplicate `(land, route_id)`, duplicate/non-integer `stage_nr`, empty stages and negative or non-numeric distance/elevation/duration fields. Errors exit 1; warnings (non-contiguous `stage_nr`, legacy `hiking_hrs`-only stages) do not. Run it before `--import`. GitHub Actions runs it on any push/PR touching `hikes.json`. The allowed-land set is duplicated from the Supabase CHECK constraint — update it with new lands.
+
+## Writing JSON files
+
+All scrapers write `hikes.json` and the cache/catalog files through `atomic_io.write_json_atomic` (temp file + `os.replace`), so an interrupted run can't leave a truncated file. `scraper.load_existing()` aborts, instead of starting fresh, if `hikes.json` is corrupt (a copy goes to `hikes.json.bak`; restore with `git checkout hikes.json`).

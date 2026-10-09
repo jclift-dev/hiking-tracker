@@ -34,6 +34,8 @@ import re
 import time
 import sys
 import argparse
+
+from atomic_io import write_json_atomic
 from datetime import datetime
 
 try:
@@ -766,8 +768,7 @@ def wait_for_quota_reset():
 # ---------------------------------------------------------------------------
 
 def save(routes):
-    with open(OUTPUT, "w", encoding="utf-8") as f:
-        json.dump(routes, f, ensure_ascii=False, indent=2)
+    write_json_atomic(OUTPUT, routes, ensure_ascii=False, indent=2)
     print(f"  → Saved {len(routes)} routes to {OUTPUT}")
 
 
@@ -792,8 +793,10 @@ def load_existing():
         import shutil
         bak = OUTPUT + ".bak"
         shutil.copy(OUTPUT, bak)
-        print(f"  [warn] {OUTPUT} is corrupted ({e}). Backed up to {bak}, starting fresh.\n")
-        return {}
+        # Starting fresh would make the next save() overwrite the file with only
+        # newly scraped data, so stop and let the user restore from git/backup.
+        sys.exit(f"  [error] {OUTPUT} is corrupted ({e}). Copied to {bak}; "
+                 f"restore it (e.g. git checkout {OUTPUT}) and re-run.")
 
 # ---------------------------------------------------------------------------
 # Supabase import

@@ -25,6 +25,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
+from atomic_io import write_json_atomic
 from bs4 import BeautifulSoup
 
 # ---------------------------------------------------------------------------
@@ -365,7 +366,7 @@ def main():
         result = process_trail(trail)
         results.append(result)
         existing[result["osm_id"]] = result
-        OUTPUT_FILE.write_text(json.dumps(results, ensure_ascii=False, indent=2))
+        write_json_atomic(OUTPUT_FILE, results, ensure_ascii=False, indent=2)
 
     # Summary
     found    = [r for r in results if r["status"] == "found"]

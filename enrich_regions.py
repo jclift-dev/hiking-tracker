@@ -23,6 +23,7 @@ import sys
 import time
 
 import requests
+from atomic_io import write_json_atomic
 
 # ---------------------------------------------------------------------------
 # Config
@@ -463,8 +464,7 @@ def load_ne_geojson():
     r = requests.get(NE_URL, timeout=120)
     r.raise_for_status()
     data = r.json()
-    with open(NE_CACHE, "w") as f:
-        json.dump(data, f)
+    write_json_atomic(NE_CACHE, data)
     return data
 
 
@@ -672,8 +672,7 @@ def main():
     print(f"\n[done] enriched={total_enriched} skipped={total_skipped} failed={total_failed}")
 
     if changed and not args.dry_run:
-        with open(HIKES_JSON, "w") as f:
-            json.dump(hikes, f, ensure_ascii=False, separators=(",", ":"))
+        write_json_atomic(HIKES_JSON, hikes, ensure_ascii=False, separators=(",", ":"))
         print(f"[info] Saved {HIKES_JSON}")
     elif args.dry_run:
         print("[dry-run] No changes saved.")

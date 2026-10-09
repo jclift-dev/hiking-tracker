@@ -36,6 +36,7 @@ import time
 from pathlib import Path
 
 import requests
+from atomic_io import write_json_atomic
 
 try:
     from scraper_osm import TRAILS as _OSM_TRAILS
@@ -461,8 +462,7 @@ def save_catalog(catalog):
         catalog.values(),
         key=lambda e: (order.get(e.get("network", ""), 9), (e.get("name") or "").lower()),
     )
-    with CATALOG_FILE.open("w", encoding="utf-8") as f:
-        json.dump(entries, f, indent=2, ensure_ascii=False)
+    write_json_atomic(CATALOG_FILE, entries, indent=2, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------

@@ -22,6 +22,7 @@ import os
 import sys
 
 import requests
+from atomic_io import write_json_atomic
 
 # ---------------------------------------------------------------------------
 # Config
@@ -206,8 +207,7 @@ def load_geojson():
         print(f"\r  {len(data)//1024} KB", end="", flush=True, file=sys.stderr)
     print(file=sys.stderr)
     parsed = json.loads(data)
-    with open(CACHE_FILE, "w") as f:
-        json.dump(parsed, f)
+    write_json_atomic(CACHE_FILE, parsed)
     print(f"[info] Saved to {CACHE_FILE}", file=sys.stderr)
     return parsed
 

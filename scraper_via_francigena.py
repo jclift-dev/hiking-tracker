@@ -44,6 +44,7 @@ import time
 from pathlib import Path
 
 import requests
+from atomic_io import write_json_atomic
 
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_regions import load_ne_geojson, build_spatial_index, find_region
@@ -95,7 +96,7 @@ def load_cache():
 
 
 def save_cache(cache):
-    CACHE_FILE.write_text(json.dumps(cache, ensure_ascii=False))
+    write_json_atomic(CACHE_FILE, cache, ensure_ascii=False)
 
 
 def elevation_gain_loss(coords):
@@ -251,7 +252,7 @@ def main():
         routes.append(route)
         print(f"Added new route_id={ROUTE_ID}")
 
-    HIKES_FILE.write_text(json.dumps(routes, ensure_ascii=False, separators=(",", ":")))
+    write_json_atomic(HIKES_FILE, routes, ensure_ascii=False, separators=(",", ":"))
     print(f"Saved {HIKES_FILE}")
 
 
