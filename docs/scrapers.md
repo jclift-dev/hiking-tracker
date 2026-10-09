@@ -26,6 +26,7 @@ python3 scraper.py --sbb-all              # process all origins in sequence (run
 
 # Push to Supabase (after scraping):
 python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
+python3 scraper.py --import --dry-run     # per-land counts of what would be upserted; sends nothing, no credentials needed
 ```
 
 The scraper is resumable — re-running skips routes already in `hikes.json` and SBB lookups already populated for that origin. Safe to interrupt (Ctrl+C saves progress immediately) and restart.
@@ -310,3 +311,7 @@ Builds/maintains `trails_catalog.json` (56k+ entries, gitignored). Two-phase: Ov
 ## Writing JSON files
 
 All scrapers write `hikes.json` and the cache/catalog files through `atomic_io.write_json_atomic` (temp file + `os.replace`), so an interrupted run can't leave a truncated file. `scraper.load_existing()` aborts, instead of starting fresh, if `hikes.json` is corrupt (a copy goes to `hikes.json.bak`; restore with `git checkout hikes.json`).
+
+## Import behaviour
+
+`--import` is upsert-only: it never deletes remote rows, so routes or stages removed or renumbered locally stay in Supabase as orphans until removed by hand (see issue #52). Unknown `land` values are rejected before anything is uploaded. Each batch is retried up to 3 times on network errors, 429 and 5xx. If any routes batch fails, stages are not uploaded; if any batch fails the script exits 1 (re-running is safe, upserts are idempotent). Note it overwrites remote `sbb_times` with the local copy.

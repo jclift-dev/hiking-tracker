@@ -825,17 +825,30 @@ def load_existing():
 # Supabase import
 # ---------------------------------------------------------------------------
 
-def import_to_supabase(routes):
-    """Import all routes and stages from hikes.json into Supabase via REST API."""
-    url = os.environ.get("SUPABASE_URL", "").rstrip("/")
-    key = os.environ.get("SUPABASE_SERVICE_KEY", "")
-    if not url:
-        print("Error: SUPABASE_URL environment variable is not set.")
-        sys.exit(1)
-    if not key:
-        print("Error: SUPABASE_SERVICE_KEY environment variable is not set.")
-        sys.exit(1)
+def _post_batch(url, headers, batch, params, attempts=3):
+    """POST one batch, retrying network errors, 429 and 5xx. Returns (ok, detail)."""
+    detail = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = SESSION.post(url, headers=headers, json=batch, timeout=30, params=params)
+            if resp.ok:
+                return True, ""
+            detail = f"{resp.status_code} {resp.text[:200]}"
+            if resp.status_code != 429 and resp.status_code < 500:
+                return False, detail  # 4xx (e.g. CHECK/FK violation): retrying won't help
+        except requests.RequestException as e:
+            detail = str(e)
+        if attempt < attempts:
+            time.sleep(2 ** attempt)
+    return False, detail
 
+
+def import_to_supabase(routes, dry_run=False):
+    """Import all routes and stages from hikes.json into Supabase via REST API.
+
+    Upsert-only: nothing is ever deleted remotely. With dry_run=True nothing is
+    sent and no credentials are needed. Exits 1 if any batch failed.
+    """
     # Fail fast, before any batch is uploaded, if a land isn't in the Supabase
     # CHECK constraint (lands.py is the source; run `python3 lands.py` for SQL).
     unknown = sorted({r.get("land") for r in routes} - ALL_LANDS)
@@ -843,13 +856,6 @@ def import_to_supabase(routes):
         print(f"Error: unknown land value(s) {unknown}. Add them to lands.py and "
               f"update the Supabase CHECK constraint (python3 lands.py) first.")
         sys.exit(1)
-
-    headers = {
-        "apikey": key,
-        "Authorization": f"Bearer {key}",
-        "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates",
-    }
 
     BATCH = 100
 
@@ -867,19 +873,6 @@ def import_to_supabase(routes):
         }
         for r in routes
     ]
-    print(f"Uploading {len(route_rows)} routes in batches of {BATCH}...")
-    for i in range(0, len(route_rows), BATCH):
-        batch = route_rows[i:i + BATCH]
-        resp = SESSION.post(
-            f"{url}/rest/v1/routes",
-            headers=headers, json=batch, timeout=30,
-            params={"on_conflict": "id,land"},
-        )
-        if not resp.ok:
-            print(f"  [error] routes batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
-        else:
-            print(f"  Uploaded routes {i+1}–{min(i+BATCH, len(route_rows))}")
-
     # --- Stages ---
     stage_rows = [
         {
@@ -906,18 +899,64 @@ def import_to_supabase(routes):
         }
         for r in routes for s in r["stages"]
     ]
+    by_land = {}
+    for r in routes:
+        n = by_land.setdefault(r["land"], [0, 0])
+        n[0] += 1
+        n[1] += len(r["stages"])
+    if dry_run:
+        print(f"[dry-run] would upsert {len(route_rows)} routes and {len(stage_rows)} stages "
+              f"(nothing is deleted remotely):")
+        for land in sorted(by_land):
+            print(f"  {land:10s} {by_land[land][0]:4d} routes {by_land[land][1]:5d} stages")
+        return
+
+    url = os.environ.get("SUPABASE_URL", "").rstrip("/")
+    key = os.environ.get("SUPABASE_SERVICE_KEY", "")
+    if not url:
+        print("Error: SUPABASE_URL environment variable is not set.")
+        sys.exit(1)
+    if not key:
+        print("Error: SUPABASE_SERVICE_KEY environment variable is not set.")
+        sys.exit(1)
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+
+    failed = 0
+
+    print(f"Uploading {len(route_rows)} routes in batches of {BATCH}...")
+    for i in range(0, len(route_rows), BATCH):
+        ok, detail = _post_batch(f"{url}/rest/v1/routes", headers,
+                                 route_rows[i:i + BATCH], {"on_conflict": "id,land"})
+        if ok:
+            print(f"  Uploaded routes {i+1}–{min(i+BATCH, len(route_rows))}")
+        else:
+            failed += 1
+            print(f"  [error] routes batch {i//BATCH + 1}: {detail}")
+
+    if failed:
+        # Stages reference routes by FK; uploading them now would just cascade errors.
+        print(f"\nAborting: {failed} routes batch(es) failed, stages not uploaded.")
+        sys.exit(1)
+
     print(f"Uploading {len(stage_rows)} stages in batches of {BATCH}...")
     for i in range(0, len(stage_rows), BATCH):
-        batch = stage_rows[i:i + BATCH]
-        resp = SESSION.post(
-            f"{url}/rest/v1/stages",
-            headers=headers, json=batch, timeout=30,
-            params={"on_conflict": "route_id,land,stage_nr"},
-        )
-        if not resp.ok:
-            print(f"  [error] stages batch {i//BATCH + 1}: {resp.status_code} {resp.text[:200]}")
-        else:
+        ok, detail = _post_batch(f"{url}/rest/v1/stages", headers,
+                                 stage_rows[i:i + BATCH],
+                                 {"on_conflict": "route_id,land,stage_nr"})
+        if ok:
             print(f"  Uploaded stages {i+1}–{min(i+BATCH, len(stage_rows))}")
+        else:
+            failed += 1
+            print(f"  [error] stages batch {i//BATCH + 1}: {detail}")
+
+    if failed:
+        print(f"\nImport finished with {failed} failed batch(es) — re-run to retry (upserts are idempotent).")
+        sys.exit(1)
 
     print("\n" + "=" * 60)
     print(f"Import complete: {len(route_rows)} routes, {len(stage_rows)} stages")
@@ -971,6 +1010,10 @@ def main():
         help='Import hikes.json into Supabase (requires SUPABASE_URL and SUPABASE_SERVICE_KEY env vars)'
     )
     parser.add_argument(
+        "--dry-run", action="store_true",
+        help="With --import: print what would be uploaded per land and exit; sends nothing, needs no credentials"
+    )
+    parser.add_argument(
         "--refresh-route", action="append", default=[], metavar="LAND:ID",
         help="Re-scrape this route even if cached, preserving existing sbb_times. "
              "Repeatable. Example: --refresh-route ch-hike:4"
@@ -990,10 +1033,13 @@ def main():
             print(f"Error: --refresh-route route id must be an integer, got {rid!r}")
             sys.exit(1)
 
+    if args.dry_run and not args.import_mode:
+        parser.error("--dry-run only applies to --import")
+
     if args.import_mode:
         routes = list(load_existing().values())
         print(f"Importing {len(routes)} routes to Supabase...")
-        import_to_supabase(routes)
+        import_to_supabase(routes, dry_run=args.dry_run)
         return
 
     print("=" * 60)
