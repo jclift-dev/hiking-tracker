@@ -415,6 +415,7 @@
     content: ''; position: absolute; left: 8px; top: 21px; bottom: 0;
     width: 2px; background: var(--ghost);
   }
+  [role="button"]:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
   .tl-dot {
     position: absolute; left: 0; top: 1px;
     width: 18px; height: 18px; border-radius: 50%;
@@ -1042,7 +1043,7 @@
     </div>
   </div>
 
-  <div id="error-area"></div>
+  <div id="error-area" role="status" aria-live="polite"></div>
 
   <div class="route-map-overlay" id="route-map-overlay" onclick="closeRouteMap()"></div>
   <div class="route-map-panel" id="route-map-panel">
@@ -1303,6 +1304,18 @@ function clearSaveWarning() {
 async function retrySaves() {
   await persistStages([...failedSaves]);
 }
+
+// Keyboard support for the div/span controls marked role="button": Enter or
+// Space triggers their click handler (only when the control itself has focus,
+// so real buttons nested inside e.g. a route header keep working normally).
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target;
+  if (t && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) {
+    e.preventDefault();
+    t.click();
+  }
+});
 
 function stageRow(key) {
   return {
@@ -2919,10 +2932,10 @@ function renderStages(route) {
     const isLinked = !!linkedStageKey(key);
     const linkedCls = isLinked ? ' tl-dot--linked' : '';
     const dot = done
-      ? `<div class="tl-dot tl-dot--done${linkedCls}" onclick="toggleStage('${key}')" title="Undo">✓</div>`
+      ? `<div class="tl-dot tl-dot--done${linkedCls}" onclick="toggleStage('${key}')" role="button" tabindex="0" aria-label="Undo: mark stage as not done" title="Undo">✓</div>`
       : isNext
         ? `<div class="tl-dot tl-dot--next${linkedCls}"><div class="tl-dot-pulse"></div></div>`
-        : `<div class="tl-dot tl-dot--${isFuture ? 'future' : 'todo'}${linkedCls}" onclick="toggleStage('${key}')" title="Mark done"></div>`;
+        : `<div class="tl-dot tl-dot--${isFuture ? 'future' : 'todo'}${linkedCls}" onclick="toggleStage('${key}')" role="button" tabindex="0" aria-label="Mark stage as done" title="Mark done"></div>`;
 
     // Badges
     const badges = `<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:5px">
@@ -2955,10 +2968,10 @@ function renderStages(route) {
       ${[1,2,3,4,5].map(n => {
         const f = (ratings[key]||0) >= n;
         return `<span class="star" style="color:${f?'#f5a623':'var(--border)'}"
-          onmouseover="starsHover('${key}',${n})" onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
+          onmouseover="starsHover('${key}',${n})" onclick="setRating('${key}',${n});event.stopPropagation()" role="button" tabindex="0" aria-label="Rate ${n} star${n > 1 ? 's' : ''}">★</span>`;
       }).join('')}</div>` : '';
 
-    const wish  = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')">${wished?'♥':'♡'}</div>`;
+    const wish  = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')" role="button" tabindex="0" aria-pressed="${wished}" aria-label="${wished ? 'Remove from wishlist' : 'Add to wishlist'}">${wished?'♥':'♡'}</div>`;
     const sm    = `<a href="${smLink}" target="_blank" rel="noopener" class="sm-link" onclick="event.stopPropagation()">↗</a>`;
     const smBtn = smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">View on ${sourceLabel(route)} ↗</a>` : '';
     const wUrl  = waymarkedStageUrl(stage);
@@ -3060,7 +3073,7 @@ function renderRoute(route) {
     <div class="route-header" onclick="toggleRoute('${rkey}')">
       <span class="route-num ${numClass}">${route.route_type === 'national' ? '★ ' : ''}${route.route_id}</span>
       <div class="route-meta">
-        <div class="route-name">${icon} ${escHtml(route.name || 'Route ' + route.route_id)}</div>
+        <div class="route-name" role="button" tabindex="0" aria-label="Expand or collapse ${escHtml(route.name || 'Route ' + route.route_id)}">${icon} ${escHtml(route.name || 'Route ' + route.route_id)}</div>
         <div class="route-stats-row">
           <div class="route-stat-col"><span class="route-stat-label">Stages</span><span class="route-stat-val">${totalStages}</span></div>
           <div class="route-stat-col"><span class="route-stat-label">Total km</span><span class="route-stat-val">${Math.round(totalKm)}</span></div>
@@ -3108,14 +3121,15 @@ function renderFlatStage(stage) {
         const filled = (ratings[key]||0) >= n;
         return `<span class="star" style="color:${filled?'#f5a623':'var(--border)'}"
                      onmouseover="starsHover('${key}',${n})"
-                     onclick="setRating('${key}',${n});event.stopPropagation()">★</span>`;
+                     onclick="setRating('${key}',${n});event.stopPropagation()" role="button" tabindex="0" aria-label="Rate ${n} star${n > 1 ? 's' : ''}">★</span>`;
       }).join('')}
     </div>` : '';
 
   const wished = !!wishlist[key];
   return `<div class="stage-row">
     <div class="stage-check ${done ? 'done' : ''}"
-         onclick="toggleStage('${key}')"
+         onclick="toggleStage('${key}')" role="button" tabindex="0" aria-pressed="${done}"
+         aria-label="${done ? 'Mark as incomplete' : 'Mark as done'}"
          title="${done ? 'Mark as incomplete' : 'Mark as done'}"></div>
     <div class="stage-info">
       <div style="font-size:11px;color:var(--muted);margin-bottom:2px">
@@ -3150,7 +3164,7 @@ function renderFlatStage(stage) {
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;align-self:center">
       ${elevProfile(stage.elev_up, stage.elev_down)}
       ${starsHtml}
-      <div class="stage-wish${wished ? ' active' : ''}" onclick="toggleWishlist('${key}')" title="${wished ? 'Remove from wishlist' : 'Add to wishlist'}">${wished ? '♥' : '♡'}</div>
+      <div class="stage-wish${wished ? ' active' : ''}" onclick="toggleWishlist('${key}')" role="button" tabindex="0" aria-pressed="${wished}" aria-label="${wished ? 'Remove from wishlist' : 'Add to wishlist'}" title="${wished ? 'Remove from wishlist' : 'Add to wishlist'}">${wished ? '♥' : '♡'}</div>
     </div>
   </div>`;
 }
