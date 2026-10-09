@@ -1277,10 +1277,6 @@ async function retryUserState() {
   if (userStateLoaded) render();
 }
 
-function saveState() {
-  // No-op: persistence is handled by persistStage() at mutation sites
-}
-
 // Keys whose last save failed. Kept so "Try again" can re-send them.
 const failedSaves = new Set();
 
@@ -1532,6 +1528,10 @@ function hardReset() {
 // ---------------------------------------------------------------------------
 // Stats
 // ---------------------------------------------------------------------------
+function cantonBadges(cantons, size = 14) {
+  return cantons.map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="${size}" height="${size}" onerror="this.style.display='none'"></span>`).join('');
+}
+
 function stageKey(land, routeId, stageNr) { return `${land}_${routeId}_${stageNr}`; }
 function routeKey(land, routeId)          { return `${land}_${routeId}`; }
 
@@ -2846,7 +2846,7 @@ function renderSurprise() {
       ${hrsStr   ? `<span class="badge badge-gray">⏱ ${hrsStr}</span>` : ''}
       ${diff && diffClass(s.difficulty, s._land) ? `<span class="badge ${diffClass(s.difficulty, s._land)}">${DIFF_LABELS[diff]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
-      ${(s.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+      ${cantonBadges((s.cantons||[]))}
       ${elevProfile(s.elev_up, s.elev_down)}
     </div>
     ${sbbStr ? `<div style="font-size:13px;color:var(--muted)">${sbbStr}</div>` : ''}
@@ -2944,7 +2944,7 @@ function renderStages(route) {
       ${aspStr   ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
       ${diffClass(diff, route.land) ? `<span class="badge ${diffClass(diff, route.land)}">${DIFF_LABELS[canonDiff(diff, route.land)]}</span>` : ''}
       ${season   ? `<span class="badge ${season.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${season.label}</span>` : ''}
-      ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+      ${cantonBadges((stage.cantons||[]))}
       ${elevProfile(stage.elev_up, stage.elev_down)}
       ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${escHtml(t)}</span>` : ''; })()}
     </div>`;
@@ -3080,7 +3080,7 @@ function renderRoute(route) {
           ${doneCount > 0 ? `<div class="route-stat-col"><span class="route-stat-label">Done</span><span class="route-stat-val" style="color:var(--green)">${doneCount}/${totalStages}</span></div>` : ''}
         </div>
         ${routeCantons.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
-          ${routeCantons.map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="16" height="16" onerror="this.style.display='none'"></span>`).join('')}
+          ${cantonBadges(routeCantons, 16)}
         </div>` : ''}
         ${doneCount > 0 ? `
         <div class="route-progress">
@@ -3143,7 +3143,7 @@ function renderFlatStage(stage) {
         ${aspStr ? `<span class="badge badge-cycle">🛣 ${aspStr}</span>` : ''}
         ${diffClass(stage.difficulty, r.land) ? `<span class="badge ${diffClass(stage.difficulty, r.land)}">${DIFF_LABELS[canonDiff(stage.difficulty, r.land)]}</span>` : ''}
         ${(() => { const s = seasonInfo(stage, r.land); return s ? `<span class="badge ${s.warn ? 'badge-season-warn' : 'badge-season'}">❄ ${s.label}</span>` : ''; })()}
-        ${(stage.cantons||[]).map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="14" height="14" onerror="this.style.display='none'"></span>`).join('')}
+        ${cantonBadges((stage.cantons||[]))}
         ${(() => { const t = linkedBadgeText(key); return t ? `<span class="badge badge-link">${escHtml(t)}</span>` : ''; })()}
       </div>
       ${startTravel || endTravel ? `
@@ -4554,13 +4554,13 @@ function toggleRoute(rkey) {
 }
 
 function selectStage(key) {
-  event.stopPropagation();
+  event?.stopPropagation?.();
   selectedStageKey = selectedStageKey === key ? null : key;
   render();
 }
 
 function toggleWishlist(key) {
-  event.stopPropagation();
+  event?.stopPropagation?.();
   if (wishlist[key]) delete wishlist[key];
   else wishlist[key] = true;
   persistStage(key);
@@ -4584,7 +4584,7 @@ function wishlistRoute(rkey, undo = false) {
 }
 
 function toggleStage(key) {
-  event.stopPropagation();
+  event?.stopPropagation?.();
   const linked = linkedStageKeys(key);
   if (completed[key]) {
     delete completed[key];
@@ -4596,7 +4596,6 @@ function toggleStage(key) {
     linked.forEach(l => { completed[l] = completed[key]; });
   }
   persistStages([key, ...linked]);
-  saveState();
   updateStats();
   render();
 }
@@ -4813,7 +4812,6 @@ async function migrateFromLocalStorage() {
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
-const DEV_MODE = false;
 
 // Emergency escape hatch — ?reset clears all storage and reloads clean
 if (new URLSearchParams(location.search).has('reset')) {
@@ -4850,7 +4848,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   if (_loggingOut) return;
 
   // Handle sign-out: clear all in-memory state, show login form
-  if (!user && !DEV_MODE) {
+  if (!user) {
     const sessionExpired = allRoutes.length > 0;
     _inPasswordRecovery = false;
     _booting = false;
@@ -4878,15 +4876,13 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
   try {
     currentUser = user;
-    if (currentUser || DEV_MODE) {
+    if (currentUser) {
       document.getElementById('auth-screen').style.display = 'none';
       document.querySelector('.app').style.display = '';
       const emailEl = document.getElementById('header-user');
-      if (emailEl) emailEl.textContent = currentUser?.email?.split('@')[0] || '';
-      if (currentUser) {
-        await migrateFromLocalStorage();
-        await loadUserState();
-      }
+      if (emailEl) emailEl.textContent = currentUser.email?.split('@')[0] || '';
+      await migrateFromLocalStorage();
+      await loadUserState();
       await loadData();
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
