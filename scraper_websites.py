@@ -1281,7 +1281,7 @@ def scrape_vulkanring():
             "via":              None,
             "dist_km":          km,
             "elev_up":          up,
-            "elev_down":        down,
+            "elev_down":        abs(down),
             "duration_hrs":     None,
             "difficulty":       None,
             "description":      None,

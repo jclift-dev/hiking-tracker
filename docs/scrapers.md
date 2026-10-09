@@ -302,3 +302,7 @@ Builds/maintains `trails_catalog.json` (56k+ entries, gitignored). Two-phase: Ov
 - `apply_section_suppression()` — post-filter: demotes sections to `section_of_parent` (preserves `in_app`, `auto_excluded`)
 - `backfill_needs_level2()` — computes `needs_level2` for entries enriched before the field existed
 - Auto level-2: during Phase 2, if all children are >40 km the script immediately fetches sections
+
+## Validating hikes.json
+
+`python3 validate_hikes.py [hikes.json]` checks required keys, allowed `land` values, duplicate `(land, route_id)`, duplicate/non-integer `stage_nr`, empty stages and negative or non-numeric distance/elevation/duration fields. Errors exit 1; warnings (non-contiguous `stage_nr`, legacy `hiking_hrs`-only stages) do not. Run it before `--import`. GitHub Actions runs it on any push/PR touching `hikes.json`. The allowed-land set is duplicated from the Supabase CHECK constraint — update it with new lands.

@@ -1,0 +1,18 @@
+name: Validate hikes.json
+
+on:
+  push:
+    branches: [main]
+    paths: ['hikes.json', 'validate_hikes.py']
+  pull_request:
+    paths: ['hikes.json', 'validate_hikes.py']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 validate_hikes.py hikes.json
