@@ -366,6 +366,9 @@ The trail data includes content from:
 - **SchweizMobil**: Used with permission for non-commercial purposes
 - **OpenStreetMap**: © OpenStreetMap contributors, ODbL 1.0
 - **Waymarked Trails**: © OpenStreetMap contributors, ODbL 1.0
+- Many other routes are scraped from official trail and tourism websites for
+  personal, non-commercial use. See [`docs/data-sources.md`](docs/data-sources.md)
+  for the full source list and what is known about each one's terms.
 
 The application code is proprietary.
 
