@@ -1235,15 +1235,15 @@ async function loadUserState() {
     clearUserStateWarning();
     // One-time migration: back-propagate completions across linked stage pairs.
     // Stages completed before linking was introduced only have one side in Supabase.
-    const syncPromises = [];
+    const syncKeys = [];
     for (const [key, date] of Object.entries(completed)) {
       const linked = LINKED_STAGE_MAP.get(key);
       if (linked && !completed[linked]) {
         completed[linked] = date;
-        syncPromises.push(persistStage(linked));
+        syncKeys.push(linked);
       }
     }
-    await Promise.all(syncPromises);
+    await persistStages(syncKeys);
     const { data: prefs } = await withTimeout(
       sb.from('user_preferences').select('selected_station')
         .eq('user_id', currentUser.id).maybeSingle(), 10000);
@@ -1300,38 +1300,56 @@ function clearSaveWarning() {
 }
 
 async function retrySaves() {
-  await Promise.all([...failedSaves].map(persistStage));
+  await persistStages([...failedSaves]);
 }
 
-async function persistStage(key) {
+function stageRow(key) {
+  return {
+    user_id:      currentUser.id,
+    stage_key:    key,
+    completed_on: toISODate(completed[key]) || null,
+    rating:       ratings[key] || null,
+    note:         notes[key]   || null,
+    wishlist:     wishlist[key] || null,
+    updated_at:   new Date().toISOString()
+  };
+}
+
+// Save many stages with a few chunked upserts instead of one request per stage
+// (marking a 425-stage route done used to fire 425+ concurrent requests).
+// Keys are de-duplicated: Postgres rejects an upsert that hits a row twice.
+const PERSIST_CHUNK = 200;
+async function persistStages(keys) {
   if (!currentUser) return;
+  keys = [...new Set(keys)];
+  if (!keys.length) return;
   if (!userStateLoaded) {
-    console.warn('persistStage skipped: user state not loaded');
+    console.warn('persistStages skipped: user state not loaded');
     showUserStateWarning();
     return;
   }
-  let error = null;
-  try {
-    ({ error } = await sb.from('user_state').upsert({
-      user_id:      currentUser.id,
-      stage_key:    key,
-      completed_on: toISODate(completed[key]) || null,
-      rating:       ratings[key] || null,
-      note:         notes[key]   || null,
-      wishlist:     wishlist[key] || null,
-      updated_at:   new Date().toISOString()
-    }, { onConflict: 'user_id,stage_key' }));
-  } catch (e) {
-    error = e;
+  for (let i = 0; i < keys.length; i += PERSIST_CHUNK) {
+    const chunk = keys.slice(i, i + PERSIST_CHUNK);
+    let error = null;
+    try {
+      ({ error } = await sb.from('user_state')
+        .upsert(chunk.map(stageRow), { onConflict: 'user_id,stage_key' }));
+    } catch (e) {
+      error = e;
+    }
+    if (error) {
+      console.error('persistStages failed:', error.message);
+      chunk.forEach(k => failedSaves.add(k));
+      showSaveWarning();
+    } else {
+      chunk.forEach(k => failedSaves.delete(k));
+    }
   }
-  if (error) {
-    console.error('persistStage failed:', error.message);
-    failedSaves.add(key);
-    showSaveWarning();
-    return;
-  }
-  failedSaves.delete(key);
   if (!failedSaves.size) clearSaveWarning();
+}
+
+function persistStage(key) {
+  return persistStages([key]);
 }
 
 async function persistStation(val) {
@@ -4531,12 +4549,14 @@ function wishlistRoute(rkey, undo = false) {
   const routeId = parseInt(routeIdStr);
   const route = allRoutes.find(r => r.land === land && r.route_id === routeId);
   if (!route) return;
+  const keys = [];
   route.stages.forEach(s => {
     const key = stageKey(land, routeId, s.stage_nr);
     if (undo) { delete wishlist[key]; }
     else { wishlist[key] = true; }
-    persistStage(key);
+    keys.push(key);
   });
+  persistStages(keys);
   render();
 }
 
@@ -4565,17 +4585,19 @@ function markRouteComplete(rkey, undo = false) {
   const route = allRoutes.find(r => r.land === land && r.route_id === routeId);
   if (!route) return;
   const today = new Date().toLocaleDateString('de-CH');
+  const keys = [];
   route.stages.forEach(s => {
     const key = stageKey(land, routeId, s.stage_nr);
     const linked = linkedStageKey(key);
     if (undo) {
-      delete completed[key]; delete ratings[key]; persistStage(key);
-      if (linked) { delete completed[linked]; delete ratings[linked]; persistStage(linked); }
+      delete completed[key]; delete ratings[key]; keys.push(key);
+      if (linked) { delete completed[linked]; delete ratings[linked]; keys.push(linked); }
     } else if (!completed[key]) {
-      completed[key] = today; persistStage(key);
-      if (linked && !completed[linked]) { completed[linked] = today; persistStage(linked); }
+      completed[key] = today; keys.push(key);
+      if (linked && !completed[linked]) { completed[linked] = today; keys.push(linked); }
     }
   });
+  persistStages(keys);
   updateStats();
   render();
 }
