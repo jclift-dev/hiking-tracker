@@ -4680,39 +4680,60 @@ async function logout() {
   window.location.reload();
 }
 
-async function migrateFromLocalStorage() {
-  const legacyDone    = JSON.parse(localStorage.getItem('hikes_done')    || '{}');
-  const legacyRatings = JSON.parse(localStorage.getItem('hikes_ratings') || '{}');
-  const legacyNotes   = JSON.parse(localStorage.getItem('hikes_notes')   || '{}');
-  if (!Object.keys(legacyDone).length) return;
+// Pre-Supabase data was stored in localStorage as hikes_done / hikes_ratings /
+// hikes_notes, keyed "<routeId>_<stageNr>" (Swiss hiking, before other lands
+// existed), later "hike_…" / "cycle_…". Current keys are "<land>_<routeId>_<stageNr>".
+function legacyStageKey(k) {
+  if (/^hike_/.test(k))  return 'ch-hike_'  + k.slice(5);
+  if (/^cycle_/.test(k)) return 'ch-cycle_' + k.slice(6);
+  if (/^[a-z]{2}(-[a-z]+)?_/.test(k)) return k;   // already a current key
+  return 'ch-hike_' + k;
+}
 
-  const { count } = await sb.from('user_state')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', currentUser.id);
-  if (count > 0) return; // already migrated
-
-  // Migrate old keys (routeId_stageNr) → new keys (hike_routeId_stageNr)
-  for (const obj of [legacyDone, legacyRatings, legacyNotes]) {
-    for (const key of Object.keys(obj)) {
-      if (!key.startsWith('hike_') && !key.startsWith('cycle_')) {
-        obj['hike_' + key] = obj[key];
-        delete obj[key];
-      }
-    }
+function readLegacyObject(name) {
+  try {
+    const v = JSON.parse(localStorage.getItem(name) || '{}');
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  } catch (e) {
+    console.warn(`Legacy ${name} is unreadable, skipping:`, e.message);
+    return {};
   }
+}
 
-  const rows = Object.keys(legacyDone).map(key => ({
-    user_id:      currentUser.id,
-    stage_key:    key,
-    completed_on: toISODate(legacyDone[key]) || null,
-    rating:       legacyRatings[key] || null,
-    note:         legacyNotes[key]   || null,
-  }));
-  await sb.from('user_state').upsert(rows, { onConflict: 'user_id,stage_key' });
-  localStorage.removeItem('hikes_done');
-  localStorage.removeItem('hikes_ratings');
-  localStorage.removeItem('hikes_notes');
-  console.log(`Migrated ${rows.length} stages from localStorage`);
+async function migrateFromLocalStorage() {
+  try {
+    const legacyDone    = readLegacyObject('hikes_done');
+    const legacyRatings = readLegacyObject('hikes_ratings');
+    const legacyNotes   = readLegacyObject('hikes_notes');
+    if (!Object.keys(legacyDone).length) return;
+
+    const { count, error: countErr } = await sb.from('user_state')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', currentUser.id);
+    if (countErr) throw countErr;       // can't tell if already migrated: leave data alone
+    if (count > 0) return;              // already migrated
+
+    const byKey = new Map();
+    const row = k => {
+      const key = legacyStageKey(k);
+      if (!byKey.has(key)) byKey.set(key, { user_id: currentUser.id, stage_key: key,
+                                            completed_on: null, rating: null, note: null });
+      return byKey.get(key);
+    };
+    for (const [k, v] of Object.entries(legacyDone))    row(k).completed_on = toISODate(v) || null;
+    for (const [k, v] of Object.entries(legacyRatings)) row(k).rating = Number(v) || null;
+    for (const [k, v] of Object.entries(legacyNotes))   row(k).note = v || null;
+    const rows = [...byKey.values()];
+
+    const { error } = await sb.from('user_state').upsert(rows, { onConflict: 'user_id,stage_key' });
+    if (error) throw error;             // keep the localStorage copy so it can retry next load
+    localStorage.removeItem('hikes_done');
+    localStorage.removeItem('hikes_ratings');
+    localStorage.removeItem('hikes_notes');
+    console.log(`Migrated ${rows.length} stages from localStorage`);
+  } catch (e) {
+    console.warn('Legacy migration skipped (local data kept):', e.message || e);
+  }
 }
 
 // ---------------------------------------------------------------------------
