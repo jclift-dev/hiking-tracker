@@ -57,25 +57,41 @@ DELAY          = 0.35   # seconds between SchweizMobil requests — be polite
 SBB_DELAY      = 2.0    # transport.opendata.ch rate limits hard (~50 req/min)
 QUOTA_POLL     = 3600   # seconds between quota-reset polls (1 hour)
 
-# Supabase credentials — loaded from .env if present
-def _load_env():
+# Supabase credentials — loaded from .env by main() via _init_supabase(), not at
+# import time: other scrapers import save/load_existing from this module and
+# must not pick up the service-role key (or print about it) as a side effect.
+SUPABASE_URL = ""
+SUPABASE_KEY = ""
+
+
+def _load_env(path=".env"):
+    """Load KEY=VALUE lines from path into os.environ (existing vars win)."""
     try:
-        with open(".env") as f:
+        with open(path) as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, _, v = line.partition("=")
-                    os.environ.setdefault(k.strip(), v.strip())
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                if line.startswith("export "):
+                    line = line[len("export "):].lstrip()
+                k, _, v = line.partition("=")
+                v = v.strip()
+                if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                    v = v[1:-1]
+                os.environ.setdefault(k.strip(), v)
     except FileNotFoundError:
         pass
 
-_load_env()
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
-if SUPABASE_URL and SUPABASE_KEY:
-    print("Supabase credentials loaded — live sync enabled.")
-else:
-    print("No Supabase credentials found — local JSON only.")
+
+def _init_supabase():
+    global SUPABASE_URL, SUPABASE_KEY
+    _load_env()
+    SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+    SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
+    if SUPABASE_URL and SUPABASE_KEY:
+        print("Supabase credentials loaded — live sync enabled.")
+    else:
+        print("No Supabase credentials found — local JSON only.")
 
 # All planned SBB origins — processed in order by --sbb-all
 ALL_ORIGINS = [
@@ -920,6 +936,7 @@ def enrich_sbb_with_recovery(routes, origin):
 
 def main():
     global ORIGIN
+    _init_supabase()
     parser = argparse.ArgumentParser(
         description="Swiss Hiking & Cycling Tracker — Data Scraper"
     )
