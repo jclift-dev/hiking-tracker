@@ -251,6 +251,7 @@ pip3 install -r requirements.txt
 python3 scraper_websites.py                   # all trails
 python3 scraper_websites.py --only eifelsteig # one trail by slug
 python3 scraper_websites.py --refresh         # re-fetch even if cached
+python3 scraper_websites.py --allow-fewer-stages  # accept a scrape with fewer stages than stored (refused by default: usually a failed page fetch)
 python3 scraper.py --import
 ```
 

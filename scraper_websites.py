@@ -3334,10 +3334,26 @@ TRAILS = {
 }
 
 
+def refuses_fewer_stages(existing, new, allow_fewer=False):
+    """True if replacing `existing` with `new` should be refused.
+
+    Multi-page scrapers skip pages whose fetch failed, so a transient network
+    error shows up as a route with fewer stages than the one already stored.
+    Replacing it would silently drop real stages from hikes.json, so refuse
+    unless the caller passed --allow-fewer-stages.
+    """
+    if allow_fewer or existing is None:
+        return False
+    return len(new.get("stages", [])) < len(existing.get("stages", []))
+
+
 def main():
     p = argparse.ArgumentParser(description="Scrape official trail websites")
     p.add_argument("--only",    help=f"trail slug: {', '.join(TRAILS)}")
     p.add_argument("--refresh", action="store_true", help="re-fetch even if cached")
+    p.add_argument("--allow-fewer-stages", action="store_true",
+                   help="allow a scrape to replace a stored route with fewer stages "
+                        "(refused by default: usually a failed page fetch)")
     args = p.parse_args()
 
     if args.only and args.only not in TRAILS:
@@ -3365,6 +3381,13 @@ def main():
                 continue
 
         if key in index:
+            old = routes[index[key]]
+            if refuses_fewer_stages(old, route, args.allow_fewer_stages):
+                print(f"  REFUSED: scrape found {len(route['stages'])} stages but "
+                      f"{len(old['stages'])} are stored (likely a failed page fetch). "
+                      f"Keeping the stored route; re-run, or pass --allow-fewer-stages "
+                      f"if the site really has fewer.")
+                continue
             routes[index[key]] = route
             print(f"  Updated existing route_id={route['route_id']}")
         else:

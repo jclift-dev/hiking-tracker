@@ -137,3 +137,16 @@ def test_importing_scraper_does_not_load_credentials(tmp_path):
          "import scraper, os; print(repr(scraper.SUPABASE_KEY), 'SUPABASE_SERVICE_KEY' in os.environ)"],
         cwd=tmp_path, env=env, capture_output=True, text=True, check=True).stdout
     assert out.strip().endswith("'' False"), out
+
+
+# --- scraper_websites partial-scrape guard -----------------------------------
+
+def test_websites_refuses_to_replace_a_route_with_fewer_stages():
+    pytest.importorskip("bs4")
+    import scraper_websites as w
+    old = {"stages": [{}, {}, {}]}
+    assert w.refuses_fewer_stages(old, {"stages": [{}, {}]}) is True
+    assert w.refuses_fewer_stages(old, {"stages": [{}, {}]}, allow_fewer=True) is False
+    assert w.refuses_fewer_stages(old, {"stages": [{}, {}, {}]}) is False      # same count
+    assert w.refuses_fewer_stages(old, {"stages": [{}, {}, {}, {}]}) is False  # more is fine
+    assert w.refuses_fewer_stages(None, {"stages": [{}]}) is False             # new route
