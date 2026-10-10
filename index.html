@@ -2770,9 +2770,17 @@ const ALPINE_CANTONS = new Set(['VS', 'GR', 'UR', 'GL', 'OW', 'NW', 'TI', 'BE'])
 const NOW_MONTH = new Date().getMonth() + 1; // 1–12
 
 function seasonInfo(stage, land) {
+  const inAlpine = (stage.cantons || []).some(c => ALPINE_CANTONS.has(c));
+  if (land === 'ch-cycle') {
+    // Rough heuristic (no per-pass data): big climbs in alpine cantons mean
+    // high passes, which are typically closed in winter and into early summer.
+    const up = stage.elev_up || 0;
+    if (inAlpine && up >= 1200) return { label: 'Jun – Oct', warn: NOW_MONTH < 6 || NOW_MONTH > 10 };
+    if (inAlpine && up >= 800)  return { label: 'May – Oct', warn: NOW_MONTH < 5 || NOW_MONTH > 10 };
+    return null;
+  }
   if (land !== 'ch-hike') return null;
   const diff = canonDiff(stage.difficulty, 'ch-hike');
-  const inAlpine = (stage.cantons || []).some(c => ALPINE_CANTONS.has(c));
   if (diff === 'demanding alpine hiking trail' || diff === 'alpine hiking trail') {
     const warn = NOW_MONTH < 7 || NOW_MONTH > 9;
     return { label: 'Jul – Sep', warn };
