@@ -98,3 +98,13 @@ def test_legacy_hiking_hrs_warns():
 
 def test_top_level_must_be_list():
     assert v.validate({"a": 1})[0]
+
+
+def test_every_route_maps_to_a_source():
+    import route_sources
+    with open(os.path.join(ROOT, "hikes.json"), encoding="utf-8") as f:
+        routes = json.load(f)
+    summary = route_sources.summarise(routes)
+    assert "UNMAPPED" not in summary, summary.get("UNMAPPED", {}).get("route_ids")
+    assert sum(v["routes"] for v in summary.values()) == len(routes)
+    assert summary["schweizmobil.ch"]["routes"] == sum(1 for r in routes if r["land"].startswith("ch-"))
