@@ -8,7 +8,7 @@ Route → source mapping lives in `route_sources.py` (tested: every route maps t
 
 | Channel | What is exposed |
 |---|---|
-| Public GitHub repo `jclift-dev/hiking-tracker` | `hikes.json` (4.3 MB): all 842 routes / 7,768 stages, including ~1.2 M characters of scraped descriptive text, in every commit of git history |
+| Public GitHub repo `jclift-dev/hiking-tracker` | `hikes.json` (4.3 MB): all 842 routes / 7,768 stages, including ~1.29 M characters of scraped descriptive text (1.20 M of it from non-OSM sources), in every commit of git history |
 | Supabase REST API | `routes` and `stages` have a `public read` RLS policy (`USING (true)`), and the publishable key is in `index.html`, so **anyone can read every row without logging in** |
 | GitHub Pages site | the app; data comes from the API above |
 
@@ -46,9 +46,9 @@ Usage policies that bind our *scraping* even though the data is open: OSM Nomina
 | gronze.com (30 Camino routes) | 30 / 602 | content "exclusivamente para su uso personal, privado y no lucrativo"; commercial reproduction/distribution prohibited; written consent otherwise | high |
 | wege.albverein.net | 10 / 175 | only copies/downloads "für den persönlichen, privaten und nicht kommerziellen Gebrauch"; storing/processing content in databases needs written consent | medium |
 | rando.vanoise.com (Parc national de la Vanoise) | 11 / 49 | reproduction allowed only "strictement réservées à un usage personnel"; otherwise prior authorisation | medium (notice is on the park's site) |
-| erzgebirge-tourismus.de, vogelsberg-touristik.de, ith-hils-weg.de | 3 routes / 40 stages | "Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet"; exploitation needs written consent | medium |
+| erzgebirge-tourismus.de, vogelsberg-touristik.de, ith-hils-weg.de | 3 routes / 30 stages | "Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet"; exploitation needs written consent | medium |
 | sauerland-waldroute.de | 1 / 19 | single private copies only; reproducing texts/data needs written consent | medium |
-| sustrans.org.uk (Walk Wheel Cycle Trust), visitnorthumberland.com | 3 / 22 | personal copying only; commercial use / storing content on another website not permitted | medium |
+| sustrans.org.uk (Walk Wheel Cycle Trust), visitnorthumberland.com | 3 / 21 | personal copying only; commercial use / storing content on another website not permitted | medium |
 | caminoespiritualdelsur.com | 1 / 14 | personal/private copying only; reproduction, distribution, public communication prohibited | medium |
 | high-scardus-trail.com | 1 / 20 | private use only; tour geometries are "protected works"; further use needs written consent | medium |
 
@@ -74,7 +74,7 @@ Usage policies that bind our *scraping* even though the data is open: OSM Nomina
 | saechsische-schweiz.de (Malerweg) | 1 / 8 (3.3 k) | impressum has image credits only |
 | schwarzwaldverein.de | 23 / 138 | impressum has only credits; the AGB PDFs were not read |
 | rando.marittimemercantour.eu (Mercantour) | 14 / 82 | mentions légales has no reuse clause |
-| wildganz.com, eifelsteig.de, italiacoast2coast.it, linksrheinischer-jakobsweg.info (TLS cert expired), werra-burgen-steig-hessen.de, caminodelafrontera.es, walkingpenedageres.pt, koenig-ludwig-weg.de, ich-geh-wandern.de (© Wanderatlas Verlag), snptrail.com, wayoftheroses.co.uk | 12 routes / ~130 stages | © lines only |
+| wildganz.com, eifelsteig.de, italiacoast2coast.it, linksrheinischer-jakobsweg.info (TLS cert expired), werra-burgen-steig-hessen.de, caminodelafrontera.es, walkingpenedageres.pt, koenig-ludwig-weg.de, ich-geh-wandern.de (© Wanderatlas Verlag), snptrail.com, wayoftheroses.co.uk | 12 routes / 155 stages | © lines only |
 | chamina-voyages.com (GR70) | 1 / 13 | **not researched** |
 
 ## Recommendations
@@ -82,8 +82,8 @@ Usage policies that bind our *scraping* even though the data is open: OSM Nomina
 Ordered by how much risk they remove per unit of effort. None has been applied; items marked ⚠ need your explicit go-ahead.
 
 1. **Stop serving the data to anonymous callers.** Change the `routes` / `stages` RLS policies from `public read` to `authenticated` (add to the #50 migration). The app already requires login, so users see no difference. ⚠ (changes live policies)
-2. **Strip the prose from non-OSM data.** The app shows scraped descriptive text in exactly one place (the dashboard's "hike of the day" blurb); stage descriptions are not displayed anywhere. Dropping `description` for every source except OSM removes ~1.1 M characters — 994 k of it SchweizMobil's — at almost no functional cost, and is the clearest copyright text in the dataset. ⚠ (data change, `hikes.json` + `--import`)
-3. **Remove or replace the Tier B routes** (UK National Trails ×6, West Highland Way, Komoot, Outdooractive: 9 routes), and stop using `cloudscraper` to defeat Cloudflare on nationaltrail.co.uk. Where an OSM relation exists, use that instead. ⚠
+2. **Strip the prose from non-OSM data.** The app shows scraped descriptive text in exactly one place (the dashboard's "hike of the day" blurb); stage descriptions are not displayed anywhere. Dropping `description` for every source except OSM removes ~1.2 M characters — 994 k of it SchweizMobil's — at almost no functional cost, and is the clearest copyright text in the dataset. ⚠ (data change, `hikes.json` + `--import`)
+3. **Remove or replace the Tier B routes** (UK National Trails ×6, West Highland Way, Komoot, Outdooractive: 9 routes / 104 stages), and stop using `cloudscraper` to defeat Cloudflare on nationaltrail.co.uk. Where an OSM relation exists, use that instead. ⚠
 4. **Take `hikes.json` out of the public repo going forward** and keep it elsewhere (private storage, or load it into Supabase only). Note this does **not** remove it from git history: either make the repo private (GitHub Pages then needs a paid plan) or rewrite history with `git filter-repo` and force-push. ⚠⚠ (destructive / outward-facing)
 5. **Settle SchweizMobil.** Find the permission referred to in `LICENSE`; if it can't be shown to cover redistribution, treat the 479 Swiss routes as Tier E: keep names/distances/elevations, drop the prose, and keep the data behind login.
 6. **Ask for permission** from the few publishers where it matters most (E1 / hiking-europe.eu, Via Francigena, Gronze, Albverein) or replace their routes with OSM-derived ones.
