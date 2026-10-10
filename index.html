@@ -36,7 +36,7 @@
     --sec-container: #cce6fb;
     --page:       #f8f9fa;
     --text:       #191c1d;
-    --muted:      #6b6b67;
+    --muted:      #5f5f5b;   /* was #6b6b67: 4.43:1 on the segmented-control bg, below WCAG AA */
     --radius:     20px;
     --radius-lg:  28px;
     --shadow:     0 2px 16px rgba(25,28,29,0.07), 0 1px 4px rgba(25,28,29,0.04);
@@ -777,7 +777,7 @@
   .dash-season-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--ghost); font-size: 12px; }
   .dash-season-item:last-child { border-bottom: none; }
   .dash-season-warn { color: var(--tertiary); font-weight: 700; font-size: 10px; white-space: nowrap; }
-  .dash-season-ok { color: var(--green); font-weight: 700; font-size: 10px; white-space: nowrap; }
+  .dash-season-ok { color: var(--green-dark); font-weight: 700; font-size: 10px; white-space: nowrap; }
 
   /* Canton map */
   .dash-canton-map { background: var(--surface); border-radius: var(--radius-lg); padding: 1.4rem; box-shadow: var(--shadow); margin-bottom: 20px; }
@@ -888,7 +888,7 @@
         crossorigin="anonymous"></script>
 </head>
 <body data-land="ch-hike">
-<div id="auth-screen" style="display:none">
+<div id="auth-screen" role="main" style="display:none">
   <div class="auth-card">
     <div class="auth-logo">Via</div>
     <div class="auth-tagline">Your hiking journey</div>
@@ -915,7 +915,7 @@
     </div>
   </div>
 </div>
-<div class="app">
+<div class="app" role="main">
 
   <div class="header" id="main-header">
     <svg class="header-bg-svg" viewBox="0 0 800 280" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1039,7 +1039,7 @@
     <div class="settings-section">
       <div class="settings-label">Max travel time &nbsp;<strong id="sbb-slider-val">any</strong></div>
       <input type="range" id="sbb-slider" min="0" max="240" step="15" value="240"
-             oninput="updateSbbSlider()" />
+             aria-label="Maximum travel time" oninput="updateSbbSlider()" />
     </div>
   </div>
 
@@ -2884,7 +2884,7 @@ function elevProfile(elevUp, elevDown) {
 
   return `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">
     ${upStr}
-    <img src="assets/${icon}" width="34" height="34" style="border-radius:5px;display:block">
+    <img src="assets/${icon}" alt="" width="34" height="34" style="border-radius:5px;display:block">
     ${dnStr}
   </div>`;
 }
@@ -4952,7 +4952,7 @@ async function _recoverIfStuck() {
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) _recoverIfStuck(); });
 </script>
-<div style="padding:12px 20px;text-align:center;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px">
+<div role="contentinfo" style="padding:12px 20px;text-align:center;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px">
   Trail data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--muted)">OpenStreetMap contributors</a>, ODbL 1.0
 </div>
 </body>
