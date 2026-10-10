@@ -1063,6 +1063,8 @@
     <div class="settings-section">
       <div class="settings-label">Your data</div>
       <button class="view-btn" onclick="exportProgress()">Export progress (JSON)</button>
+      <button class="view-btn" onclick="document.getElementById('import-file').click()">Import progress…</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden onchange="importProgressFile(this)">
     </div>
   </div>
 
@@ -2299,6 +2301,92 @@ function exportProgress() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Validate an exported progress file and work out what merging it would change.
+// Pure (no DOM, no network). Merge rules: never delete or overwrite local data; a value
+// from the file is applied only where the local stage has none. Differences are reported
+// as conflicts and left as they are.
+const IMPORT_MAX_NOTE = 5000;
+function planProgressImport(text, knownKeys, local) {
+  let data;
+  try { data = JSON.parse(text); } catch { return { error: 'This is not a valid JSON file.' }; }
+  if (!data || data.format !== 'hiking-tracker-progress') return { error: 'This is not a Hiking Tracker progress export.' };
+  if (data.version !== 1) return { error: `Unsupported export version: ${data.version}.` };
+  if (!data.stages || typeof data.stages !== 'object' || Array.isArray(data.stages)) return { error: 'The file has no stages section.' };
+
+  const plan = { changes: {}, unknown: 0, invalid: 0, conflicts: 0, adds: { completed: 0, ratings: 0, notes: 0, wishlist: 0 } };
+  for (const [key, v] of Object.entries(data.stages)) {
+    if (!knownKeys.has(key)) { plan.unknown++; continue; }
+    if (!v || typeof v !== 'object') { plan.invalid++; continue; }
+    const ch = {};
+    const date = v.completed_on;
+    if (date != null) {
+      if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) { plan.invalid++; continue; }
+      if (!local.completed[key]) { ch.completed = formatDateCH(date); plan.adds.completed++; }
+      else if (local.completed[key] !== formatDateCH(date)) plan.conflicts++;
+    }
+    if (v.rating != null) {
+      if (!Number.isInteger(v.rating) || v.rating < 1 || v.rating > 5) { plan.invalid++; continue; }
+      if (!local.ratings[key]) { ch.rating = v.rating; plan.adds.ratings++; }
+      else if (local.ratings[key] !== v.rating) plan.conflicts++;
+    }
+    if (v.note != null) {
+      if (typeof v.note !== 'string' || v.note.length > IMPORT_MAX_NOTE) { plan.invalid++; continue; }
+      if (!local.notes[key]) { ch.note = v.note; plan.adds.notes++; }
+      else if (local.notes[key] !== v.note) plan.conflicts++;
+    }
+    if (v.wishlist === true && !local.wishlist[key]) { ch.wishlist = true; plan.adds.wishlist++; }
+    if (Object.keys(ch).length) plan.changes[key] = ch;
+  }
+  return { plan };
+}
+
+async function applyProgressPlan(plan) {
+  const keys = [];
+  for (const [key, ch] of Object.entries(plan.changes)) {
+    if (ch.completed) {
+      completed[key] = ch.completed;
+      for (const linked of linkedStageKeys(key)) {
+        if (!completed[linked]) { completed[linked] = ch.completed; keys.push(linked); }
+      }
+    }
+    if (ch.rating)   ratings[key]  = ch.rating;
+    if (ch.note)     notes[key]    = ch.note;
+    if (ch.wishlist) wishlist[key] = true;
+    keys.push(key);
+  }
+  await persistStages(keys);
+  updateStats();
+  render();
+  return keys.length;
+}
+
+async function importProgressFile(input) {
+  const file = input.files && input.files[0];
+  input.value = '';   // allow re-selecting the same file later
+  if (!file) return;
+  if (!userStateLoaded) {
+    alert('Your progress has not loaded yet, so importing now could overwrite it. Try again once it has loaded.');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) { alert('That file is too large to be a progress export.'); return; }
+  const known = new Set(allRoutes.flatMap(r => r.stages.map(s => stageKey(r.land, r.route_id, s.stage_nr))));
+  const { error, plan } = planProgressImport(await file.text(), known, { completed, ratings, notes, wishlist });
+  if (error) { alert(error); return; }
+  const a = plan.adds;
+  const total = Object.keys(plan.changes).length;
+  const lines = [
+    `Stages to update: ${total}`,
+    `  completions: ${a.completed}, ratings: ${a.ratings}, notes: ${a.notes}, wishlist: ${a.wishlist}`,
+  ];
+  if (plan.conflicts) lines.push(`${plan.conflicts} value(s) differ from what you have; your current values are kept.`);
+  if (plan.unknown)   lines.push(`${plan.unknown} stage(s) in the file are not in the app and are skipped.`);
+  if (plan.invalid)   lines.push(`${plan.invalid} stage(s) had invalid data and are skipped.`);
+  if (!total) { alert(lines.join('\n') + '\n\nNothing to import.'); return; }
+  if (!confirm(lines.join('\n') + '\n\nNothing is deleted. Import now?')) return;
+  const n = await applyProgressPlan(plan);
+  alert(failedSaves.size ? 'Imported, but some changes could not be saved. Use "Try again" on the banner.' : `Imported ${n} stage(s).`);
 }
 
 function toggleSettings() {
