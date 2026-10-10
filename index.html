@@ -239,6 +239,15 @@
   .settings-pill.active { background: var(--primary); color: #fff; font-weight: 500; }
   #sbb-slider { width: 100%; accent-color: var(--green); cursor: pointer; margin-top: 6px; display: block; }
   /* Filter panel */
+  .update-banner {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 1000;
+    display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px);
+    padding: 10px 14px; border-radius: 12px; background: var(--primary); color: #fff;
+    font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  }
+  .update-banner button { border: none; border-radius: 8px; padding: 6px 12px; font: inherit; cursor: pointer; background: #fff; color: var(--primary); }
+  .update-banner .update-later { background: transparent; color: #fff; opacity: 0.8; }
   .filter-btn {
     display: flex; align-items: center; gap: 6px;
     padding: 6px 14px; border-radius: 10px; border: none;
@@ -5003,6 +5012,48 @@ async function _recoverIfStuck() {
 }
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) _recoverIfStuck(); });
+// ── "Update available" prompt ────────────────────────────────────────────────
+// The app is one static file on GitHub Pages. Fingerprint it at load (ETag, else
+// a hash of the body) and re-check periodically and when the tab regains focus;
+// if it changed, offer a reload. Never reloads by itself, so unsaved edits are safe.
+let appFingerprint = null;
+let updatePromptShown = false;
+
+async function fetchFingerprint() {
+  const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const etag = res.headers.get('etag');
+  const body = await res.text();
+  if (etag) return etag;
+  let h = 5381;
+  for (let i = 0; i < body.length; i++) h = ((h << 5) + h + body.charCodeAt(i)) | 0;
+  return 'h' + h + ':' + body.length;
+}
+
+async function checkForUpdate() {
+  if (updatePromptShown || location.protocol === 'file:') return;
+  try {
+    const fp = await fetchFingerprint();
+    if (appFingerprint === null) { appFingerprint = fp; return; }
+    if (fp !== appFingerprint) showUpdateBanner();
+  } catch (e) { /* offline or transient: try again next time */ }
+}
+
+function showUpdateBanner() {
+  if (updatePromptShown) return;
+  updatePromptShown = true;
+  const bar = document.createElement('div');
+  bar.className = 'update-banner';
+  bar.setAttribute('role', 'status');
+  bar.innerHTML = `<span>A new version is available</span>
+    <button type="button" onclick="location.reload()">Update</button>
+    <button type="button" class="update-later" onclick="this.parentElement.remove()">Later</button>`;
+  document.body.appendChild(bar);
+}
+
+checkForUpdate();
+setInterval(checkForUpdate, 10 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
 </script>
 <div role="contentinfo" style="padding:12px 20px;text-align:center;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px">
   Trail data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--muted)">OpenStreetMap contributors</a> (ODbL&nbsp;1.0)
