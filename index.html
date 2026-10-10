@@ -2601,7 +2601,7 @@ function stageMatchesFilters(s, land, diffVal, kmVal, timeVal) {
     if (kmVal === 'long'   && km <= 25) return false;
   }
   if (timeVal) {
-    const hrs = s.duration_hrs || 0;
+    const hrs = stageHours(s).hrs || 0;
     if (timeVal === 'quick' && hrs >= 4) return false;
     if (timeVal === 'half'  && (hrs < 4 || hrs > 6)) return false;
     if (timeVal === 'full'  && hrs <= 6) return false;
@@ -2733,7 +2733,7 @@ function filteredStages() {
   else if (sortBy === 'dist_asc')  stages.sort((a, b) => (a.dist_km || 0) - (b.dist_km || 0));
   else if (sortBy === 'dist_desc') stages.sort((a, b) => (b.dist_km || 0) - (a.dist_km || 0));
   else if (sortBy === 'elev_desc') stages.sort((a, b) => (b.elev_up || 0) - (a.elev_up || 0));
-  else if (sortBy === 'time_asc')  stages.sort((a, b) => (a.duration_hrs || 99) - (b.duration_hrs || 99));
+  else if (sortBy === 'time_asc')  stages.sort((a, b) => (stageHours(a).hrs || 99) - (stageHours(b).hrs || 99));
 
   return stages;
 }
@@ -2826,7 +2826,7 @@ function renderSurprise() {
   const best = stageBestSbb(s);
   const sbbStr = best != null ? `🚆 ${fmtMins(best)} from ${escHtml(selectedStation)}` : '';
   const distStr = fmtKm(s.dist_km);
-  const hrsStr  = s.duration_hrs ? fmtHrs(s.duration_hrs) : null;
+  const hrsStr  = stageHrsLabel(s);
   const season  = seasonInfo(s, s._land);
   const diff    = canonDiff(s.difficulty, s._land);
   const smLink  = smUrl(r, s.stage_nr);
@@ -2887,6 +2887,24 @@ function fmtMins(mins) {
   return h === 0 ? `${m} min` : m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
+// SchweizMobil doesn't publish riding times, so cycling stages (and the
+// hard-coded UK cycling ones) have no duration_hrs. Estimate one for sorting,
+// filtering and display: ~16 km/h touring pace plus 1 h per 600 m of ascent.
+// Estimates are shown with a leading "~".
+const CYCLE_KMH = 16, CYCLE_ASCENT_M_PER_HR = 600;
+function stageHours(s) {
+  if (s.duration_hrs) return { hrs: s.duration_hrs, est: false };
+  if (String(s.land || s._land || '').endsWith('-cycle') && s.dist_km > 0) {
+    const hrs = s.dist_km / CYCLE_KMH + (s.elev_up || 0) / CYCLE_ASCENT_M_PER_HR;
+    return { hrs: Math.round(hrs * 4) / 4, est: true };   // nearest 15 min
+  }
+  return { hrs: null, est: false };
+}
+function stageHrsLabel(s) {
+  const { hrs, est } = stageHours(s);
+  return hrs ? (est ? '~' : '') + fmtHrs(hrs) : null;
+}
+
 function fmtHrs(hrs) {
   const h = Math.floor(hrs), m = Math.round((hrs - h) * 60);
   if (m === 0) return `${h}hr`;
@@ -2919,7 +2937,7 @@ function renderStages(route) {
     const startTravel = fmtMins(sbbTimes.start);
     const endTravel   = fmtMins(sbbTimes.end);
     const distStr     = fmtKm(stage.dist_km);
-    const hrsStr      = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
+    const hrsStr      = stageHrsLabel(stage);
     const aspStr      = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
     const diff        = stage.difficulty;
     const wished      = !!wishlist[key];
@@ -3106,7 +3124,7 @@ function renderFlatStage(stage) {
   const isCycle = r.land.endsWith('-cycle');
   const numLabel = r.route_type === 'national' ? `★ ${r.route_id}` : `${r.route_id}`;
   const distStr    = fmtKm(stage.dist_km);
-  const hrsStr     = stage.duration_hrs ? fmtHrs(stage.duration_hrs) : null;
+  const hrsStr     = stageHrsLabel(stage);
   const aspStr     = stage.km_asphalt != null ? `${stage.km_asphalt} km asphalt` : null;
   const sbbTimes    = (stage.sbb_times || {})[selectedStation] || {};
   const startTravel = fmtMins(sbbTimes.start);
@@ -4093,7 +4111,7 @@ function renderDashboard() {
       <div class="dash-next-up-meta">
         ${s.dist_km ? `<span class="badge badge-gray">${fmtKm(s.dist_km)}</span>` : ''}
         ${s.elev_up ? `<span class="badge badge-gray">↑ ${s.elev_up.toLocaleString()} m</span>` : ''}
-        ${s.duration_hrs ? `<span class="badge badge-gray">⏱ ${fmtHrs(s.duration_hrs)}</span>` : ''}
+        ${stageHrsLabel(s) ? `<span class="badge badge-gray">⏱ ${stageHrsLabel(s)}</span>` : ''}
         ${diffClass(diff, r.land) ? `<span class="badge ${diffClass(diff, r.land)}">${DIFF_LABELS[canonDiff(diff, r.land)]}</span>` : ''}
         ${startTravel ? `<span class="badge badge-gray">🚆 ${startTravel} to start</span>` : ''}
         ${endTravel   ? `<span class="badge badge-gray">🚆 ${endTravel} home</span>` : ''}
