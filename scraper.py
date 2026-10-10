@@ -800,14 +800,21 @@ def load_existing():
         with open(OUTPUT) as f:
             old = json.load(f)
         existing = {}
+        dropped = []
         for r in old:
             if not r.get("stages"):
+                dropped.append(f"{r.get('land', '?')}:{r.get('route_id', '?')}")
                 continue  # skip stale/empty
+            if "land" not in r:
+                print(f"  [warn] route {r.get('route_id')} has no 'land'; treating as ch-hike")
             land = r.get("land", "ch-hike")  # default ch-hike for pre-cycling data
             existing[(land, r["route_type"], r["route_id"])] = r
-        stale = len(old) - len(existing)
         print(f"Loaded {len(existing)} routes from {OUTPUT}"
-              + (f" ({stale} stale/empty skipped)" if stale else "") + "\n")
+              + (f" ({len(dropped)} stale/empty skipped)" if dropped else "") + "\n")
+        if dropped:
+            # They are not carried into the next save(), i.e. removed from the file.
+            print(f"  [warn] routes with no stages will be dropped on the next save: "
+                  f"{', '.join(dropped)}\n")
         return existing
     except FileNotFoundError:
         print(f"No existing {OUTPUT} — starting fresh\n")

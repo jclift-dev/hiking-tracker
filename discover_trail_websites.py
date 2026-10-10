@@ -334,6 +334,19 @@ def process_trail(trail: dict) -> dict:
 # Main
 # ---------------------------------------------------------------------------
 
+# Results that came from a failed request rather than a real answer from the
+# site. They must be retried on --resume: skipping them would record a
+# transient network error as a permanent verdict.
+RETRY_STATUSES = {"fetch_error", "stage_page_error"}
+
+
+def split_resumable(previous):
+    """Split earlier results into (keep, retry_count): keep completed ones,
+    drop those whose status is in RETRY_STATUSES so they get re-processed."""
+    keep = [r for r in previous if r.get("status") not in RETRY_STATUSES]
+    return keep, len(previous) - len(keep)
+
+
 def main():
     p = argparse.ArgumentParser(description="Discover trail websites with stage pages")
     p.add_argument("--smoke",  action="store_true", help="Smoke test on representative subset")
@@ -355,11 +368,13 @@ def main():
 
     existing = {}
     if args.resume and OUTPUT_FILE.exists():
-        for r in json.loads(OUTPUT_FILE.read_text()):
+        previous, n_retry = split_resumable(json.loads(OUTPUT_FILE.read_text()))
+        for r in previous:
             existing[r["osm_id"]] = r
         before = len(candidates)
         candidates = [t for t in candidates if t["osm_id"] not in existing]
-        print(f"Resuming: skipping {before - len(candidates)} already done\n")
+        print(f"Resuming: skipping {before - len(candidates)} already done "
+              f"(retrying {n_retry} that ended in a fetch error)\n")
 
     results = list(existing.values())
     for trail in candidates:

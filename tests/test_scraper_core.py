@@ -150,3 +150,29 @@ def test_websites_refuses_to_replace_a_route_with_fewer_stages():
     assert w.refuses_fewer_stages(old, {"stages": [{}, {}, {}]}) is False      # same count
     assert w.refuses_fewer_stages(old, {"stages": [{}, {}, {}, {}]}) is False  # more is fine
     assert w.refuses_fewer_stages(None, {"stages": [{}]}) is False             # new route
+
+
+# --- discover_trail_websites resume ---------------------------------------------
+
+def test_resume_retries_fetch_errors_but_keeps_real_verdicts():
+    pytest.importorskip("bs4")
+    import discover_trail_websites as d
+    prev = [{"osm_id": 1, "status": "found"},
+            {"osm_id": 2, "status": "fetch_error"},
+            {"osm_id": 3, "status": "no_stage_link"},
+            {"osm_id": 4, "status": "stage_page_error"},
+            {"osm_id": 5, "status": "stage_link_no_count"}]
+    keep, retry = d.split_resumable(prev)
+    assert [r["osm_id"] for r in keep] == [1, 3, 5]
+    assert retry == 2
+
+
+def test_load_existing_names_the_empty_routes_it_will_drop(tmp_path, monkeypatch, capsys):
+    p = tmp_path / "h.json"
+    good, empty = route(rid=1), route("uk", 9, stages=0)
+    p.write_text(json.dumps([good, empty]))
+    monkeypatch.setattr(scraper, "OUTPUT", str(p))
+    existing = scraper.load_existing()
+    out = capsys.readouterr().out
+    assert list(existing) == [("ch-hike", "national", 1)]
+    assert "1 stale/empty skipped" in out and "uk:9" in out and "will be dropped" in out
