@@ -1041,6 +1041,10 @@
       <input type="range" id="sbb-slider" min="0" max="240" step="15" value="240"
              aria-label="Maximum travel time" oninput="updateSbbSlider()" />
     </div>
+    <div class="settings-section">
+      <div class="settings-label">Your data</div>
+      <button class="view-btn" onclick="exportProgress()">Export progress (JSON)</button>
+    </div>
   </div>
 
   <div id="error-area" role="status" aria-live="polite"></div>
@@ -2246,6 +2250,34 @@ function clearFilters() {
   document.getElementById('time-filter').value = '';
   updateFilterBtn();
   render();
+}
+
+function exportProgress() {
+  if (!userStateLoaded) {
+    alert('Your progress has not loaded yet, so there is nothing safe to export. Try again once it has loaded.');
+    return;
+  }
+  const keys = new Set([...Object.keys(completed), ...Object.keys(ratings),
+                        ...Object.keys(notes), ...Object.keys(wishlist)]);
+  const stages = {};
+  for (const k of [...keys].sort()) {
+    stages[k] = {
+      completed_on: completed[k] ? toISODate(completed[k]) : null,
+      rating: ratings[k] || null,
+      note: notes[k] || null,
+      wishlist: !!wishlist[k],
+    };
+  }
+  const payload = { format: 'hiking-tracker-progress', version: 1,
+                    exported_at: new Date().toISOString(), selected_station: selectedStation, stages };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hiking-progress-${payload.exported_at.slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function toggleSettings() {
