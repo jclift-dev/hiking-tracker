@@ -56,8 +56,11 @@ def test_dry_run_sends_nothing_and_needs_no_credentials(monkeypatch, capsys):
 
 
 class FakeResp:
-    def __init__(self, code):
-        self.status_code, self.ok, self.text = code, code < 400, "boom"
+    def __init__(self, code, body=None):
+        self.status_code, self.ok, self.text, self._body = code, code < 400, "boom", body
+
+    def json(self):
+        return self._body
 
 
 def fake_session(monkeypatch, codes):
@@ -66,6 +69,7 @@ def fake_session(monkeypatch, codes):
     monkeypatch.setattr(scraper.time, "sleep", lambda s: None)
     monkeypatch.setattr(scraper.SESSION, "post",
                         lambda url, **k: (calls.append(url.rsplit("/", 1)[-1]) or FakeResp(next(it))))
+    monkeypatch.setattr(scraper.SESSION, "get", lambda *a, **k: FakeResp(200, []))
     monkeypatch.setenv("SUPABASE_URL", "https://x.test")
     monkeypatch.setenv("SUPABASE_SERVICE_KEY", "k")
     return calls
@@ -95,6 +99,26 @@ def test_import_exits_nonzero_when_stage_batch_fails(monkeypatch):
     with pytest.raises(SystemExit) as e:
         scraper.import_to_supabase([route()])
     assert e.value.code == 1
+
+
+def test_orphan_report_lists_remote_only_rows_and_deletes_nothing(monkeypatch, capsys):
+    fake_session(monkeypatch, [200, 200])
+    remote = {"routes": [{"id": 1, "land": "ch-hike"}, {"id": 9, "land": "uk"}],
+              "stages": [{"route_id": 1, "land": "ch-hike", "stage_nr": 1},
+                         {"route_id": 1, "land": "ch-hike", "stage_nr": 2},
+                         {"route_id": 9, "land": "uk", "stage_nr": 1}]}
+    monkeypatch.setattr(scraper.SESSION, "get", lambda url, **k: FakeResp(200, remote[url.rsplit("/", 1)[-1]]))
+    monkeypatch.setattr(scraper.SESSION, "delete", lambda *a, **k: pytest.fail("must never delete"), raising=False)
+    scraper.import_to_supabase([route()])
+    out = capsys.readouterr().out
+    assert "route uk:9" in out and "stage ch-hike:1 #2" in out and "stage uk:9 #1" in out
+    assert "stage ch-hike:1 #1" not in out
+
+
+def test_orphan_check_failure_does_not_fail_import(monkeypatch):
+    fake_session(monkeypatch, [200, 200])
+    monkeypatch.setattr(scraper.SESSION, "get", lambda *a, **k: FakeResp(500, None))
+    scraper.import_to_supabase([route()])  # no SystemExit
 
 
 # --- SBB rate limit ---------------------------------------------------------

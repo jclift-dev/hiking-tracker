@@ -27,6 +27,7 @@ python3 scraper.py --sbb-all              # process all origins in sequence (run
 # Push to Supabase (after scraping):
 python3 scraper.py --import               # requires SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
 python3 scraper.py --import --dry-run     # per-land counts of what would be upserted; sends nothing, no credentials needed
+After a successful `--import` the script runs a read-only orphan check and lists remote routes/stages that are no longer in `hikes.json` (nothing is deleted; remove them by hand).
 ```
 
 The scraper is resumable — re-running skips routes already in `hikes.json` and SBB lookups already populated for that origin. Safe to interrupt (Ctrl+C saves progress immediately) and restart.
@@ -274,4 +275,4 @@ All scrapers write `hikes.json` and the cache/catalog files through `atomic_io.w
 
 ## Tests
 
-`python3 -m pytest -q tests` (needs `pip install -r requirements.txt pytest`) covers `validate_hikes.py`, `atomic_io.py`, `lands.py` (including that the CLAUDE.md land table / CHECK template match it) and the pure parts of `scraper.py`: load/save, `--import` (dry-run, retries, exit codes, unknown-land rejection), the bounded SBB 429 loop and `.env` parsing. No test touches the network. GitHub Actions runs them on every push and PR. `test_sbb.py` is *not* part of this — it's a manual live-API check of transport.opendata.ch.
+`python3 -m pytest -q tests` (needs `pip install -r requirements.txt pytest`) covers `validate_hikes.py`, `atomic_io.py`, `lands.py` (including that the CLAUDE.md land table / CHECK template match it) and the pure parts of `scraper.py`: load/save, `--import` (dry-run, retries, exit codes, unknown-land rejection, orphan report), the bounded SBB 429 loop and `.env` parsing. No test touches the network. GitHub Actions runs them on every push and PR. `test_sbb.py` is *not* part of this — it's a manual live-API check of transport.opendata.ch.

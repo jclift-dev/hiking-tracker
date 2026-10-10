@@ -850,6 +850,54 @@ def _post_batch(url, headers, batch, params, attempts=3):
     return False, detail
 
 
+def _fetch_all(url, headers, select, page=1000):
+    """GET every row of a PostgREST table (paged); returns a list or None on error."""
+    rows = []
+    while True:
+        try:
+            resp = SESSION.get(url, headers={**headers, "Range-Unit": "items",
+                                             "Range": f"{len(rows)}-{len(rows) + page - 1}"},
+                               params={"select": select, "order": select.split(",")[0]}, timeout=30)
+        except requests.RequestException as e:
+            print(f"  [warn] orphan check: {e}")
+            return None
+        if not resp.ok:
+            print(f"  [warn] orphan check: {resp.status_code} {resp.text[:120]}")
+            return None
+        batch = resp.json()
+        rows.extend(batch)
+        if len(batch) < page:
+            return rows
+
+
+def report_orphans(base_url, headers, routes):
+    """Read-only: list remote routes/stages that are no longer in hikes.json.
+
+    Nothing is deleted; remove them by hand (SQL editor) after reviewing.
+    """
+    local_routes = {(r["land"], r["route_id"]) for r in routes}
+    local_stages = {(r["land"], r["route_id"], s["stage_nr"]) for r in routes for s in r["stages"]}
+    remote_routes = _fetch_all(f"{base_url}/rest/v1/routes", headers, "id,land")
+    remote_stages = _fetch_all(f"{base_url}/rest/v1/stages", headers, "route_id,land,stage_nr")
+    if remote_routes is None or remote_stages is None:
+        return
+    orphan_routes = sorted((x["land"], x["id"]) for x in remote_routes if (x["land"], x["id"]) not in local_routes)
+    orphan_stages = sorted((x["land"], x["route_id"], x["stage_nr"]) for x in remote_stages
+                           if (x["land"], x["route_id"], x["stage_nr"]) not in local_stages)
+    if not orphan_routes and not orphan_stages:
+        print("Orphan check: remote matches hikes.json.")
+        return
+    print(f"\nOrphan check (read-only, nothing deleted): {len(orphan_routes)} route(s), "
+          f"{len(orphan_stages)} stage(s) exist remotely but not in {OUTPUT}:")
+    for land, rid in orphan_routes:
+        print(f"  route {land}:{rid}")
+    for land, rid, nr in orphan_stages[:50]:
+        print(f"  stage {land}:{rid} #{nr}")
+    if len(orphan_stages) > 50:
+        print(f"  … and {len(orphan_stages) - 50} more stages")
+    print("Review, then delete manually (user_state rows for these stage_keys would be left behind too).")
+
+
 def import_to_supabase(routes, dry_run=False):
     """Import all routes and stages from hikes.json into Supabase via REST API.
 
@@ -968,6 +1016,7 @@ def import_to_supabase(routes, dry_run=False):
     print("\n" + "=" * 60)
     print(f"Import complete: {len(route_rows)} routes, {len(stage_rows)} stages")
     print("=" * 60)
+    report_orphans(url, headers, routes)
 
 
 # ---------------------------------------------------------------------------
