@@ -96,6 +96,13 @@ TRAILS = [
     (77964,    "uk",      8,  "national", "Pembrokeshire Coast Path"),
     (9327615,  "uk",      9,  "national", "Cape Wrath Trail"),
     # UK — famous day hikes
+    # Replacements for the nationaltrail.co.uk / walkhighlands / komoot / outdooractive routes (#48):
+    # OSM geometry only, split into day stages by distance (see SPLIT_KM).
+    (9649,     "uk",      3,  "national", "Offa's Dyke Path"),
+    (12145,    "uk",      15, "national", "Coast to Coast Walk"),
+    (181787,   "de-hike", 73, "regional", "Müritz-Nationalpark-Wanderweg"),
+    (12702331, "se-hike", 22, "national", "Stråsjöleden"),
+    (16287,    "uk",      2,  "national", "West Highland Way"),
     (4004229,  "uk",      16, "regional", "Ben Nevis"),
     (4004200,  "uk",      17, "regional", "Snowdon Ranger Path"),
 
@@ -887,62 +894,6 @@ def backfill_swcp_osm_ids():
 
 
 # ---------------------------------------------------------------------------
-# WHW OSM ID backfill
-# ---------------------------------------------------------------------------
-
-# Parent OSM relation for the West Highland Way.
-# Has 8 ordered unnamed child sub-routes matching the 8 stages scraped
-# from walkshighlands.co.uk by scraper_whw.py.
-WHW_OSM_PARENT = 16287
-
-
-def backfill_whw_osm_ids():
-    existing = load_existing()
-    all_routes = list(existing.values())
-
-    whw = next(
-        (r for r in all_routes if r["land"] == "uk" and r["route_id"] == 2),
-        None,
-    )
-    if not whw:
-        print("WHW (uk:2) not found in hikes.json. Run scraper_whw.py first.")
-        return
-
-    stages = whw["stages"]
-    print(f"WHW: {len(stages)} scraped stages. "
-          f"Fetching OSM relation {WHW_OSM_PARENT}...", flush=True)
-
-    parent_data = fetch_relation(WHW_OSM_PARENT, "West Highland Way")
-    if not parent_data:
-        print("Could not fetch WHW OSM relation. Aborting.")
-        return
-
-    children = parent_data.get("route", {}).get("main", [])
-    osm_ids = [c["id"] for c in children if "id" in c]
-    print(f"OSM relation has {len(osm_ids)} child sub-routes.")
-
-    n_assign = min(len(stages), len(osm_ids))
-    if len(stages) != len(osm_ids):
-        print(f"⚠  Count mismatch: {len(stages)} scraped stages vs "
-              f"{len(osm_ids)} OSM sections — assigning first {n_assign} positionally.")
-
-    for i in range(n_assign):
-        stages[i]["_osm_id"] = osm_ids[i]
-
-    unmatched = stages[n_assign:]
-    if unmatched:
-        print("   Unmatched stages (no _osm_id assigned):")
-        for s in unmatched:
-            print(f"     stage {s['stage_nr']:2d}: {s['start_name']} → {s['end_name']}")
-
-    print(f"✓  {n_assign} WHW stages assigned _osm_id "
-          f"(OSM {osm_ids[0]} … {osm_ids[n_assign - 1]})")
-
-    save(all_routes)
-    print("Next: source .env && python3 scraper.py --import")
-
-
-# ---------------------------------------------------------------------------
 # Stage parsing
 # ---------------------------------------------------------------------------
 
@@ -1076,6 +1027,135 @@ def build_stage(child_data, stage_nr, skip_elevation=False):
 # Trail processing
 # ---------------------------------------------------------------------------
 
+# Flat OSM relations (no usable day-stage subrelations) are split into stages of
+# roughly this many km, using only the OSM geometry. Stage ends are named by
+# reverse-geocoding the split point (Nominatim, OSM data).
+SPLIT_KM = {
+    77976:    18,   # South Downs Way
+    65239:    16,   # Cotswold Way
+    38791:    20,   # Hadrian's Wall Path
+    77964:    19,   # Pembrokeshire Coast Path
+    9649:     22,   # Offa's Dyke Path
+    12145:    20,   # Coast to Coast Walk
+    181787:   20,   # Müritz-Nationalpark-Wanderweg
+    12702331: 20,   # Stråsjöleden
+}
+
+
+def _ways_merc(route_node):
+    """All way LineStrings (EPSG:3857) in a route node, depth-first."""
+    out = []
+    for child in route_node.get("main", []):
+        if "ways" in child:
+            for way in child["ways"]:
+                geom = way.get("geometry", {})
+                if geom.get("type") == "LineString" and len(geom["coordinates"]) > 1:
+                    out.append(geom["coordinates"])
+        else:
+            out.extend(_ways_merc(child))
+    return out
+
+
+def chain_ways(ways):
+    """Order and orient way segments into one polyline (greedy nearest-end chaining)."""
+    if not ways:
+        return []
+    d2 = lambda a, b: (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+    rest = [list(w) for w in ways]
+    line = rest.pop(0)
+    while rest:
+        end = line[-1]
+        best = min(range(len(rest)),
+                   key=lambda i: min(d2(end, rest[i][0]), d2(end, rest[i][-1])))
+        w = rest.pop(best)
+        if d2(end, w[-1]) < d2(end, w[0]):
+            w.reverse()
+        line.extend(w)
+    return line
+
+
+def split_route(route_node, target_km, official_m=None):
+    """
+    Split a route's geometry into near-equal day stages.
+    Returns (stages_pts, total_km): stages_pts is a list of WGS84 (lat, lng)
+    point lists, one per stage, consecutive stages sharing a boundary point.
+    """
+    line = chain_ways(_ways_merc(route_node))
+    if len(line) < 2:
+        return [], 0
+    pts = [merc_to_wgs84(x, y) for x, y in line]
+    cum = [0.0]
+    for a, b in zip(pts, pts[1:]):
+        dlat = math.radians(b[0] - a[0])
+        dlng = math.radians(b[1] - a[1]) * math.cos(math.radians((a[0] + b[0]) / 2))
+        cum.append(cum[-1] + 6371.0 * math.hypot(dlat, dlng))
+    raw_km = cum[-1]
+    # Chaining can add small jumps / variant overlap: scale to the official length.
+    ref_km = (official_m or 0) / 1000 or raw_km
+    scale = ref_km / raw_km if raw_km else 1
+    if abs(scale - 1) > 0.15:
+        print(f"  [warn] chained geometry {raw_km:.0f} km vs official {ref_km:.0f} km")
+    n = max(1, round(ref_km / target_km))
+    cuts = [0]
+    for k in range(1, n):
+        target = raw_km * k / n
+        i = next((i for i, c in enumerate(cum) if c >= target), len(cum) - 1)
+        cuts.append(i)
+    cuts.append(len(pts) - 1)
+    return [pts[a:b + 1] for a, b in zip(cuts, cuts[1:])], ref_km
+
+
+def build_split_stages(parent, target_km, skip_elevation=False):
+    """Stages for a flat relation, split by distance. Names come from Nominatim."""
+    route_node = parent.get("route", {})
+    official = parent.get("official_length") or route_node.get("length")
+    seg_pts, total_km = split_route(route_node, target_km, official)
+    if not seg_pts:
+        return []
+    tags = parent.get("tags", {})
+    # Place names at the n+1 boundaries
+    bounds = [seg_pts[0][0]] + [sp[-1] for sp in seg_pts]
+    names = []
+    for k, (lat, lng) in enumerate(bounds):
+        tag = (tags.get("from") if k == 0 else tags.get("to") if k == len(bounds) - 1 else None)
+        names.append((tag or "").strip() or reverse_geocode(lat, lng) or f"km {round(total_km * k / len(seg_pts))}")
+    stages = []
+    quota_hit = skip_elevation
+    for i, sp in enumerate(seg_pts, 1):
+        dist = 0.0
+        for a, b in zip(sp, sp[1:]):
+            dlat = math.radians(b[0] - a[0])
+            dlng = math.radians(b[1] - a[1]) * math.cos(math.radians((a[0] + b[0]) / 2))
+            dist += 6371.0 * math.hypot(dlat, dlng)
+        elev_up = elev_down = None
+        if not quota_hit and len(sp) > 1:
+            step = max(1, -(-len(sp) // ELEV_MAX_PTS))
+            samp = sp[::step][:ELEV_MAX_PTS]
+            if samp[-1] != sp[-1]:
+                samp.append(sp[-1])
+            up, down = fetch_elevation(samp)
+            if up == "QUOTA_EXHAUSTED":
+                quota_hit = True
+            else:
+                elev_up, elev_down = up, down
+        stages.append({
+            "stage_nr": i, "start_name": names[i - 1], "end_name": names[i], "via": None,
+            "dist_km": round(dist, 1), "elev_up": elev_up, "elev_down": elev_down,
+            "duration_hrs": None, "difficulty": parse_difficulty(parent),
+            "description": "", "cantons": [], "arrival_stations": [], "sbb_times": {},
+            "_osm_id": None,
+        })
+        print(f"  [{i:3d}] {names[i-1]} → {names[i]} ({stages[-1]['dist_km']} km, "
+              f"{'↑%sm ↓%sm' % (elev_up, elev_down) if elev_up is not None else 'no elev'})")
+    # Make stage distances sum to the official total (geometry chaining is approximate).
+    tot = sum(s["dist_km"] for s in stages)
+    if tot and total_km:
+        f = total_km / tot
+        for s in stages:
+            s["dist_km"] = round(s["dist_km"] * f, 1)
+    return stages
+
+
 def process_trail(osm_id, land, route_id, route_type, display_name,
                   refresh=False, skip_elevation=False):
     """
@@ -1100,6 +1180,8 @@ def process_trail(osm_id, land, route_id, route_type, display_name,
         if c.get("route_type") == "route"
     ]
     children = [c for c in children if not (c.get("length") and c.get("length") < 1000)]
+    if osm_id in SPLIT_KM:
+        children = []   # split by distance instead of trusting sub-relations
 
     # Level-2 descent: for coarse children attempt to use their subroutes
     if children:
@@ -1165,7 +1247,9 @@ def process_trail(osm_id, land, route_id, route_type, display_name,
     stages    = []
     quota_hit = False
 
-    if single_stage:
+    if single_stage and osm_id in SPLIT_KM:
+        stages = build_split_stages(parent, SPLIT_KM[osm_id], skip_elevation=skip_elevation)
+    elif single_stage:
         # Build one stage from the parent's geometry and metadata
         route_node = parent.get("route", {})
         length_m   = parent.get("official_length") or route_node.get("length")
@@ -1279,8 +1363,6 @@ def main():
                    help="Assign _osm_id to ch-hike stages from OSM parent superroutes (by position)")
     p.add_argument("--backfill-swcp-osm-ids", action="store_true",
                    help="Assign _osm_id to SWCP (uk:1) stages from OSM super-relation 2376086 (by position)")
-    p.add_argument("--backfill-whw-osm-ids", action="store_true",
-                   help="Assign _osm_id to WHW (uk:2) stages from OSM relation 16287 (by position)")
     args = p.parse_args()
 
     if args.backfill_names:
@@ -1297,10 +1379,6 @@ def main():
 
     if args.backfill_swcp_osm_ids:
         backfill_swcp_osm_ids()
-        return
-
-    if args.backfill_whw_osm_ids:
-        backfill_whw_osm_ids()
         return
 
     refresh_ids = set(args.refresh_ids or [])

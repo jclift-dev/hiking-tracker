@@ -26,18 +26,20 @@ Most sites allow *personal, private, non-commercial* copying. That does not cove
 |---|---|---|---|
 | OpenStreetMap via Waymarked Trails | 234 / 4,421 | ODbL 1.0: "free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors"; derived databases must stay under ODbL | "© OpenStreetMap contributors" (in the app footer); **offer the derived data (hikes.json, the DB tables) under ODbL** — the repo's MIT licence does not cover it |
 | transport.opendata.ch / opentransportdata.swiss (SBB times) | `sbb_times` on Swiss stages | data "can be processed, analysed and published"; no fixed per-client limit | cite "Timetable data: opentransportdata.swiss" — shown in the app footer |
-| OpenTopoData (elevation, SWCP / OSM / National Trails scrapers) | elevation values | service: max 1 call/s, 1,000/day; code is MIT; **dataset licences (SRTM, EU-DEM, …) not verified** | credit the underlying dataset once confirmed |
+| OpenTopoData (elevation, SWCP / OSM scrapers) | elevation values | service: max 1 call/s, 1,000/day; code is MIT; **dataset licences (SRTM, EU-DEM, …) not verified** | credit the underlying dataset once confirmed |
 
 Usage policies that bind our *scraping* even though the data is open: OSM Nominatim (≤1 req/s, cache results, identify the app) and the OSM tile server (no bulk download/offline use) — see #47.
 
 **B — terms explicitly forbid scraping or republishing → should not be in the published data**
 
+**Resolved 2026-10-10 (#48):** all nine Tier B routes are REPLACED with OSM-only data, and the scrapers for them were deleted. The rows below are kept as the evidence record.
+
 | Source | Routes / stages (prose chars) | Evidence | Confidence |
 |---|---|---|---|
-| nationaltrail.co.uk | 6 / 71 (40.8 k) — uk:3, 5, 6, 7, 8, 15 | *"You shall not conduct, facilitate, authorise or permit any text or data mining or web scraping in relation to our site"*; commercial use needs a licence; personal-use extracts only; OS map data licensed for viewing only. (The scrapers also use `cloudscraper` to get past the site's Cloudflare protection.) | high — **verified verbatim** |
-| walkhighlands.co.uk (West Highland Way, uk:2) | 1 / 8 (6.6 k) | its pages returned 403 so terms could not be read; search summaries say bulk/automated map-tile download is prohibited and a staff post says route descriptions "cannot be re-published or re-sold". (The official westhighlandway.org terms — verified — also forbid bots/"manual process to monitor or copy" and aggregating its content in another site, but that isn't our source.) | low — re-check in a browser |
-| komoot.com | 1 / 9 | "explicitly prohibited to export, distribute or publish tours in other ways than with the offered export function" (§1.4) | medium |
-| outdooractive.com | 1 / 16 | API terms: content may not be distributed or made accessible; `robots.txt` blocks GPX/FIT/API and named AI crawlers | medium |
+| nationaltrail.co.uk — **RESOLVED (REPLACED with OSM-only data on 2026-10-10, #48)** | 6 / 71 (40.8 k) — uk:3, 5, 6, 7, 8, 15 | *"You shall not conduct, facilitate, authorise or permit any text or data mining or web scraping in relation to our site"*; commercial use needs a licence; personal-use extracts only; OS map data licensed for viewing only. (The former scrapers used `cloudscraper` to get past the site's Cloudflare protection; `scraper_nationaltrail.py` is deleted.) | high — **verified verbatim** |
+| walkhighlands.co.uk (West Highland Way, uk:2) — **RESOLVED (REPLACED with OSM-only data on 2026-10-10, #48)** | 1 / 8 (6.6 k) | its pages returned 403 so terms could not be read; search summaries say bulk/automated map-tile download is prohibited and a staff post says route descriptions "cannot be re-published or re-sold". (The official westhighlandway.org terms — verified — also forbid bots/"manual process to monitor or copy" and aggregating its content in another site, but that isn't our source.) | low — re-check in a browser |
+| komoot.com — **RESOLVED (REPLACED with OSM-only data on 2026-10-10, #48; de-hike 73)** | 1 / 9 | "explicitly prohibited to export, distribute or publish tours in other ways than with the offered export function" (§1.4) | medium |
+| outdooractive.com — **RESOLVED (REPLACED with OSM-only data on 2026-10-10, #48; se-hike 22)** | 1 / 16 | API terms: content may not be distributed or made accessible; `robots.txt` blocks GPX/FIT/API and named AI crawlers | medium |
 
 **C — personal/private use permitted only; publishing is outside it**
 
@@ -83,7 +85,7 @@ Ordered by how much risk they remove per unit of effort. None has been applied; 
 
 1. **Stop serving the data to anonymous callers.** Change the `routes` / `stages` RLS policies from `public read` to `authenticated` (add to the #50 migration). The app already requires login, so users see no difference. ⚠ (changes live policies)
 2. **Strip the prose from non-OSM data.** The app shows scraped descriptive text in exactly one place (the dashboard's "hike of the day" blurb); stage descriptions are not displayed anywhere. Dropping `description` for every source except OSM removes ~1.2 M characters — 994 k of it SchweizMobil's — at almost no functional cost, and is the clearest copyright text in the dataset. ⚠ (data change, `hikes.json` + `--import`)
-3. **Remove or replace the Tier B routes** (UK National Trails ×6, West Highland Way, Komoot, Outdooractive: 9 routes / 104 stages), and stop using `cloudscraper` to defeat Cloudflare on nationaltrail.co.uk. Where an OSM relation exists, use that instead. ⚠
+3. **Remove or replace the Tier B routes** (UK National Trails ×6, West Highland Way, Komoot, Outdooractive: 9 routes / 104 stages) — **DONE 2026-10-10 (#48):** these nine routes are REPLACED with OSM-only data, and `scraper_nationaltrail.py`, `scraper_odd.py` and `scraper_whw.py` are deleted. `cloudscraper` is now used only by `scraper_swcp.py`.
 4. **Take `hikes.json` out of the public repo going forward** and keep it elsewhere (private storage, or load it into Supabase only). Note this does **not** remove it from git history: either make the repo private (GitHub Pages then needs a paid plan) or rewrite history with `git filter-repo` and force-push. ⚠⚠ (destructive / outward-facing)
 5. **Settle SchweizMobil.** Find the permission referred to in `LICENSE`; if it can't be shown to cover redistribution, treat the 479 Swiss routes as Tier E: keep names/distances/elevations, drop the prose, and keep the data behind login.
 6. **Ask for permission** from the few publishers where it matters most (E1 / hiking-europe.eu, Via Francigena, Gronze, Albverein) or replace their routes with OSM-derived ones.

@@ -39,7 +39,7 @@
 | Country | Trails | Scraper |
 |---------|--------|---------|
 | **Switzerland** | 479 routes, 1179+ stages | `scraper.py` (SchweizMobil API) |
-| **UK** | SWCP, WHW, ODP, SDW, CW, HWP, PCP, Cape Wrath | `scraper_nationaltrail.py`, `scraper_swcp.py`, `scraper_whw.py`, `scraper_odd.py` |
+| **UK** | SWCP, WHW, ODP, SDW, CW, HWP, PCP, Cape Wrath | `scraper_swcp.py`, `scraper_osm.py` (WHW, ODP, SDW, CW, HWP, PCP, C2C via OSM) |
 | **France** | GR20, GR65, GR70, HRP | `scraper_gr20.py`, `scraper_gr.py` |
 | **Italy** | Alta Via 1 (Dolomites) | `scraper_av1.py` |
 | **Germany** | Malerweg, Westweg, Goldsteig, Heidschnuckenweg | `scraper_malerweg.py`, `scraper_osm.py` |
@@ -85,13 +85,10 @@ hiking-tracker/
 ├── requirements.txt     # Python dependencies
 ├── scraper.py           # Swiss trails (SchweizMobil API) + SBB enrichment
 ├── scraper_swcp.py      # UK: South West Coast Path
-├── scraper_whw.py       # UK: West Highland Way
-├── scraper_odd.py       # UK: Offa's Dyke Path
 ├── scraper_gr20.py      # France: GR20 (Corsica)
 ├── scraper_gr.py        # France: GR65, GR70, GR20 distances
 ├── scraper_av1.py       # Italy: Alta Via 1
 ├── scraper_malerweg.py  # Germany: Malerweg
-├── scraper_nationaltrail.py  # UK: South Downs Way, Cotswold Way, etc.
 ├── scraper_osm.py       # OpenStreetMap trails (Waymarked Trails API)
 ├── test_sbb.py          # SBB API connectivity test
 ├── discover_local.py    # Research tool (Playwright) — gitignored, local only
@@ -164,15 +161,6 @@ python3 scraper.py --import
 python3 scraper_swcp.py
 python3 scraper_swcp.py --refresh  # Force re-fetch
 
-# West Highland Way (8 stages)
-python3 scraper_whw.py
-
-# Offa's Dyke Path (12 stages)
-python3 scraper_odd.py
-
-# UK National Trails (SDW, CW, HWP, PCP)
-python3 scraper_nationaltrail.py
-python3 scraper_nationaltrail.py --only sdw  # Specific trail
 ```
 
 ### France

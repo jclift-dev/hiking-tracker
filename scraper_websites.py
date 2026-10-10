@@ -1126,72 +1126,6 @@ def scrape_snp():
 
 
 # ---------------------------------------------------------------------------
-# Coast to Coast Walk — hardcoded (Wainwright guidebook staging, 2nd ed.)
-# ---------------------------------------------------------------------------
-# 14 stages, 306 km. St Bees (Cumbria) → Robin Hood's Bay (North Yorkshire).
-# Distances converted from official miles; elevation backfill via OSM/OTD later.
-
-C2C_URL = "https://www.nationaltrail.co.uk/en_GB/trails/coast-to-coast/"
-C2C_STAGES = [
-    ( 1, "St Bees",           "Ennerdale Bridge",  23.3),
-    ( 2, "Ennerdale Bridge",  "Rosthwaite",        23.3),
-    ( 3, "Rosthwaite",        "Grasmere",          14.5),
-    ( 4, "Grasmere",          "Patterdale",        13.7),
-    ( 5, "Patterdale",        "Shap",              25.7),
-    ( 6, "Shap",              "Kirkby Stephen",    32.2),
-    ( 7, "Kirkby Stephen",    "Keld",              19.3),
-    ( 8, "Keld",              "Reeth",             17.7),
-    ( 9, "Reeth",             "Richmond",          17.3),
-    (10, "Richmond",          "Danby Wiske",       22.5),
-    (11, "Danby Wiske",       "Ingleby Cross",     14.5),
-    (12, "Ingleby Cross",     "Clay Bank Top",     19.3),
-    (13, "Clay Bank Top",     "Glaisdale",         19.3),
-    (14, "Glaisdale",         "Robin Hood's Bay",  32.2),
-]
-
-
-def scrape_c2c():
-    print("Coast to Coast Walk — hardcoded (Wainwright guidebook staging)")
-    stages = []
-    for nr, start, end, km in C2C_STAGES:
-        stages.append({
-            "stage_nr":         nr,
-            "start_name":       start,
-            "end_name":         end,
-            "via":              None,
-            "dist_km":          km,
-            "elev_up":          None,
-            "elev_down":        None,
-            "duration_hrs":     None,
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      C2C_URL,
-        })
-        print(f"  Stage {nr:2d}  {start} → {end} ({km} km)")
-    total_km = round(sum(s["dist_km"] for s in stages), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":   15,
-        "route_type": "national",
-        "land":       "uk",
-        "name":       "Coast to Coast Walk",
-        "description": (
-            "The Coast to Coast Walk traverses northern England from St Bees on the "
-            "Irish Sea coast to Robin Hood's Bay on the North Sea, passing through "
-            "three national parks: the Lake District, the Yorkshire Dales, and the "
-            "North York Moors. Devised by Alfred Wainwright and designated a National "
-            "Trail in 2024, it covers 306 km (190 miles) of dramatically varied terrain."
-        ),
-        "start":      "St Bees",
-        "end":        "Robin Hood's Bay",
-        "total_km":   306,
-        "stages":     stages,
-    }
-
-
-# ---------------------------------------------------------------------------
 # Kammweg Erzgebirge-Vogtland — hardcoded (erzgebirge-tourismus.de)
 # ---------------------------------------------------------------------------
 # 17 stages, ~285 km. Geising → Blankenstein.
@@ -1777,165 +1711,6 @@ def scrape_high_scardus():
         "route_type": "national",
         "land":       "eu-hike",
         "name":       "High Scardus Trail",
-        "description": None,
-        "start":      stages[0]["start_name"],
-        "end":        stages[-1]["end_name"],
-        "total_km":   total_km,
-        "stages":     stages,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Stråsjöleden — Outdooractive (outdooractive.com), Sweden
-# ---------------------------------------------------------------------------
-# 16 stages, ~272 km. Korsholmen (Hudiksvall) -> Kilkoja (Ragunda), Hälsingland/
-# Jämtland pilgrim trail. -> se-hike 22.
-# Found via Outdooractive's plain-text search API (no auth needed):
-#   https://www.outdooractive.com/api/search?q=<name>  -> XML list of OA ids
-# Each stage page embeds schema.org JSON-LD with exact distance (metres) and
-# elevation_ascent/elevation_descent (metres) in `amenityFeature`.
-
-SJ_BASE = "https://www.outdooractive.com"
-SJ_STAGES = [
-    ( 1, "Korsholmen",      "Enånger",         f"{SJ_BASE}/en/r/22356000/"),
-    ( 2, "Enånger",         "Njutånger",       f"{SJ_BASE}/en/r/22356090/"),
-    ( 3, "Njutånger",       "Sörforsa",        f"{SJ_BASE}/en/r/23072175/"),
-    ( 4, "Sörforsa",        "Nirsgård",        f"{SJ_BASE}/en/r/23083371/"),
-    ( 5, "Nirsgård",        "Dellenbaden",     f"{SJ_BASE}/en/r/23169041/"),
-    ( 6, "Dellenbaden",     "Mockastorp",      f"{SJ_BASE}/en/r/23169442/"),
-    ( 7, "Mockastorp",      "Stråsjö Chapel",  f"{SJ_BASE}/en/r/22862089/"),
-    ( 8, "Stråsjö Chapel",  "Sandvik",         f"{SJ_BASE}/en/r/23841657/"),
-    ( 9, "Sandvik",         "Hennan",          f"{SJ_BASE}/en/r/23841829/"),
-    (10, "Hennan",          "Tallnäs",         f"{SJ_BASE}/en/r/24276710/"),
-    (11, "Tallnäs",         "Ramsjö",          f"{SJ_BASE}/en/r/24277001/"),
-    (12, "Ramsjö",          "Flomyr",          f"{SJ_BASE}/en/r/24277089/"),
-    (13, "Flomyr",          "Haverö",          f"{SJ_BASE}/en/r/24277125/"),
-    (14, "Haverö",          "Överturingen",    f"{SJ_BASE}/en/r/31834674/"),
-    (15, "Överturingen",    "Rätan",           f"{SJ_BASE}/en/r/31834791/"),
-    (16, "Rätan",           "Kilkoja",         f"{SJ_BASE}/en/r/31858302/"),
-]
-
-
-def _oa_stage_stats(html):
-    """Extract (dist_km, elev_up, elev_down) from an Outdooractive page's JSON-LD."""
-    blobs = re.findall(r'application/ld\+json[^>]*>(.*?)</script>', html, re.S | re.I)
-    for blob in blobs:
-        blob = blob.strip()
-        if 'potentialAction' not in blob:
-            continue
-        try:
-            d = json.loads(blob)
-        except json.JSONDecodeError:
-            continue
-        dist = d.get("potentialAction", {}).get("distance", {}).get("value")
-        up = down = None
-        for af in d.get("amenityFeature", []):
-            if af.get("name") == "elevation_ascent":
-                up = af.get("value")
-            elif af.get("name") == "elevation_descent":
-                down = af.get("value")
-        dist_km = round(dist / 1000, 1) if dist else None
-        return dist_km, (round(up) if up is not None else None), (round(down) if down is not None else None)
-    return None, None, None
-
-
-def scrape_strasjoleden():
-    print("Stråsjöleden (SE) — fetching 16 stage pages ...")
-    stages = []
-    for nr, start, end, url in SJ_STAGES:
-        time.sleep(DELAY)
-        html = fetch(url)
-        if not html:
-            print(f"  stage {nr}: fetch failed — using None for stats")
-            dist_km = elev_up = elev_down = None
-        else:
-            dist_km, elev_up, elev_down = _oa_stage_stats(html)
-        print(f"  Stage {nr:2d}  {start} → {end}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
-        stages.append({
-            "stage_nr":         nr,
-            "start_name":       start,
-            "end_name":         end,
-            "via":              None,
-            "dist_km":          dist_km,
-            "elev_up":          elev_up,
-            "elev_down":        elev_down,
-            "duration_hrs":     None,
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      url,
-        })
-
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":   22,
-        "route_type": "national",
-        "land":       "se-hike",
-        "name":       "Stråsjöleden",
-        "description": None,
-        "start":      stages[0]["start_name"],
-        "end":        stages[-1]["end_name"],
-        "total_km":   total_km,
-        "stages":     stages,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Müritz-Nationalpark-Wanderweg — Komoot collection, Germany
-# ---------------------------------------------------------------------------
-# 9 stages, ~175 km circular route (Waren -> ... -> Waren). OSM relation
-# 181787 has no day-stage subroutes; the official park website links to a
-# Komoot collection with a per-stage breakdown instead. -> de-hike 73.
-# Komoot exposes a plain public JSON API behind its React app:
-#   GET https://api.komoot.de/v007/collections/{collectionId}/compilation/
-# -> _embedded.items[], each with name, distance (m), elevation_up/_down (m).
-
-MURITZ_COLLECTION_ID = 1470717
-MURITZ_STAGE_NAME_RE = re.compile(r'Stage \d+:\s*From\s+(.+?)\s+to\s+(.+?)\s*[–-]')
-
-
-def scrape_muritz():
-    print("Müritz-Nationalpark-Wanderweg (DE) — fetching Komoot collection ...")
-    url = f"https://api.komoot.de/v007/collections/{MURITZ_COLLECTION_ID}/compilation/"
-    resp = SESSION.get(url, timeout=30)
-    resp.raise_for_status()
-    items = resp.json()["_embedded"]["items"]
-
-    stages = []
-    for it in items:
-        m = MURITZ_STAGE_NAME_RE.match(it["name"])
-        start, end = m.groups() if m else ("?", "?")
-        dist_km = round(it["distance"] / 1000, 1)
-        elev_up = round(it["elevation_up"])
-        elev_down = round(it["elevation_down"])
-        print(f"  Stage {len(stages)+1:2d}  {start} → {end}  ({dist_km} km, ↑{elev_up} ↓{elev_down})")
-        stages.append({
-            "stage_nr":         len(stages) + 1,
-            "start_name":       start,
-            "end_name":         end,
-            "via":              None,
-            "dist_km":          dist_km,
-            "elev_up":          elev_up,
-            "elev_down":        elev_down,
-            "duration_hrs":     None,
-            "difficulty":       None,
-            "description":      None,
-            "arrival_stations": [],
-            "sbb_times":        {},
-            "_source_url":      f"https://www.komoot.com/tour/{it['id']}",
-            "country":          "de",
-            "admin1":           "de-mv",
-        })
-
-    total_km = round(sum(s["dist_km"] for s in stages if s["dist_km"]), 1)
-    print(f"  {len(stages)} stages, {total_km} km total")
-    return {
-        "route_id":   73,
-        "route_type": "regional",
-        "land":       "de-hike",
-        "name":       "Müritz-Nationalpark-Wanderweg",
         "description": None,
         "start":      stages[0]["start_name"],
         "end":        stages[-1]["end_name"],
@@ -3264,7 +3039,6 @@ TRAILS = {
     "kammweg":            scrape_kammweg,
     "vulkanring":         scrape_vulkanring,
     "espiritual":         scrape_espiritual,
-    "c2c":                scrape_c2c,
     "ith-hils":           scrape_ith_hils,
     "gr54":               scrape_gr54,
     "alpi-marittime":     scrape_alpi_marittime,
@@ -3293,8 +3067,6 @@ TRAILS = {
     "mont-gramondo":      scrape_mont_gramondo,
     "villages-ligures":   scrape_villages_ligures,
     "high-scardus":       scrape_high_scardus,
-    "strasjoleden":       scrape_strasjoleden,
-    "muritz":             scrape_muritz,
     "camino-frances":     scrape_camino_frances,
     "via-plata":          scrape_via_plata,
     "camino-ingles":      scrape_camino_ingles,

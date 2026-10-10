@@ -16,12 +16,9 @@ OSM = "OpenStreetMap (Waymarked Trails)"
 # (land, route_id) -> host, for routes whose scraper doesn't record _source_url.
 AUTHORITATIVE = {
     ("uk", 1): "southwestcoastpath.org.uk",      # scraper_swcp
-    ("uk", 2): "walkhighlands.co.uk",            # scraper_whw
-    ("uk", 3): "nationaltrail.co.uk",            # scraper_odd
-    ("uk", 5): "nationaltrail.co.uk",            # scraper_nationaltrail
-    ("uk", 6): "nationaltrail.co.uk",
-    ("uk", 7): "nationaltrail.co.uk",
-    ("uk", 8): "nationaltrail.co.uk",
+    # OSM geometry split into day stages by distance (scraper_osm.SPLIT_KM; #48):
+    ("uk", 3): OSM, ("uk", 5): OSM, ("uk", 6): OSM, ("uk", 7): OSM, ("uk", 8): OSM,
+    ("uk", 15): OSM, ("de-hike", 73): OSM, ("se-hike", 22): OSM,
     ("fr-hike", 1): "le-gr20.fr",                # scraper_gr20
     ("fr-hike", 2): "podiensis.com",             # scraper_gr (GR65)
     ("fr-hike", 3): "chamina-voyages.com",       # scraper_gr (GR70)

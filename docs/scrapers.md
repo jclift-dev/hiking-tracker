@@ -70,29 +70,6 @@ Writes `route_id=1`, `land="uk"`, 53 stages. Resumable via internal `_walk_id`. 
 
 OpenTopoData: **1000 req/day quota** (1 call per stage = 53 calls per full run). Cached stages with `elev_up=null` are backfilled automatically on next run. The site is behind Cloudflare — `cloudscraper` handles this.
 
-## West Highland Way — scraper_whw.py
-
-```bash
-pip3 install -r requirements.txt
-python3 scraper_whw.py                # fetch all 8 stages
-python3 scraper_whw.py --refresh      # re-fetch everything
-python3 scraper_whw.py --limit 3      # smoke test
-python3 scraper.py --import
-```
-
-Writes `route_id=2`, `land="uk"`, 8 stages. Resumable via internal `_slug`. No elevation (site has no GPX/GeoJSON API). Distances parsed from "X Miles (Y km)" format.
-
-## Offa's Dyke Path — scraper_odd.py
-
-```bash
-pip3 install -r requirements.txt
-python3 scraper_odd.py               # fetch all 12 stages
-python3 scraper_odd.py --refresh
-python3 scraper.py --import
-```
-
-Writes `route_id=3`, `land="uk"`, 12 stages from a single nationaltrail.co.uk page. Cloudflare-protected; `cloudscraper` handles it. Elevation and duration are `null`.
-
 ## GR20 (Corsica) — scraper_gr20.py
 
 ```bash
@@ -155,30 +132,6 @@ python3 scraper.py --import
 
 Source: sequential per-stage URLs at `saechsische-schweiz.de`. Writes `route_id=1`, `land="de-hike"`. Data from `.fact__item` CSS structure. Stage start/end names are hardcoded (transport info on pages is inconsistent). Per stage: `dist_km`, `elev_up`, `elev_down`. `duration_hrs` is null.
 
-## UK National Trails — scraper_nationaltrail.py
-
-```bash
-pip3 install -r requirements.txt
-python3 scraper_nationaltrail.py              # all 4 trails
-python3 scraper_nationaltrail.py --only sdw   # South Downs Way
-python3 scraper_nationaltrail.py --only cw    # Cotswold Way
-python3 scraper_nationaltrail.py --only hwp   # Hadrian's Wall Path
-python3 scraper_nationaltrail.py --only pcp   # Pembrokeshire Coast Path
-python3 scraper_nationaltrail.py --refresh
-python3 scraper.py --import
-```
-
-| route_id | Trail                                          | Stages |
-|----------|------------------------------------------------|--------|
-| 5        | South Downs Way (Winchester → Eastbourne)      | 9      |
-| 6        | Cotswold Way (Chipping Campden → Bath)         | 15     |
-| 7        | Hadrian's Wall Path (Wallsend → Bowness)       | 6      |
-| 8        | Pembrokeshire Coast Path (St Dogmaels → Amroth)| 15     |
-
-All stages on a single route page per trail — `smUrl` links to the trail description page. Cloudflare-protected; `cloudscraper` handles it.
-
-**Heading formats vary:** South Downs/Cotswold use `"Start to End – X miles (Y km)"`; Pembrokeshire uses `"Start to End X miles (Y km)"` (no dash); Hadrian's Wall has no per-section distances (`dist_km=null` for all 6 stages). `elev_up`/`elev_down` and `duration_hrs` are null.
-
 ## OSM trails (Waymarked Trails) — scraper_osm.py
 
 ```bash
@@ -197,6 +150,8 @@ python3 scraper.py --import
 Source: `https://hiking.waymarkedtrails.org/api/v1/details/relation/{osm_id}`. Subroutes at one level become day stages.
 
 **Resumable:** re-running skips fully-cached trails (matched by `_osm_id` on each stage). `--refresh-trail <id>` re-fetches even if cached. Never run two scraper_osm.py processes simultaneously against hikes.json.
+
+**Flat OSM trails split by distance (`SPLIT_KM`):** where a trail is a flat OSM relation with no day-stage subroutes, `scraper_osm.py` splits it into day stages by distance (~16–22 km per stage). Stage-end place names are reverse-geocoded via Nominatim and elevation comes from OpenTopoData; there are no prose descriptions. Applies to UK 5 (South Downs Way), 6 (Cotswold Way), 7 (Hadrian's Wall Path) and 8 (Pembrokeshire Coast Path). Regenerate with `--refresh-trail <osm_id>`.
 
 **Oversized stages policy:** It's fine to import routes where some stages are very long (50–200+ km) — this happens when OSM has good day-stage data for part of a route but not others. Import it as-is and note it in the "needs OSM cleanup" table in `docs/trails.md`. When the OSM data is eventually improved, `--refresh-trail <osm_id>` will pick up the better stage breakdown.
 
