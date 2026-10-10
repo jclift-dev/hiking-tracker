@@ -44,7 +44,7 @@ import time
 from pathlib import Path
 
 import requests
-from atomic_io import write_json_atomic
+from atomic_io import write_hikes_json, write_json_atomic
 
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_regions import load_ne_geojson, build_spatial_index, find_region
@@ -252,7 +252,7 @@ def main():
         routes.append(route)
         print(f"Added new route_id={ROUTE_ID}")
 
-    write_json_atomic(HIKES_FILE, routes, ensure_ascii=False, separators=(",", ":"))
+    write_hikes_json(HIKES_FILE, routes)
     print(f"Saved {HIKES_FILE}")
 
 

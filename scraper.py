@@ -35,7 +35,7 @@ import time
 import sys
 import argparse
 
-from atomic_io import write_json_atomic
+from atomic_io import write_hikes_json
 from lands import ALL_LANDS
 from datetime import datetime
 
@@ -791,7 +791,7 @@ def wait_for_quota_reset():
 # ---------------------------------------------------------------------------
 
 def save(routes):
-    write_json_atomic(OUTPUT, routes, ensure_ascii=False, indent=2)
+    write_hikes_json(OUTPUT, routes)
     print(f"  → Saved {len(routes)} routes to {OUTPUT}")
 
 

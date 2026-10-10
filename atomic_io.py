@@ -22,3 +22,12 @@ def write_json_atomic(path, obj, **dump_kwargs):
         except FileNotFoundError:
             pass
         raise
+
+
+def write_hikes_json(path, routes):
+    """Canonical hikes.json writer (atomic, compact, UTF-8).
+
+    Every script that writes hikes.json must use this so the committed 4 MB file
+    keeps one format and a run only produces a real diff, not a reformat.
+    """
+    write_json_atomic(path, routes, ensure_ascii=False, separators=(",", ":"))

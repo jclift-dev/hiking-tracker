@@ -23,7 +23,7 @@ import sys
 import time
 
 import requests
-from atomic_io import write_json_atomic
+from atomic_io import write_hikes_json, write_json_atomic
 from lands import EU_LANDS
 
 # ---------------------------------------------------------------------------
@@ -667,7 +667,7 @@ def main():
     print(f"\n[done] enriched={total_enriched} skipped={total_skipped} failed={total_failed}")
 
     if changed and not args.dry_run:
-        write_json_atomic(HIKES_JSON, hikes, ensure_ascii=False, separators=(",", ":"))
+        write_hikes_json(HIKES_JSON, hikes)
         print(f"[info] Saved {HIKES_JSON}")
     elif args.dry_run:
         print("[dry-run] No changes saved.")
