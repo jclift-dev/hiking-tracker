@@ -1,57 +1,35 @@
-MIT License
+Copyright (c) 2026 Jamie Clift. All rights reserved.
 
-Copyright (c) 2026 Jamie Clift
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software (the application code, scrapers, scripts and documentation in this
+repository) is proprietary. No licence is granted to use, copy, modify, merge,
+publish, distribute, sublicense or sell it, in whole or in part, without the
+copyright holder's prior written permission.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ---
 
-## Additional Notices
+## Third-party data
 
-### Trail Data Sources
+This licence covers only the original code and documentation. It does NOT cover,
+and grants no rights in, third-party data that the application displays or that is
+stored in `hikes.json` and the database. That data stays under its owners' terms.
+For the full per-source list and what is known about each source's terms, see
+[`docs/data-sources.md`](docs/data-sources.md).
 
-This application includes data from the following sources:
+- **OpenStreetMap** (trail data via Waymarked Trails): © OpenStreetMap contributors,
+  licensed under the Open Database License (ODbL) 1.0. Attribution required:
+  "© OpenStreetMap contributors". Databases derived from OSM data must be made
+  available under the ODbL.
 
-- **SchweizMobil**: Swiss hiking and cycling route data. Used with permission for
-  non-commercial purposes. © SchweizMobil.
+- **SchweizMobil**: Swiss hiking and cycling route data © SchweizMobil. Non-commercial
+  use only; see `docs/data-sources.md` for the status of the permission.
 
-- **OpenStreetMap**: Trail data via Waymarked Trails API. © OpenStreetMap contributors,
-  licensed under the Open Database License (ODbL) 1.0.
-  
-  You must include the following attribution when using OSM data:
-  > © OpenStreetMap contributors
+- **SBB travel times**: timetable data from opentransportdata.swiss /
+  transport.opendata.ch (Swiss Federal Railways).
 
-- **Waymarked Trails**: Hiking trail data from hiking.waymarkedtrails.org.
-  © OpenStreetMap contributors, ODbL 1.0.
-
-### SBB Travel Times
-
-Swiss public transport travel times are provided by transport.opendata.ch,
-using data from Swiss Federal Railways (SBB/CFF/FFS).
-
-### National Trail Data
-
-UK trail data (South West Coast Path, West Highland Way, Offa's Dyke Path,
-South Downs Way, Cotswold Way, Hadrian's Wall Path, Pembrokeshire Coast Path)
-is scraped from official national trail websites with permission for personal use.
-
-French trail data (GR20, GR65, GR70) is scraped from official trail websites.
-
-German, Italian, Spanish, and Irish trail data is sourced from OpenStreetMap
-(ODbL 1.0) and official tourism websites.
+- **Other routes**: names, distances and descriptions were collected from official
+  trail and tourism websites and remain the property of their respective owners.
+  Several of those sources do not permit redistribution; see `docs/data-sources.md`.

@@ -80,7 +80,7 @@ python3 -m http.server 8000
 ```
 hiking-tracker/
 ├── index.html           # Single-page web application
-├── LICENSE              # MIT License + data source notices
+├── LICENSE              # Proprietary (all rights reserved) + third-party data notices
 ├── README.md            # This file
 ├── requirements.txt     # Python dependencies
 ├── scraper.py           # Swiss trails (SchweizMobil API) + SBB enrichment
@@ -370,7 +370,7 @@ The trail data includes content from:
   personal, non-commercial use. See [`docs/data-sources.md`](docs/data-sources.md)
   for the full source list and what is known about each one's terms.
 
-The application code is proprietary.
+The application code is proprietary (all rights reserved; see [`LICENSE`](LICENSE)). The licence does not cover the third-party trail data.
 
 ---
 
