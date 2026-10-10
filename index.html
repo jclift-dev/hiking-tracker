@@ -4752,10 +4752,14 @@ function renderDashboard() {
     + nextUpHtml
     + trailCardsHtml
     + statsHtml
-    + `<div class="dash-two-col">${thisMonthHtml}${almostHtml}</div>`
-    + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`
+    + (doneCount === 0
+      // nothing completed yet: one compact card instead of three empty ones
+      ? `<div class="dash-two-col">${thisMonthHtml}${hotdHtml || ''}</div>`
+        + `<div class="dash-card" style="margin-bottom:20px"><div class="dash-card-eyebrow">Your progress</div><div style="font-size:13px;color:var(--muted);padding:0.25rem 0">Complete stages to see routes you're close to finishing, your personal bests and recent activity here. Go hike something! 🏔</div></div>`
+      : `<div class="dash-two-col">${thisMonthHtml}${almostHtml}</div>`
+        + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`)
     + (seasonHtml ? `<div class="dash-two-col">${seasonHtml}<div class="dash-card"><div class="dash-card-eyebrow">Stages Done</div><div class="dash-month-num">${doneCount}</div><div class="dash-month-label">total stages completed</div><div class="dash-month-divider"><div><div class="dash-month-sub-val">${doneKm.toLocaleString()}</div><div class="dash-month-sub-label">km total</div></div><div><div class="dash-month-sub-val">${doneElev>=1000?(doneElev/1000).toFixed(1)+'k':doneElev}</div><div class="dash-month-sub-label">m ascent</div></div></div></div></div>` : '')
-    + activityHtml
+    + (doneCount === 0 ? '' : activityHtml)
     + (selectedCountry === 'ch' ? cantonMapHtml
       : (selectedCountry === 'eu' || selectedCountry === 'fr' || selectedCountry === 'de'
          || selectedCountry === 'it' || selectedCountry === 'es' || selectedCountry === 'ie'
