@@ -501,7 +501,9 @@
 
   .stage-info { flex: 1; min-width: 0; }
   .stage-title { font-size: 15px; font-weight: 600; font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; line-height: 1.3; }
-  .stage-title.done-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
+  .stage-title.done-text { color: var(--muted); }
+  .tl-done-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .tl-done-meta:empty { display: none; }
   .stage-places { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
   .stage-badges { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -534,6 +536,8 @@
   .sm-link { font-size:11px; color:var(--muted); text-decoration:none; opacity:0.6; flex-shrink:0; margin-left:2px; }
   .sm-link:hover { opacity:1; color:var(--green); }
   /* Labelled button form used on active/todo stages */
+  .stage-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .stage-links .sm-stage-btn { padding: 3px 10px; font-size: 11px; background: none; cursor: pointer; }
   .sm-stage-btn { display:inline-flex; align-items:center; padding:5px 14px; font-size:12px; font-family:'Manrope',sans-serif; border:1.5px solid var(--border); border-radius:99px; color:var(--muted); text-decoration:none; transition:all 0.15s; }
   .sm-stage-btn:hover { border-color:var(--primary); color:var(--primary); }
   .stage-map { height:200px; margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
@@ -628,6 +632,10 @@
     /* Route + stage rows */
     .route-header { padding: 0.75rem 1rem; }
     .stage-row { padding: 0.65rem 1rem; gap: 8px; }
+    /* Phones: drop the decorative elevation icon and stack the figures to free up width */
+    .stage-row .elev-icon { display: none !important; }
+    .stage-row .elev-prof { flex-direction: column; align-items: flex-end; gap: 1px; }
+    .stage-row .badge { font-size: 11px; padding: 2px 7px; }
     .route-num { font-size: 10px; }
     .stage-title { font-size: 13px; }
     .surprise-card { padding: 0.9rem 1rem; }
@@ -3024,9 +3032,9 @@ function elevProfile(elevUp, elevDown) {
   const upStr = up >= 30 ? `<span style="font-size:11px;color:var(--green-dark);white-space:nowrap">↑ ${up.toLocaleString()} m</span>` : '';
   const dnStr = dn >= 30 ? `<span style="font-size:11px;color:var(--muted);white-space:nowrap">↓ ${dn.toLocaleString()} m</span>` : '';
 
-  return `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">
+  return `<div class="elev-prof" style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="↑ ${up.toLocaleString()} m  ↓ ${dn.toLocaleString()} m">
     ${upStr}
-    <img src="assets/${icon}" alt="" width="34" height="34" style="border-radius:5px;display:block">
+    <img class="elev-icon" src="assets/${icon}" alt="" width="34" height="34" style="border-radius:5px;display:block">
     ${dnStr}
   </div>`;
 }
@@ -3175,10 +3183,14 @@ function renderStages(route) {
           <span class="stage-title done-text" style="font-size:13px;flex:1">${title}</span>
           ${sm}${wish}
         </div>
+        <div class="tl-done-meta">${[distStr, hrsStr ? `⏱ ${hrsStr}` : '',
+          (stage.elev_up || 0) >= 30 ? `↑ ${stage.elev_up.toLocaleString()} m` : '',
+          (stage.elev_down || 0) >= 30 ? `↓ ${stage.elev_down.toLocaleString()} m` : ''].filter(Boolean).join(' · ')}</div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="stage-done-date" style="margin:0">✓ ${completed[key]}</span>
           ${stars}
         </div>
+        ${(smBtn || wBtn || mapBtn) ? `<div class="stage-links">${smBtn}${wBtn}${mapBtn}</div>${mapContainer}` : ''}
         <textarea class="stage-note" rows="1" placeholder="Add a note…"
           oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
           onfocus="this.rows=Math.max(2,this.value.split('\\n').length)"
@@ -3339,9 +3351,12 @@ function renderFlatStage(stage) {
         ${startTravel ? `<span>🚆 <strong>${escHtml(stage.start_name)}</strong> ${startTravel} from ${escHtml(selectedStation)}</span>` : ''}
         ${endTravel   ? `<span>🚆 <strong>${escHtml(stage.end_name)}</strong> ${endTravel} from ${escHtml(selectedStation)}</span>` : ''}
       </div>` : ''}
-      ${smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">View on ${sourceLabel(r)} ↗</a>` : ''}
-      ${(() => { const wUrl = waymarkedStageUrl(stage); return (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()" style="margin-top:6px">Stage on waymarkedtrails.org ↗</a>` : ''; })()}
-      ${stage.osm_id ? `<button class="sm-stage-btn" style="margin-top:6px" onclick="toggleStageMap('${key}',${stage.osm_id});event.stopPropagation()">🗺 Map</button><div id="map-${key}" class="stage-map" style="display:none"></div>` : ''}
+      <div class="stage-links">
+        ${smLink ? `<a href="${smLink}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">${sourceLabel(r)} ↗</a>` : ''}
+        ${(() => { const wUrl = waymarkedStageUrl(stage); return (wUrl && wUrl !== smLink) ? `<a href="${wUrl}" target="_blank" rel="noopener" class="sm-stage-btn" onclick="event.stopPropagation()">Waymarked Trails ↗</a>` : ''; })()}
+        ${stage.osm_id ? `<button class="sm-stage-btn" onclick="toggleStageMap('${key}',${stage.osm_id});event.stopPropagation()">🗺 Map</button>` : ''}
+      </div>
+      ${stage.osm_id ? `<div id="map-${key}" class="stage-map" style="display:none"></div>` : ''}
       ${done ? `<div class="stage-done-date">✓ Completed ${completed[key]}</div>
       <textarea class="stage-note" rows="1" placeholder="Add a note…"
         oninput="this.rows=Math.max(1,this.value.split('\\n').length);saveNote('${key}',this.value)"
