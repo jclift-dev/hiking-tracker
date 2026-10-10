@@ -137,3 +137,7 @@ On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `
 - National routes: IDs 1–7 (displayed with ★) — only 7 exist as of 2026
 - Regional routes: IDs 10–99 (not all numbers exist — scraper skips 404s gracefully)
 - Local routes (100+) are intentionally excluded (too many)
+
+## Browser tests
+
+`tests/browser/` runs `index.html` in headless Chromium (Playwright) against a mock Supabase (`harness.py`; no network, fake session). It covers save safety (a failed `user_state` load never overwrites, chunked bulk saves, failed-save banner and retry) and export/import (merge rules, rejects, guards). Run locally: `pip install pytest playwright && playwright install chromium && python -m pytest tests/browser`. CI runs it as the `browser` job in `.github/workflows/tests.yml`; the main pytest job ignores this directory.
