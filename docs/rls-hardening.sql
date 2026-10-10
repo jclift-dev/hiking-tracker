@@ -1,4 +1,5 @@
--- PROPOSED — NOT APPLIED. Review, then run in the Supabase SQL editor.
+-- APPLIED 2026-10-10 via the Supabase MCP (migration "harden_rls_and_grants"); kept for the record and rollback.
+-- Note: routes_id_land_unique is a constraint, so it was dropped with ALTER TABLE ... DROP CONSTRAINT.
 -- Covers issue #50 (RLS performance + grants) and the "stop serving the data to
 -- anonymous callers" recommendation from docs/data-sources.md (#48).
 --
@@ -72,7 +73,7 @@ create policy "own prefs update" on public.user_preferences
                               with check ((select auth.uid()) = user_id);
 
 -- 1d. duplicate index (advisor lint 0009); the FK uses routes_pkey, so this is safe
-drop index if exists public.routes_id_land_unique;
+alter table public.routes drop constraint if exists routes_id_land_unique;
 
 -- 1e. grants: least privilege
 --   routes / stages are read-only from the API for everyone (scrapers use service_role)
@@ -117,6 +118,6 @@ commit;
 -- create policy "own prefs select" on public.user_preferences for select using (auth.uid() = user_id);
 -- create policy "own prefs insert" on public.user_preferences for insert with check (auth.uid() = user_id);
 -- create policy "own prefs update" on public.user_preferences for update using (auth.uid() = user_id);
--- create unique index routes_id_land_unique on public.routes (id, land);
+-- alter table public.routes add constraint routes_id_land_unique unique (id, land);
 -- grant all on public.routes, public.stages, public.user_state, public.user_preferences to anon, authenticated;
 -- commit;
