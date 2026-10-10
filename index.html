@@ -2994,7 +2994,7 @@ function renderStages(route) {
       ${[1,2,3,4,5].map(n => {
         const f = (ratings[key]||0) >= n;
         return `<span class="star" style="color:${f?'#f5a623':'var(--border)'}"
-          onmouseover="starsHover('${key}',${n})" onclick="setRating('${key}',${n});event.stopPropagation()" role="button" tabindex="0" aria-label="Rate ${n} star${n > 1 ? 's' : ''}">★</span>`;
+          onmouseover="starsHover('${key}',${n})" onfocus="starsHover('${key}',${n})" onblur="starsLeave('${key}')" onclick="setRating('${key}',${n});event.stopPropagation()" role="button" tabindex="0" aria-label="Rate ${n} star${n > 1 ? 's' : ''}">★</span>`;
       }).join('')}</div>` : '';
 
     const wish  = `<div class="stage-wish${wished?' active':''}" onclick="toggleWishlist('${key}')" role="button" tabindex="0" aria-pressed="${wished}" aria-label="${wished ? 'Remove from wishlist' : 'Add to wishlist'}">${wished?'♥':'♡'}</div>`;
@@ -3146,7 +3146,7 @@ function renderFlatStage(stage) {
       ${[1,2,3,4,5].map(n => {
         const filled = (ratings[key]||0) >= n;
         return `<span class="star" style="color:${filled?'#f5a623':'var(--border)'}"
-                     onmouseover="starsHover('${key}',${n})"
+                     onmouseover="starsHover('${key}',${n})" onfocus="starsHover('${key}',${n})" onblur="starsLeave('${key}')"
                      onclick="setRating('${key}',${n});event.stopPropagation()" role="button" tabindex="0" aria-label="Rate ${n} star${n > 1 ? 's' : ''}">★</span>`;
       }).join('')}
     </div>` : '';
