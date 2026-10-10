@@ -816,6 +816,10 @@
     white-space: nowrap; flex-shrink: 0;
   }
 
+  #country-pills.fade-r, .tabs.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  #country-pills.fade-l, .tabs.fade-l { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+  #country-pills.fade-l.fade-r, .tabs.fade-l.fade-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
+
   /* ── Route card entrance animation ──────────────────────────── */
   @keyframes cardSlideIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -2572,6 +2576,7 @@ function setCountry(c) {
   updateStats();
   visible = 20;
   render();
+  document.querySelector('#country-pills [data-country].active')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 }
 
 function setActivity(a) {
@@ -5014,6 +5019,24 @@ async function _recoverIfStuck() {
 }
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) _recoverIfStuck(); });
+// Edge fades on horizontally scrolling pill rows, so clipped labels read as "more this way".
+function updateScrollFade(el) {
+  const max = el.scrollWidth - el.clientWidth;
+  el.classList.toggle('fade-l', el.scrollLeft > 4);
+  el.classList.toggle('fade-r', el.scrollLeft < max - 4);
+}
+function initScrollFades() {
+  for (const el of document.querySelectorAll('#country-pills, .tabs')) {
+    if (!el.dataset.fade) {
+      el.dataset.fade = '1';
+      el.addEventListener('scroll', () => updateScrollFade(el), { passive: true });
+    }
+    updateScrollFade(el);
+  }
+}
+window.addEventListener('resize', initScrollFades);
+setInterval(initScrollFades, 1500);   // pills are re-rendered by render(); cheap class toggles only
+
 // ── "Update available" prompt ────────────────────────────────────────────────
 // The app is one static file on GitHub Pages. Fingerprint it at load (ETag, else
 // a hash of the body) and re-check periodically and when the tab regains focus;
