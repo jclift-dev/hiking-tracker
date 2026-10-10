@@ -12,6 +12,7 @@
   :root {
     --primary:    #012d1d;
     --primary-lt: #1b4332;
+    --accent-text: var(--primary);  /* primary as text/border on a surface; lightened in dark mode */
     --secondary:  #496173;
     --tertiary:   #7a0000;
     --green:      #1D9E75;
@@ -82,7 +83,9 @@
       --red:        #e07070;
       --cycle:      #7db4f0;
       --cycle-dark: #7db4f0;
+      --accent-text: #4dd6a3;
     }
+    body[data-land="ch-cycle"], body[data-land="uk-cycle"] { --accent-text: #7db4f0; }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--page); color: var(--text); font-size: 15px; line-height: 1.5; }
@@ -318,7 +321,7 @@
     -webkit-appearance: none; appearance: none;
   }
   .filter-panel input[type="text"]:focus,
-  .filter-panel select:focus { border-color: var(--primary); }
+  .filter-panel select:focus { border-color: var(--accent-text); }
   /* Routes / All Stages sub-view toggle */
   .subview-toggle {
     display: flex; gap: 2px; background: var(--ghost); border-radius: 10px; padding: 3px;
@@ -329,7 +332,7 @@
     cursor: pointer; transition: all 0.15s; font-family: 'Manrope', sans-serif;
   }
   .subview-btn:hover { color: var(--text); }
-  .subview-btn.active { background: var(--surface); color: var(--primary); font-weight: 700; box-shadow: var(--shadow); }
+  .subview-btn.active { background: var(--surface); color: var(--accent-text); font-weight: 700; box-shadow: var(--shadow); }
 
   /* Section dividers between hiking/cycling in list */
   .section-divider {
@@ -435,7 +438,7 @@
   .tl-dot--done:hover { background: var(--secondary); }
   .tl-dot--next  { background: var(--surface); border: 2.5px solid var(--primary); cursor: default; }
   .tl-dot--todo  { background: var(--surface); border: 2px solid var(--border); }
-  .tl-dot--todo:hover  { border-color: var(--primary); }
+  .tl-dot--todo:hover  { border-color: var(--accent-text); }
   .tl-dot--future { background: var(--surface-low); border: 2px solid var(--ghost); cursor: default; }
   .tl-dot--linked::after {
     content: ''; position: absolute; top: -3px; right: -3px;
@@ -543,7 +546,7 @@
   .stage-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .stage-links .sm-stage-btn { padding: 3px 10px; font-size: 11px; background: none; cursor: pointer; }
   .sm-stage-btn { display:inline-flex; align-items:center; padding:5px 14px; font-size:12px; font-family:'Manrope',sans-serif; border:1.5px solid var(--border); border-radius:99px; color:var(--muted); text-decoration:none; transition:all 0.15s; }
-  .sm-stage-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .sm-stage-btn:hover { border-color:var(--accent-text); color:var(--accent-text); }
   .stage-map { height:200px; margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
   /* Route map modal */
   .route-map-overlay {
@@ -710,7 +713,7 @@
   .dash-trail-stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
   .dash-trail-stat-val { font-size: 15px; font-weight: 800; font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; color: var(--text); }
   .dash-trail-prog-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
-  .dash-trail-prog-pct { color: var(--primary); font-family: 'Manrope', sans-serif; }
+  .dash-trail-prog-pct { color: var(--accent-text); font-family: 'Manrope', sans-serif; }
   .dash-trail-prog-bar { background: var(--sec-container); border-radius: 99px; height: 5px; position: relative; overflow: visible; }
   .dash-trail-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary-lt), var(--green)); border-radius: 99px; position: relative; }
   .dash-trail-prog-fill::after { content: ''; position: absolute; right: -2px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #fff; border-radius: 50%; border: 2px solid var(--green-dark); }
@@ -870,7 +873,7 @@
   .auth-logo {
     font-family: 'Fraunces', Georgia, serif;
     font-size: 48px; font-weight: 800; font-style: italic;
-    letter-spacing: -0.03em; color: var(--primary);
+    letter-spacing: -0.03em; color: var(--accent-text);
     line-height: 1; margin-bottom: 4px;
   }
   .auth-tagline {
@@ -885,7 +888,7 @@
     font-size: 14px; font-family: 'Inter', sans-serif;
     outline: none; transition: border-color 0.15s; box-sizing: border-box;
   }
-  .auth-input:focus { border-color: var(--primary); }
+  .auth-input:focus { border-color: var(--accent-text); }
   .auth-btn {
     width: 100%; padding: 12px;
     background: var(--primary); color: #fff;
@@ -3330,7 +3333,7 @@ function renderRoute(route) {
         ${doneCount > 0 ? `
         <div class="route-progress">
           <div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%"></div></div>
-          <div class="route-prog-label"><span style="color:var(--primary);font-family:'Manrope',sans-serif">${pct}%</span> · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
+          <div class="route-prog-label"><span style="color:var(--accent-text);font-family:'Manrope',sans-serif">${pct}%</span> · ${Math.round(doneKm)} / ${Math.round(totalKm)} km</div>
         </div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
