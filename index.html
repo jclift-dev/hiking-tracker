@@ -1541,6 +1541,8 @@ function hardReset() {
 // ---------------------------------------------------------------------------
 // Stats
 // ---------------------------------------------------------------------------
+function plural(n, word) { return `${n} ${word}${n === 1 ? '' : 's'}`; }
+
 function cantonBadges(cantons, size = 14) {
   return cantons.map(c => `<span class="canton-badge"><span class="canton-code">${escHtml(c)}</span><img src="https://schweizmobil.ch/img/footer/${encodeURIComponent(c.toLowerCase())}.svg" alt="${escHtml(c)}" width="${size}" height="${size}" onerror="this.style.display='none'"></span>`).join('');
 }
@@ -2423,7 +2425,7 @@ function setStation(val) {
 function updateSubtitle() {
   const vis    = allRoutes.filter(r => r.land === activeLand());
   const stages = vis.reduce((s, r) => s + r.stages.length, 0);
-  document.getElementById('subtitle').textContent = `${vis.length} routes · ${stages} stages`;
+  document.getElementById('subtitle').textContent = `${plural(vis.length, 'route')} · ${plural(stages, 'stage')}`;
 }
 
 function updateStats() {
@@ -4303,7 +4305,7 @@ function renderDashboard() {
             <div class="dash-almost-name">${escHtml(r.name)}</div>
             <div class="dash-almost-prog"><div class="dash-almost-prog-fill" style="width:${r._pct}%"></div></div>
           </div>
-          <div class="dash-almost-left">${left} stage${left > 1 ? 's' : ''} left</div>
+          <div class="dash-almost-left">${plural(left, 'stage')} left</div>
         </div>`;
       }).join('')}
     </div>` : `
@@ -4341,7 +4343,7 @@ function renderDashboard() {
       </div>` : ''}
       ${mostStagesMonth ? `<div class="dash-best-item">
         <div><div class="dash-best-label">Most active month</div><div class="dash-best-sub">${monthNames[parseInt(mostStagesMonth.monthKey.split('-')[1])-1]} ${mostStagesMonth.monthKey.split('-')[0]}</div></div>
-        <div class="dash-best-val">${mostStagesMonth.count} stages</div>
+        <div class="dash-best-val">${plural(mostStagesMonth.count, 'stage')}</div>
       </div>` : ''}
       <div class="dash-best-item">
         <div><div class="dash-best-label">Stages completed</div></div>
