@@ -25,7 +25,7 @@ Most sites allow *personal, private, non-commercial* copying. That does not cove
 | Source | Routes / stages | What its terms say | Required |
 |---|---|---|---|
 | OpenStreetMap via Waymarked Trails | 234 / 4,421 | ODbL 1.0: "free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors"; derived databases must stay under ODbL | "© OpenStreetMap contributors" (in the app footer); **offer the derived data (hikes.json, the DB tables) under ODbL** — the repo's MIT licence does not cover it |
-| transport.opendata.ch / opentransportdata.swiss (SBB times) | `sbb_times` on Swiss stages | data "can be processed, analysed and published"; no fixed per-client limit | cite "Timetable data: opentransportdata.swiss" — **not currently shown in the app** |
+| transport.opendata.ch / opentransportdata.swiss (SBB times) | `sbb_times` on Swiss stages | data "can be processed, analysed and published"; no fixed per-client limit | cite "Timetable data: opentransportdata.swiss" — shown in the app footer |
 | OpenTopoData (elevation, SWCP / OSM / National Trails scrapers) | elevation values | service: max 1 call/s, 1,000/day; code is MIT; **dataset licences (SRTM, EU-DEM, …) not verified** | credit the underlying dataset once confirmed |
 
 Usage policies that bind our *scraping* even though the data is open: OSM Nominatim (≤1 req/s, cache results, identify the app) and the OSM tile server (no bulk download/offline use) — see #47.
@@ -87,7 +87,7 @@ Ordered by how much risk they remove per unit of effort. None has been applied; 
 4. **Take `hikes.json` out of the public repo going forward** and keep it elsewhere (private storage, or load it into Supabase only). Note this does **not** remove it from git history: either make the repo private (GitHub Pages then needs a paid plan) or rewrite history with `git filter-repo` and force-push. ⚠⚠ (destructive / outward-facing)
 5. **Settle SchweizMobil.** Find the permission referred to in `LICENSE`; if it can't be shown to cover redistribution, treat the 479 Swiss routes as Tier E: keep names/distances/elevations, drop the prose, and keep the data behind login.
 6. **Ask for permission** from the few publishers where it matters most (E1 / hiking-europe.eu, Via Francigena, Gronze, Albverein) or replace their routes with OSM-derived ones.
-7. **Fix attribution and licensing** (safe, no data change): footer credits for opentransportdata.swiss, SchweizMobil and the OpenTopoData datasets; state that the OSM-derived data is under ODbL; resolve the README ("proprietary") vs `LICENSE` (MIT) mismatch for the code.
+7. **Fix attribution and licensing.** *Done:* the app footer now credits OpenStreetMap (ODbL), SchweizMobil, opentransportdata.swiss and OpenTopoData and links to this page. *Still to do:* credit the underlying elevation dataset once its licence is confirmed; state that the OSM-derived data is under ODbL in the README/`LICENSE`; resolve the README ("proprietary") vs `LICENSE` (MIT) mismatch for the code (owner's call).
 8. **Scraper conduct** (#47): honour `robots.txt` (several of these block named bots), one identifying User-Agent with a contact URL, polite delays, no Cloudflare bypass.
 
 ## Gaps in this review
