@@ -517,6 +517,12 @@
   .canton-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--gray-bg); border-radius: 99px; padding: 2px 7px 2px 6px; font-size: 11px; font-weight: 600; color: var(--muted); }
   .canton-badge img { border-radius: 2px; flex-shrink: 0; }
 
+  /* Skeleton cards shown in #route-list until the first render() replaces them */
+  .skeleton-card { height: 112px; border-radius: var(--radius); margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--surface-low) 25%, var(--ghost) 50%, var(--surface-low) 75%);
+    background-size: 200% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite; }
+  @keyframes skeletonShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .skeleton-card { animation: none; } }
   /* Empty / loading states */
   .empty { text-align: center; padding: 4rem 1rem; color: var(--muted); }
   .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 14px; }
@@ -1168,7 +1174,7 @@
 
 
   <div id="surprise-wrap"></div>
-  <div id="route-list" class="route-list"></div>
+  <div id="route-list" class="route-list" aria-busy="true"><div class="skeleton-card" aria-hidden="true"></div><div class="skeleton-card" aria-hidden="true"></div><div class="skeleton-card" aria-hidden="true"></div></div>
   <div class="load-more" id="load-more" style="display:none">
     <button onclick="showMore()">Show more routes</button>
   </div>
@@ -4613,6 +4619,7 @@ function renderDashboard() {
 function render() {
   updateFilterBtn();
   const list = document.getElementById('route-list');
+  list.removeAttribute('aria-busy');
   const btn  = document.getElementById('load-more');
   document.getElementById('surprise-wrap').innerHTML = renderSurprise();
 
