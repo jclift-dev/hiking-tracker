@@ -40,7 +40,7 @@ MIN_FLAT_KM   = 80    # minimum length for auto_excluded flat routes
 MIN_ORPHAN_N  = 3     # minimum stage count for an orphan group to be included
 
 SESSION = requests.Session()
-SESSION.headers["User-Agent"] = "Mozilla/5.0 (compatible; HikingTracker/1.0)"
+SESSION.headers["User-Agent"] = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
 # "Stage" in European languages used in OSM relation names
 # IT: tappa/tappe  DE: etappe/abschnitt  FR: étape  ES/PT: etapa  NL: etappe/dag

@@ -147,7 +147,7 @@ CANTON_MAP = {
 
 SESSION = requests.Session()
 SESSION.headers.update({
-    "User-Agent": "SwissHikingTracker/1.0 (personal use)",
+    "User-Agent": "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)",
     "Accept": "application/json",
     "Accept-Language": "en",
     "Referer": "https://www.schweizmobil.ch/",

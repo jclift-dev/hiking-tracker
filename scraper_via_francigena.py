@@ -79,7 +79,7 @@ START_END_RE = re.compile(r'[A-Z]+\s*-\s*\d+(?:_\d+)?\s*-\s*(?:[Ff]rom\s+)?(.+?)
 MAIN_SECTION_ORDERS = {0, 1, 2, 3, 4}
 
 SESSION = requests.Session()
-SESSION.headers["User-Agent"] = "Mozilla/5.0 (compatible; HikingTracker/1.0)"
+SESSION.headers["User-Agent"] = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
 
 def fetch_json(url):

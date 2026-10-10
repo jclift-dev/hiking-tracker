@@ -74,7 +74,7 @@ DELAY = 1.5
 
 
 SESSION = requests.Session()
-SESSION.headers["User-Agent"] = "Mozilla/5.0 (compatible; HikingTracker/1.0)"
+SESSION.headers["User-Agent"] = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
 
 def load_hikes():

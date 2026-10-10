@@ -40,7 +40,7 @@ COUNTRY_SECTIONS = [
 COUNTRY_ORDER = {c: i for i, c in enumerate(COUNTRY_SECTIONS)}
 
 SESSION = requests.Session()
-SESSION.headers["User-Agent"] = "Mozilla/5.0 (compatible; HikingTracker/1.0)"
+SESSION.headers["User-Agent"] = "HikingTracker/1.0 (https://github.com/jclift-dev/hiking-tracker)"
 
 
 def fetch(url, delay=True):
