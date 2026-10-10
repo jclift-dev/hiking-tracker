@@ -524,7 +524,11 @@
     background: linear-gradient(90deg, var(--surface-low) 25%, var(--ghost) 50%, var(--surface-low) 75%);
     background-size: 200% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite; }
   @keyframes skeletonShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-  @media (prefers-reduced-motion: reduce) { .skeleton-card { animation: none; } }
+  /* Honour the OS "reduce motion" setting: no entrance/pulse/shimmer animations, no smooth scrolling */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+      animation-delay: 0ms !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
   /* Empty / loading states */
   .empty { text-align: center; padding: 4rem 1rem; color: var(--muted); }
   .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 14px; }
