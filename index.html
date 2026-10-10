@@ -1001,7 +1001,7 @@
       </nav>
       <div class="header-topbar-right">
         <div class="header-user" id="header-user"></div>
-        <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+        <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-panel">⚙</button>
         <button class="signout-btn" onclick="logout()" title="Sign out">⏻</button>
       </div>
     </div>
@@ -1058,7 +1058,7 @@
   </div>
 
   <div class="settings-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
-  <div class="settings-panel" id="settings-panel">
+  <div class="settings-panel" id="settings-panel" role="dialog" aria-modal="true" aria-label="Settings">
     <div class="settings-modal-hdr">
       <span class="settings-modal-title">Settings</span>
       <button class="settings-close-btn" onclick="toggleSettings()">✕</button>
@@ -1083,7 +1083,7 @@
   <div id="error-area" role="status" aria-live="polite"></div>
 
   <div class="route-map-overlay" id="route-map-overlay" onclick="closeRouteMap()"></div>
-  <div class="route-map-panel" id="route-map-panel">
+  <div class="route-map-panel" id="route-map-panel" role="dialog" aria-modal="true" aria-label="Route map">
     <div class="route-map-hdr">
       <span class="route-map-title" id="route-map-title"></span>
       <button class="route-map-close" onclick="closeRouteMap()">✕</button>
@@ -1097,7 +1097,7 @@
       <button class="subview-btn active" id="subview-routes" onclick="setView('routes')">Routes</button>
       <button class="subview-btn" id="subview-stages" onclick="setView('stages')">All Stages</button>
     </div>
-    <button class="filter-btn" id="filter-btn" onclick="openFilters()">
+    <button class="filter-btn" id="filter-btn" onclick="openFilters()" aria-haspopup="dialog" aria-expanded="false" aria-controls="filter-panel">
       <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" style="flex-shrink:0"><line x1="1" y1="3" x2="13" y2="3"/><line x1="3" y1="7" x2="11" y2="7"/><line x1="5" y1="11" x2="9" y2="11"/></svg>
       Filters <span class="filter-count" id="filter-count" style="display:none"></span>
     </button>
@@ -1118,7 +1118,7 @@
 
   <!-- Filter panel (hidden inputs — still read by JS) -->
   <div class="filter-panel-overlay" id="filter-panel-overlay" onclick="closeFilters()"></div>
-  <div class="filter-panel" id="filter-panel">
+  <div class="filter-panel" id="filter-panel" role="dialog" aria-modal="true" aria-label="Filters">
     <div class="filter-panel-hdr">
       <span class="filter-panel-title">Filters</span>
       <div class="filter-panel-hdr-actions">
@@ -2183,12 +2183,44 @@ async function _initStageMap(key, osmId, el) {
 }
 
 // ── Route map modal ──
+// Dialog-style panels (settings, filters, route map): move focus in on open, trap Tab inside,
+// close on Escape (topmost first), and put focus back on whatever opened them.
+const PANEL_ORDER = ['route-map-panel', 'filter-panel', 'settings-panel'];   // topmost first
+const PANEL_CLOSERS = { 'route-map-panel': () => closeRouteMap(), 'filter-panel': () => closeFilters(), 'settings-panel': () => toggleSettings() };
+const PANEL_OPENERS = {};
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function panelOpened(id, trigger) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  PANEL_OPENERS[id] = trigger || document.activeElement;
+  const first = [...panel.querySelectorAll(FOCUSABLE)].find(el => el.offsetParent !== null);
+  (first || panel).focus?.({ preventScroll: true });
+}
+function panelClosed(id) {
+  const opener = PANEL_OPENERS[id];
+  delete PANEL_OPENERS[id];
+  if (opener && opener.isConnected && typeof opener.focus === 'function') opener.focus({ preventScroll: true });
+}
+document.addEventListener('keydown', e => {
+  const open = PANEL_ORDER.find(id => document.getElementById(id)?.classList.contains('open'));
+  if (!open) return;
+  if (e.key === 'Escape') { e.preventDefault(); PANEL_CLOSERS[open](); return; }
+  if (e.key !== 'Tab') return;
+  const items = [...document.getElementById(open).querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+  if (!items.length) return;
+  const firstEl = items[0], lastEl = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === firstEl || !items.includes(document.activeElement))) { e.preventDefault(); lastEl.focus(); }
+  else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+});
+
 let _routeMapInstance = null;
 
 function openRouteMap(land, routeId, osmId, name) {
+  const trigger = document.activeElement;
   document.getElementById('route-map-title').textContent = name;
   document.getElementById('route-map-overlay').classList.add('open');
   document.getElementById('route-map-panel').classList.add('open');
+  panelOpened('route-map-panel', trigger);
   const container = document.getElementById('route-map-container');
   container.innerHTML = '';
   if (_routeMapInstance) { try { _routeMapInstance.remove(); } catch(_) {} _routeMapInstance = null; }
@@ -2199,6 +2231,7 @@ function closeRouteMap() {
   document.getElementById('route-map-overlay').classList.remove('open');
   document.getElementById('route-map-panel').classList.remove('open');
   if (_routeMapInstance) { try { _routeMapInstance.remove(); } catch(_) {} _routeMapInstance = null; }
+  panelClosed('route-map-panel');
 }
 
 async function _initRouteMap(osmId, el) {
@@ -2266,16 +2299,21 @@ function updateFilterBtn() {
   if (clearBtn) clearBtn.style.display = n > 0 ? '' : 'none';
 }
 function openFilters() {
+  const trigger = document.activeElement;
   document.getElementById('filter-panel').classList.add('open');
   document.getElementById('filter-panel-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('filter-btn')?.setAttribute('aria-expanded', 'true');
+  panelOpened('filter-panel', trigger);
 }
 function closeFilters() {
   document.getElementById('filter-panel').classList.remove('open');
   document.getElementById('filter-panel-overlay').classList.remove('open');
   document.body.style.overflow = '';
+  document.getElementById('filter-btn')?.setAttribute('aria-expanded', 'false');
   // Dismiss keyboard on iOS
   document.activeElement?.blur();
+  panelClosed('filter-panel');
 }
 function clearFilters() {
   document.getElementById('search').value = '';
@@ -2405,10 +2443,13 @@ function toggleSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
   const btn     = document.getElementById('settings-btn');
+  const trigger = document.activeElement;
   const isOpen  = panel.classList.toggle('open');
   overlay.classList.toggle('open', isOpen);
   btn.classList.toggle('active', isOpen);
+  btn.setAttribute('aria-expanded', String(isOpen));
   document.body.style.overflow = isOpen ? 'hidden' : '';
+  if (isOpen) panelOpened('settings-panel', trigger); else panelClosed('settings-panel');
 }
 
 function getSbbMax() {

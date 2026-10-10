@@ -117,6 +117,8 @@ All user state stored in Supabase, synced in real time:
 
 In-memory: `completed`, `ratings`, `notes`, `wishlist`, `selectedStation` — loaded from Supabase on login, written back via `persistStage(key)` / `persistStation(val)` on every change. `wishlist` is a ♡/♥ toggle (boolean in `user_state.wishlist`); wishlisted stages appear in the "Wishlist" filter tab.
 
+**Panels (settings, filters, route map)** are `role="dialog"` and share `panelOpened()/panelClosed()` plus one keydown handler: focus moves in on open, Tab is trapped, Esc closes the topmost panel, and focus returns to the opener. New panels should be added to `PANEL_ORDER`/`PANEL_CLOSERS`.
+
 **Export / import of progress** (Settings → Your data): `exportProgress()` downloads `{format:"hiking-tracker-progress", version:1, exported_at, selected_station, stages:{<stage_key>:{completed_on, rating, note, wishlist}}}`. `importProgressFile()` validates it with the pure `planProgressImport()` (unknown stage keys and invalid values are skipped), shows a summary, then merges: values are only added where the local stage has none, conflicts keep the local value, nothing is deleted. Both refuse to run until `userStateLoaded`.
 
 On first login, any existing localStorage data (`hikes_done`, `hikes_ratings`, `hikes_notes`) is migrated to Supabase automatically and removed from localStorage.
