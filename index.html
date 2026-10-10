@@ -2895,18 +2895,38 @@ function fmtMins(mins) {
   return h === 0 ? `${m} min` : m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
-// SchweizMobil doesn't publish riding times, so cycling stages (and the
-// hard-coded UK cycling ones) have no duration_hrs. Estimate one for sorting,
-// filtering and display: ~16 km/h touring pace plus 1 h per 600 m of ascent.
-// Estimates are shown with a leading "~".
+// Estimated durations (shown with a leading "~") for stages with no source time.
+//
+// Hiking: the shape used by SAC/DIN 33466, time = max(h, v) + k*min(h, v) with
+// h = km / flat speed and v = ascent / climb rate + descent / descent rate.
+// Parameters were fitted to the 887 SchweizMobil stages that have a published
+// hikingTime (5-fold cross-validated error: 6.6 min mean, 94% within 15 min).
+// Other publishers' times run ~12% slower than the Swiss formula on average
+// (206 non-Swiss stages with a source time), so non-Swiss stages are scaled
+// by HIKE_PACE_OTHER; their individual times are noisy (~40 min typical).
+// See docs/hiking-time-model.md and fit_hiking_time.py.
+const HIKE_FIT = { kmh: 4.672, upMh: 422.6, downMh: 971.5, k: 0.598 };
+const HIKE_PACE_OTHER = 1.12;
+// Cycling: SchweizMobil publishes no riding times; ~16 km/h touring pace plus
+// 1 h per 600 m of ascent.
 const CYCLE_KMH = 16, CYCLE_ASCENT_M_PER_HR = 600;
+const nearestQuarter = h => Math.round(h * 4) / 4;
+
 function stageHours(s) {
   if (s.duration_hrs) return { hrs: s.duration_hrs, est: false };
-  if (String(s.land || s._land || '').endsWith('-cycle') && s.dist_km > 0) {
+  const land = String(s.land || s._land || '');
+  if (!(s.dist_km > 0)) return { hrs: null, est: false };
+  if (land.endsWith('-cycle')) {
     const hrs = s.dist_km / CYCLE_KMH + (s.elev_up || 0) / CYCLE_ASCENT_M_PER_HR;
-    return { hrs: Math.round(hrs * 4) / 4, est: true };   // nearest 15 min
+    return { hrs: nearestQuarter(hrs), est: true };
   }
-  return { hrs: null, est: false };
+  // Hiking needs both ascent and descent: a distance-only guess would be far
+  // too short for mountain stages, so leave those blank.
+  if (s.elev_up == null || s.elev_down == null) return { hrs: null, est: false };
+  const h = s.dist_km / HIKE_FIT.kmh;
+  const v = s.elev_up / HIKE_FIT.upMh + s.elev_down / HIKE_FIT.downMh;
+  const t = Math.max(h, v) + HIKE_FIT.k * Math.min(h, v);
+  return { hrs: nearestQuarter(land === 'ch-hike' ? t : t * HIKE_PACE_OTHER), est: true };
 }
 function stageHrsLabel(s) {
   const { hrs, est } = stageHours(s);
