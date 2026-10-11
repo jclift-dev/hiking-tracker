@@ -44,3 +44,9 @@ def test_split_route_stage_count_and_shared_boundaries():
 def test_split_route_refuses_on_length_mismatch(capsys):
     assert o.split_route(node(way(0, 60000)), 20, official_m=120000) == ([], 0)
     assert "not splitting" in capsys.readouterr().out
+
+
+def test_dedupe_names_makes_consecutive_duplicates_distinct():
+    out = o.dedupe_names(["A", "Warren", "Warren", "B"], 60)
+    assert out == ["A", "Warren", "Warren (km 40)", "B"]
+    assert o.dedupe_names(["A", "B"], 10) == ["A", "B"]

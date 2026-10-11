@@ -593,12 +593,15 @@ def reverse_geocode(lat, lng):
         data = r.json()
         addr = data.get("address", {})
         for key in ("tourism", "natural", "leisure", "amenity",
-                    "hamlet", "village", "town", "city_district", "suburb", "city"):
+                    "hamlet", "village", "town", "locality", "isolated_dwelling",
+                    "neighbourhood", "city_district", "suburb", "city"):
             val = addr.get(key)
             if val:
                 return val
         display = data.get("display_name", "")
-        return display.split(",")[0].strip() or None
+        first = display.split(",")[0].strip()
+        # A bare municipality / county ("Ljusdals kommun") is a poor stage-end name.
+        return None if re.search(r"\b(kommun|municipality|county|council)$", first, re.I) else (first or None)
     except Exception as e:
         print(f"   [warn] Nominatim error: {e}")
         return None
@@ -1131,6 +1134,17 @@ def split_route(route_node, target_km, official_m=None):
     return [pts[a:b + 1] for a, b in zip(cuts, cuts[1:])], ref_km
 
 
+def dedupe_names(names, total_km):
+    """Make consecutive identical stage-end names distinct ('Warren' → 'Warren (km 40)')."""
+    out = list(names)
+    n = len(out) - 1
+    for k in range(1, len(out)):
+        if out[k] == out[k - 1] or out[k].startswith(out[k - 1] + " (km"):
+            base = out[k].split(" (km")[0]
+            out[k] = f"{base} (km {round(total_km * k / n)})" if n else base
+    return out
+
+
 def build_split_stages(parent, target_km, skip_elevation=False):
     """Stages for a flat relation, split by distance. Names come from Nominatim."""
     route_node = parent.get("route", {})
@@ -1145,6 +1159,7 @@ def build_split_stages(parent, target_km, skip_elevation=False):
     for k, (lat, lng) in enumerate(bounds):
         tag = (tags.get("from") if k == 0 else tags.get("to") if k == len(bounds) - 1 else None)
         names.append((tag or "").strip() or reverse_geocode(lat, lng) or f"km {round(total_km * k / len(seg_pts))}")
+    names = dedupe_names(names, total_km)
     stages = []
     quota_hit = skip_elevation
     for i, sp in enumerate(seg_pts, 1):
