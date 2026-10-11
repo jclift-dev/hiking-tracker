@@ -4976,16 +4976,18 @@ async function pwnedCount(password) {
     const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(password));
     const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
     const ctrl = new AbortController();
+    // The timer must cover reading the body too, or a stalled body hangs the caller.
     const timer = setTimeout(() => ctrl.abort(), 4000);
-    const res = await fetch('https://api.pwnedpasswords.com/range/' + hex.slice(0, 5),
-                            { headers: { 'Add-Padding': 'true' }, signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    for (const line of (await res.text()).split('\n')) {
-      const [suffix, count] = line.trim().split(':');
-      if (suffix === hex.slice(5)) return parseInt(count, 10) || 0;
-    }
-    return 0;
+    try {
+      const res = await fetch('https://api.pwnedpasswords.com/range/' + hex.slice(0, 5),
+                              { headers: { 'Add-Padding': 'true' }, signal: ctrl.signal });
+      if (!res.ok) return null;
+      for (const line of (await res.text()).split('\n')) {
+        const [suffix, count] = line.trim().split(':');
+        if (suffix === hex.slice(5)) return parseInt(count, 10) || 0;
+      }
+      return 0;
+    } finally { clearTimeout(timer); }
   } catch { return null; }
 }
 
@@ -4994,16 +4996,22 @@ async function setNewPassword() {
   const errEl    = document.getElementById('auth-newpass-error');
   errEl.style.display = 'none';
   if (password.length < 8) { errEl.textContent = 'Please use at least 8 characters.'; errEl.style.display = 'block'; return; }
+  const btn = document.querySelector('#auth-newpass .auth-btn');
+  if (btn && btn.disabled) return;   // already checking / saving
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  const restore = () => { if (btn) { btn.disabled = false; btn.textContent = 'Set password'; } };
   const pwned = await pwnedCount(password);
   if (pwned > 0) {
     errEl.textContent = 'That password has appeared in a known data breach. Please choose a different one.';
     errEl.style.display = 'block';
+    restore();
     return;
   }
   const { error } = await sb.auth.updateUser({ password });
   if (error) {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
+    restore();
   } else {
     // The recovery session is already signed in. Reload (dropping the recovery
     // URL hash) so the normal boot path loads the app instead of leaving the
