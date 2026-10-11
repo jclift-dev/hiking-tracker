@@ -43,3 +43,9 @@ def test_committed_hikes_json_is_in_canonical_format():
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "hikes.json")
     raw = open(path, encoding="utf-8").read()
     assert raw == json.dumps(json.loads(raw), ensure_ascii=False, separators=(",", ":"))
+
+
+def test_write_keeps_world_readable_mode(tmp_path):
+    p = tmp_path / "f.json"
+    write_json_atomic(p, {"a": 1})
+    assert (p.stat().st_mode & 0o777) == 0o644

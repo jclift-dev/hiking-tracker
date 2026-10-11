@@ -115,6 +115,24 @@ def test_orphan_report_lists_remote_only_rows_and_deletes_nothing(monkeypatch, c
     assert "stage ch-hike:1 #1" not in out
 
 
+def test_orphan_check_non_json_body_does_not_fail_import(monkeypatch):
+    fake_session(monkeypatch, [200, 200])
+
+    class Bad(FakeResp):
+        def json(self):
+            raise ValueError("not json")
+    monkeypatch.setattr(scraper.SESSION, "get", lambda *a, **k: Bad(200))
+    scraper.import_to_supabase([route()])  # no exception
+
+
+def test_orphan_paging_orders_by_full_key(monkeypatch):
+    seen = []
+    monkeypatch.setattr(scraper.SESSION, "get",
+                        lambda url, **k: (seen.append(k["params"]["order"]) or FakeResp(200, [])))
+    scraper._fetch_all("https://x.test/rest/v1/stages", {}, "route_id,land,stage_nr")
+    assert seen == ["route_id,land,stage_nr"]
+
+
 def test_orphan_check_failure_does_not_fail_import(monkeypatch):
     fake_session(monkeypatch, [200, 200])
     monkeypatch.setattr(scraper.SESSION, "get", lambda *a, **k: FakeResp(500, None))

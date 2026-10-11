@@ -15,6 +15,12 @@ def write_json_atomic(path, obj, **dump_kwargs):
             json.dump(obj, f, **dump_kwargs)
             f.flush()
             os.fsync(f.fileno())
+        # mkstemp creates 0600; keep the target's mode (default 0644) so shared checkouts still work
+        try:
+            mode = os.stat(path).st_mode & 0o777
+        except FileNotFoundError:
+            mode = 0o644
+        os.chmod(tmp, mode)
         os.replace(tmp, path)
     except BaseException:
         try:

@@ -851,20 +851,25 @@ def _post_batch(url, headers, batch, params, attempts=3):
 
 
 def _fetch_all(url, headers, select, page=1000):
+    # Order by every selected column (the full primary key) so paging is stable.
     """GET every row of a PostgREST table (paged); returns a list or None on error."""
     rows = []
     while True:
         try:
             resp = SESSION.get(url, headers={**headers, "Range-Unit": "items",
                                              "Range": f"{len(rows)}-{len(rows) + page - 1}"},
-                               params={"select": select, "order": select.split(",")[0]}, timeout=30)
+                               params={"select": select, "order": select}, timeout=30)
         except requests.RequestException as e:
             print(f"  [warn] orphan check: {e}")
             return None
         if not resp.ok:
             print(f"  [warn] orphan check: {resp.status_code} {resp.text[:120]}")
             return None
-        batch = resp.json()
+        try:
+            batch = resp.json()
+        except ValueError:
+            print("  [warn] orphan check: response was not JSON")
+            return None
         rows.extend(batch)
         if len(batch) < page:
             return rows
