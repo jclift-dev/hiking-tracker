@@ -130,3 +130,14 @@ def test_one_poisoned_row_does_not_block_the_chunk(open_app):
     page.evaluate("completed['ch-hike_1_1']='01.01.2026';completed['ch-hike_1_2']='02.01.2026';completed['ch-hike_1_3']='03.01.2026'; persistStages(['ch-hike_1_1','ch-hike_1_2','ch-hike_1_3'])")
     page.wait_for_timeout(2500)
     assert page.evaluate("[...failedSaves]") == ["ch-hike_1_2"]
+
+
+def test_update_button_asks_before_discarding_failed_saves(open_app):
+    page, _, _ = open_app()
+    page.evaluate("failedSaves.add('ch-hike_1_1'); showUpdateBanner(); window.__asked = 0; "
+                  "window.confirm = () => { window.__asked++; return false; }; window.__reloaded = false")
+    page.evaluate("document.body.dataset.mark = '1'")
+    page.click(".update-banner button")
+    page.wait_for_timeout(300)
+    assert page.evaluate("window.__asked") == 1
+    assert page.evaluate("document.body.dataset.mark") == "1"   # page was not reloaded
