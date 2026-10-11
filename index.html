@@ -4777,7 +4777,7 @@ function renderDashboard() {
     + (doneCount === 0
       // nothing completed yet: one compact card instead of three empty ones
       ? `<div class="dash-two-col">${thisMonthHtml}${hotdHtml || ''}</div>`
-        + `<div class="dash-card" style="margin-bottom:20px"><div class="dash-card-eyebrow">Your progress</div><div style="font-size:13px;color:var(--muted);padding:0.25rem 0">Complete stages to see routes you're close to finishing, your personal bests and recent activity here. Go hike something! 🏔</div></div>`
+        + `<div class="dash-card" style="margin-bottom:20px"><div class="dash-card-eyebrow">Your progress</div><div style="font-size:13px;color:var(--muted);padding:0.25rem 0">${Object.keys(completed).length ? 'No completed stages in this view yet (your other regions are unaffected). Complete one to see routes you\'re close to finishing, personal bests and recent activity here.' : 'Complete stages to see routes you\'re close to finishing, your personal bests and recent activity here. Go hike something! 🏔'}</div></div>`
       : `<div class="dash-two-col">${thisMonthHtml}${almostHtml}</div>`
         + `<div class="dash-two-col">${hotdHtml || ''}${pbHtml}</div>`)
     + (seasonHtml && doneCount === 0 ? `<div class="dash-two-col">${seasonHtml}</div>`   // the "Your progress" card above already covers the zero state
