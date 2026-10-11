@@ -5282,6 +5282,15 @@ async function checkForUpdate() {
   } catch (e) { /* offline or transient: try again next time */ }
 }
 
+// Reloading drops anything that hasn't reached the server: ask first if saves are failing,
+// and give just-flushed notes a moment to go out.
+async function applyUpdate() {
+  if (failedSaves.size &&
+      !confirm('Some changes have not been saved yet and will be lost if you update now. Update anyway?')) return;
+  if (noteTimers.size) { flushNotes(); await new Promise(r => setTimeout(r, 1000)); }
+  location.reload();
+}
+
 function showUpdateBanner() {
   if (updatePromptShown) return;
   updatePromptShown = true;
@@ -5289,7 +5298,7 @@ function showUpdateBanner() {
   bar.className = 'update-banner';
   bar.setAttribute('role', 'status');
   bar.innerHTML = `<span>A new version is available</span>
-    <button type="button" onclick="location.reload()">Update</button>
+    <button type="button" onclick="applyUpdate()">Update</button>
     <button type="button" class="update-later" onclick="this.parentElement.remove()">Later</button>`;
   document.body.appendChild(bar);
 }
