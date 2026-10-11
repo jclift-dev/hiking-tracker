@@ -1387,7 +1387,18 @@ async function persistStages(keys) {
     } catch (e) {
       error = e;
     }
-    if (error) {
+    if (error && chunk.length > 1 && /^2[23]/.test(error.code || '')) {
+      // Postgres rejected the DATA (class 22/23), not the connection: one bad row fails the whole upsert,
+      // so retry per key and let the good rows save. Outages (5xx/network) skip this to avoid a request storm.
+      console.error('persistStages chunk failed, retrying per key:', error.message);
+      for (const k of chunk) {
+        let e1 = null;
+        try {
+          ({ error: e1 } = await sb.from('user_state').upsert([stageRow(k)], { onConflict: 'user_id,stage_key' }));
+        } catch (e) { e1 = e; }
+        if (e1) { failedSaves.add(k); showSaveWarning(); } else failedSaves.delete(k);
+      }
+    } else if (error) {
       console.error('persistStages failed:', error.message);
       chunk.forEach(k => failedSaves.add(k));
       showSaveWarning();
@@ -2373,24 +2384,31 @@ function planProgressImport(text, knownKeys, local) {
     if (!knownKeys.has(key)) { plan.unknown++; continue; }
     if (!v || typeof v !== 'object') { plan.invalid++; continue; }
     const ch = {};
+    const add = { completed: 0, ratings: 0, notes: 0, wishlist: 0 };   // counted only if the stage is committed
     const date = v.completed_on;
     if (date != null) {
-      if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) { plan.invalid++; continue; }
-      if (!local.completed[key]) { ch.completed = formatDateCH(date); plan.adds.completed++; }
+      // Round-trip so impossible dates (2026-02-31) are rejected: Date.parse is lenient, Postgres `date` is not.
+      if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))
+          || new Date(date + 'T00:00:00Z').toISOString().slice(0, 10) !== date) { plan.invalid++; continue; }
+      if (!local.completed[key]) { ch.completed = formatDateCH(date); add.completed++; }
       else if (local.completed[key] !== formatDateCH(date)) plan.conflicts++;
     }
     if (v.rating != null) {
       if (!Number.isInteger(v.rating) || v.rating < 1 || v.rating > 5) { plan.invalid++; continue; }
-      if (!local.ratings[key]) { ch.rating = v.rating; plan.adds.ratings++; }
+      if (!local.ratings[key]) { ch.rating = v.rating; add.ratings++; }
       else if (local.ratings[key] !== v.rating) plan.conflicts++;
     }
     if (v.note != null) {
-      if (typeof v.note !== 'string' || v.note.length > IMPORT_MAX_NOTE) { plan.invalid++; continue; }
-      if (!local.notes[key]) { ch.note = v.note; plan.adds.notes++; }
+      // NUL is valid JSON but Postgres `text` rejects it, which would fail the whole save chunk.
+      if (typeof v.note !== 'string' || v.note.length > IMPORT_MAX_NOTE || v.note.includes('\u0000')) { plan.invalid++; continue; }
+      if (!local.notes[key]) { ch.note = v.note; add.notes++; }
       else if (local.notes[key] !== v.note) plan.conflicts++;
     }
-    if (v.wishlist === true && !local.wishlist[key]) { ch.wishlist = true; plan.adds.wishlist++; }
-    if (Object.keys(ch).length) plan.changes[key] = ch;
+    if (v.wishlist === true && !local.wishlist[key]) { ch.wishlist = true; add.wishlist++; }
+    if (Object.keys(ch).length) {
+      plan.changes[key] = ch;
+      for (const k of Object.keys(add)) plan.adds[k] += add[k];
+    }
   }
   return { plan };
 }
@@ -2425,7 +2443,9 @@ async function importProgressFile(input) {
   }
   if (file.size > 5 * 1024 * 1024) { alert('That file is too large to be a progress export.'); return; }
   const known = new Set(allRoutes.flatMap(r => r.stages.map(s => stageKey(r.land, r.route_id, s.stage_nr))));
-  const { error, plan } = planProgressImport(await file.text(), known, { completed, ratings, notes, wishlist });
+  let text;
+  try { text = await file.text(); } catch (e) { alert('Could not read that file.'); return; }
+  const { error, plan } = planProgressImport(text, known, { completed, ratings, notes, wishlist });
   if (error) { alert(error); return; }
   const a = plan.adds;
   const total = Object.keys(plan.changes).length;
