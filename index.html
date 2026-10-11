@@ -5266,23 +5266,35 @@ let appFingerprint = null;
 let updatePromptShown = false;
 
 async function fetchFingerprint() {
-  const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+  // HEAD + ETag is a few hundred bytes; only fall back to downloading and hashing the page
+  // when the server sends no ETag. Fingerprints are tagged ('e:'/'h:') so the two kinds are
+  // never compared with each other.
+  const url = location.pathname + '?v=' + Date.now();
+  try {
+    const head = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+    const etag = head.ok && head.headers.get('etag');
+    if (etag) return 'e:' + etag;
+  } catch (e) { /* fall through to GET */ }
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
-  const etag = res.headers.get('etag');
   const body = await res.text();
-  if (etag) return etag;
+  const etag = res.headers.get('etag');
+  if (etag) return 'e:' + etag;
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h << 5) + h + body.charCodeAt(i)) | 0;
-  return 'h' + h + ':' + body.length;
+  return 'h:' + h + ':' + body.length;
 }
 
+let updateCheckInFlight = false;
 async function checkForUpdate() {
-  if (updatePromptShown || location.protocol === 'file:') return;
+  if (updatePromptShown || updateCheckInFlight || location.protocol === 'file:') return;
+  updateCheckInFlight = true;
   try {
     const fp = await fetchFingerprint();
     if (appFingerprint === null) { appFingerprint = fp; return; }
-    if (fp !== appFingerprint) showUpdateBanner();
+    if (fp[0] === appFingerprint[0] && fp !== appFingerprint) showUpdateBanner();
   } catch (e) { /* offline or transient: try again next time */ }
+  finally { updateCheckInFlight = false; }
 }
 
 // Reloading drops anything that hasn't reached the server: ask first if saves are failing,

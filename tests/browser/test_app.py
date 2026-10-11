@@ -151,3 +151,16 @@ def test_tab_from_outside_open_panel_is_pulled_inside(open_app):
     assert not page.evaluate("!!document.activeElement.closest('#settings-panel')")
     page.keyboard.press("Tab")
     assert page.evaluate("!!document.activeElement.closest('#settings-panel')")
+
+
+def test_update_fingerprint_is_tagged_and_checks_do_not_overlap(open_app):
+    page, _, errors = open_app()
+    fp = page.evaluate("fetchFingerprint()")
+    assert fp[:2] in ("e:", "h:")
+    # a second check while one is in flight is ignored
+    n = page.evaluate("""async () => { let c = 0; const f = window.fetch;
+      window.fetch = (...a) => { c++; return f(...a); };
+      await Promise.all([checkForUpdate(), checkForUpdate(), checkForUpdate()]);
+      window.fetch = f; return c; }""")
+    assert n <= 2   # one HEAD (+ one GET fallback), not three checks
+    assert errors == []
