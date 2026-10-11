@@ -95,3 +95,38 @@ def test_import_merge_rules_and_rejections(open_app, tmp_path):
     assert _import(page, m, tmp_path, json.dumps(GOOD)) == 0  # idempotent
     page.evaluate("userStateLoaded=false")
     assert _import(page, m, tmp_path, json.dumps(GOOD)) == 0  # guarded until loaded
+
+
+def test_import_rejects_impossible_date_and_nul_note(open_app, tmp_path):
+    page, m, _ = open_app()
+    msgs = []
+    page.on("dialog", lambda d: (msgs.append(d.message), d.accept()))
+    bad = {"format": "hiking-tracker-progress", "version": 1, "stages": {
+        "ch-hike_1_1": {"completed_on": "2026-02-31"},
+        "ch-hike_1_2": {"note": "a\u0000b"},
+        "ch-hike_1_3": {"completed_on": "2026-05-01", "rating": 7}}}
+    assert _import(page, m, tmp_path, json.dumps(bad)) == 0
+    assert "3 stage(s) had invalid data" in msgs[-1]
+    assert "completions: 0" not in msgs[-1] or "Nothing to import" in msgs[-1]
+
+
+def test_one_poisoned_row_does_not_block_the_chunk(open_app):
+    page, m, _ = open_app(Mock(n_stages=3))
+    # Postgres-style data error for any request containing the bad row, success otherwise.
+    def handler(route):
+        req = route.request
+        if req.method == "POST" and "/rest/v1/user_state" in req.url:
+            rows = req.post_data_json
+            m.posts.append(rows)
+            if any(r["stage_key"] == "ch-hike_1_2" for r in rows):
+                return route.fulfill(status=400, content_type="application/json",
+                                     headers={"access-control-allow-origin": "*"},
+                                     body=json.dumps({"code": "22008", "message": "date/time field value out of range"}))
+            return route.fulfill(status=201, content_type="application/json",
+                                 headers={"access-control-allow-origin": "*"}, body="[]")
+        return m.handler(route)
+    page.context.unroute("**/*supabase.co/**")
+    page.context.route("**/*supabase.co/**", handler)
+    page.evaluate("completed['ch-hike_1_1']='01.01.2026';completed['ch-hike_1_2']='02.01.2026';completed['ch-hike_1_3']='03.01.2026'; persistStages(['ch-hike_1_1','ch-hike_1_2','ch-hike_1_3'])")
+    page.wait_for_timeout(2500)
+    assert page.evaluate("[...failedSaves]") == ["ch-hike_1_2"]
