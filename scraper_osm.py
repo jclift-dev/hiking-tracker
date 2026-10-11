@@ -1043,7 +1043,11 @@ SPLIT_KM = {
 
 
 def _ways_merc(route_node):
-    """All way LineStrings (EPSG:3857) in a route node, depth-first."""
+    """All way LineStrings (EPSG:3857) in a route node, depth-first.
+
+    Waymarked 'split' segments carry the main line under `forward` (and the
+    return leg under `backward`, which is ignored): treat `forward` like `main`.
+    """
     out = []
     for child in route_node.get("main", []):
         if "ways" in child:
@@ -1051,27 +1055,46 @@ def _ways_merc(route_node):
                 geom = way.get("geometry", {})
                 if geom.get("type") == "LineString" and len(geom["coordinates"]) > 1:
                     out.append(geom["coordinates"])
+        elif "forward" in child:
+            fwd = child["forward"]
+            out.extend(_ways_merc({"main": fwd if isinstance(fwd, list) else [fwd]}))
         else:
             out.extend(_ways_merc(child))
     return out
 
 
-def chain_ways(ways):
-    """Order and orient way segments into one polyline (greedy nearest-end chaining)."""
-    if not ways:
-        return []
-    d2 = lambda a, b: (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
-    rest = [list(w) for w in ways]
-    line = rest.pop(0)
+def _d2(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def _chain_from(first, rest):
+    """Greedy nearest-end chaining from `first`; returns (line, total bridge gap²-root)."""
+    line, gap = list(first), 0.0
+    rest = [list(w) for w in rest]
     while rest:
         end = line[-1]
         best = min(range(len(rest)),
-                   key=lambda i: min(d2(end, rest[i][0]), d2(end, rest[i][-1])))
+                   key=lambda i: min(_d2(end, rest[i][0]), _d2(end, rest[i][-1])))
         w = rest.pop(best)
-        if d2(end, w[-1]) < d2(end, w[0]):
+        if _d2(end, w[-1]) < _d2(end, w[0]):
             w.reverse()
+        gap += math.sqrt(_d2(end, w[0]))
         line.extend(w)
-    return line
+    return line, gap
+
+
+def chain_ways(ways):
+    """Order and orient way segments into one polyline (greedy nearest-end chaining).
+
+    The first way may be listed in either direction, so chain from both of its
+    orientations and keep the one that needs less bridging between segments.
+    """
+    if not ways:
+        return []
+    first, rest = ways[0], ways[1:]
+    a, gap_a = _chain_from(first, rest)
+    b, gap_b = _chain_from(list(reversed(first)), rest)
+    return a if gap_a <= gap_b else b
 
 
 def split_route(route_node, target_km, official_m=None):
@@ -1079,6 +1102,8 @@ def split_route(route_node, target_km, official_m=None):
     Split a route's geometry into near-equal day stages.
     Returns (stages_pts, total_km): stages_pts is a list of WGS84 (lat, lng)
     point lists, one per stage, consecutive stages sharing a boundary point.
+    Returns ([], 0) when the chained geometry is >15% off the official length,
+    so a bad chain is never saved.
     """
     line = chain_ways(_ways_merc(route_node))
     if len(line) < 2:
@@ -1094,7 +1119,8 @@ def split_route(route_node, target_km, official_m=None):
     ref_km = (official_m or 0) / 1000 or raw_km
     scale = ref_km / raw_km if raw_km else 1
     if abs(scale - 1) > 0.15:
-        print(f"  [warn] chained geometry {raw_km:.0f} km vs official {ref_km:.0f} km")
+        print(f"  [error] chained geometry {raw_km:.0f} km vs official {ref_km:.0f} km; not splitting")
+        return [], 0
     n = max(1, round(ref_km / target_km))
     cuts = [0]
     for k in range(1, n):
