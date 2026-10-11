@@ -141,3 +141,13 @@ def test_update_button_asks_before_discarding_failed_saves(open_app):
     page.wait_for_timeout(300)
     assert page.evaluate("window.__asked") == 1
     assert page.evaluate("document.body.dataset.mark") == "1"   # page was not reloaded
+
+
+def test_tab_from_outside_open_panel_is_pulled_inside(open_app):
+    page, _, _ = open_app()
+    page.evaluate("toggleSettings()")
+    page.wait_for_timeout(300)
+    page.evaluate("[...document.querySelectorAll('button, input')].find(e => e.offsetParent && !e.closest('#settings-panel')).focus()")
+    assert not page.evaluate("!!document.activeElement.closest('#settings-panel')")
+    page.keyboard.press("Tab")
+    assert page.evaluate("!!document.activeElement.closest('#settings-panel')")

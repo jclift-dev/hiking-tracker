@@ -2207,6 +2207,7 @@ function panelOpened(id, trigger) {
   const panel = document.getElementById(id);
   if (!panel) return;
   PANEL_OPENERS[id] = trigger || document.activeElement;
+  if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');   // so the fallback focus() works
   const first = [...panel.querySelectorAll(FOCUSABLE)].find(el => el.offsetParent !== null);
   (first || panel).focus?.({ preventScroll: true });
 }
@@ -2218,13 +2219,14 @@ function panelClosed(id) {
 document.addEventListener('keydown', e => {
   const open = PANEL_ORDER.find(id => document.getElementById(id)?.classList.contains('open'));
   if (!open) return;
+  if (e.isComposing) return;   // Esc/Tab while an IME is composing belongs to the IME
   if (e.key === 'Escape') { e.preventDefault(); PANEL_CLOSERS[open](); return; }
   if (e.key !== 'Tab') return;
   const items = [...document.getElementById(open).querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
   if (!items.length) return;
   const firstEl = items[0], lastEl = items[items.length - 1];
   if (e.shiftKey && (document.activeElement === firstEl || !items.includes(document.activeElement))) { e.preventDefault(); lastEl.focus(); }
-  else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+  else if (!e.shiftKey && (document.activeElement === lastEl || !items.includes(document.activeElement))) { e.preventDefault(); firstEl.focus(); }
 });
 
 let _routeMapInstance = null;
